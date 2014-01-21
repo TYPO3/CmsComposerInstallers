@@ -1,0 +1,30 @@
+{
+    "name": "netresearch/composer-installers",
+    "type": "composer-plugin",
+    "license": "GPL-2.0",
+    "description": "TYPO3 CMS Installers",
+    "keywords": [
+        "installer", "typo3", "cms"
+    ],
+    "homepage": "",
+    "authors": [
+        {
+            "name": "Christian Opitz",
+            "email": "christian.opitz@netresearch.de"
+        }
+      
+    ],
+    "autoload": {
+        "psr-0": { "": "src/"}
+    },
+    "minimum-stability": "dev",
+    "require-dev": {
+        "composer/composer": "1.*"
+    },
+    "extra": {
+        "class": "Netresearch\\Composer\\Installer\\Plugin",
+        "branch-alias": {
+            "dev-master": "1.1.x-dev"
+        }
+    }
+}
