@@ -18,6 +18,9 @@
         "psr-0": { "": "src/"}
     },
     "minimum-stability": "dev",
+    "replace": {
+        "lw/typo3cms-installers": "*"
+    },
     "require-dev": {
         "composer/composer": "1.*"
     },
