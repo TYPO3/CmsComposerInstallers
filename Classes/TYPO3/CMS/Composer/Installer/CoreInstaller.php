@@ -1,22 +1,38 @@
 <?php
-namespace Netresearch\Composer\Installer\Typo3;
+namespace TYPO3\CMS\Composer\Installer;
 
-/*                                                                        *
- * This script belongs to the Composer-TYPO3-Installer package            *
- * (c) 2014 Netresearch GmbH & Co. KG                                     *
- * This copyright notice MUST APPEAR in all copies of the script!         *
- *                                                                        *
- * It is free software; you can redistribute it and/or modify it under    *
- * the terms of the GNU Lesser General Public License, either version 3   *
- * of the License, or (at your option) any later version.                 *
- *                                                                        *
- * The TYPO3 project - inspiring people to share!                         *
- *                                                                        */
+/***************************************************************
+ * Copyright notice
+ *
+ * (c) 2014 Christian Opitz <christian.opitz at netresearch.de>
+ * All rights reserved
+ *
+ * This script is part of the TYPO3 project. The TYPO3 project is
+ * free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * The GNU General Public License can be found at
+ * http://www.gnu.org/copyleft/gpl.html.
+ *
+ * This script is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * This copyright notice MUST APPEAR in all copies of the script!
+ ***************************************************************/
 
 use Composer\Installer\InstallerInterface;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 
+/**
+ * TYPO3 Core installer (delegates most FS related tasks to drivers)
+ * 
+ * @author Christian Opitz <christian.opitz at netresearch.de>
+ */
 class CoreInstaller  extends CoreInstaller\CoreInstallerAbstract implements InstallerInterface
 {
 	/**
@@ -28,8 +44,8 @@ class CoreInstaller  extends CoreInstaller\CoreInstallerAbstract implements Inst
 	 * @var array
 	 */
 	protected $availableDrivers = array(
-		'Netresearch\Composer\Installer\Typo3\CoreInstaller\SymlinkDriver',
-		'Netresearch\Composer\Installer\Typo3\CoreInstaller\CopyDriver'
+		'TYPO3\CMS\Composer\Installer\CoreInstaller\SymlinkDriver',
+		'TYPO3\CMS\Composer\Installer\CoreInstaller\CopyDriver'
 	);
 
 	/**
@@ -63,7 +79,7 @@ class CoreInstaller  extends CoreInstaller\CoreInstallerAbstract implements Inst
 	/**
 	 * Set or reset the driver
 	 *
-	 * @param \Netresearch\Composer\Installer\Typo3\CoreInstaller\CoreInstallerInterface $driver
+	 * @param \TYPO3\CMS\Composer\Installer\CoreInstaller\CoreInstallerInterface $driver
 	 */
 	public function setDriver(CoreInstaller\CoreInstallerInterface $driver = NULL) {
 		$this->driver = $driver;
@@ -83,7 +99,7 @@ class CoreInstaller  extends CoreInstaller\CoreInstallerAbstract implements Inst
 	 * Set the available drivers
 	 *
 	 * @param array $availableDrivers
-	 * @return \Netresearch\Composer\Installer\Typo3\CoreInstaller
+	 * @return \TYPO3\CMS\Composer\Installer\CoreInstaller
 	 */
 	public function setAvailableDrivers(array $availableDrivers) {
 		$this->availableDrivers = $availableDrivers;
@@ -108,21 +124,9 @@ class CoreInstaller  extends CoreInstaller\CoreInstallerAbstract implements Inst
 	 */
 	public function install(InstalledRepositoryInterface $repo, PackageInterface $package) {
 		$this->getDriver()->install($package);
-		$this->firstInstallSetup();
 		if (!$repo->hasPackage($package)) {
 			$repo->addPackage(clone $package);
 		}
-	}
-
-	/**
-	 * Create the directories and files required for the first run
-	 */
-	protected function firstInstallSetup() {
-		foreach (array('fileadmin', 'typo3conf', 'typo3temp', 'uploads') as $dir) {
-			$this->filesystem->ensureDirectoryExists($this->cwd . '/' . $dir);
-		}
-		file_put_contents($this->cwd . '/typo3conf/FIRST_INSTALL', '');
-		file_put_contents($this->cwd . '/typo3conf/ENABLE_INSTALL_TOOL', '');
 	}
 
 	/**
@@ -184,7 +188,7 @@ class CoreInstaller  extends CoreInstaller\CoreInstallerAbstract implements Inst
 	 * @return boolean
 	 */
 	public function supports($packageType) {
-		return $packageType === 'typo3cms-core';
+		return $packageType === 'typo3-cms-core';
 	}
 }
 ?>

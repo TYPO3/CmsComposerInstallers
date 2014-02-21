@@ -9,11 +9,11 @@
          processIsolation="false"
          stopOnFailure="false"
          syntaxCheck="false"
-         bootstrap="./tests/bootstrap.php"
+         bootstrap="./Tests/bootstrap.php"
 >
     <testsuites>
         <testsuite name="Full Composer Test Suite">
-            <directory>./tests/Netresearch/Test/Composer</directory>
+            <directory>./Tests/TYPO3/CMS/Tests/Functional</directory>
         </testsuite>
     </testsuites>
 </phpunit>

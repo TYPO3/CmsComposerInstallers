@@ -1,19 +1,35 @@
 <?php
-namespace Netresearch\Test\Composer\Installer\Typo3\CoreInstaller;
+namespace TYPO3\CMS\Tests\Functional\Composer\Installer\CoreInstaller;
 
-/*                                                                        *
- * This script belongs to the Composer-TYPO3-Installer package            *
- * (c) 2014 Netresearch GmbH & Co. KG                                     *
- * This copyright notice MUST APPEAR in all copies of the script!         *
- *                                                                        *
- * It is free software; you can redistribute it and/or modify it under    *
- * the terms of the GNU Lesser General Public License, either version 3   *
- * of the License, or (at your option) any later version.                 *
- *                                                                        *
- * The TYPO3 project - inspiring people to share!                         *
- *                                                                        */
+/***************************************************************
+ * Copyright notice
+ *
+ * (c) 2014 Christian Opitz <christian.opitz at netresearch.de>
+ * All rights reserved
+ *
+ * This script is part of the TYPO3 project. The TYPO3 project is
+ * free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * The GNU General Public License can be found at
+ * http://www.gnu.org/copyleft/gpl.html.
+ *
+ * This script is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * This copyright notice MUST APPEAR in all copies of the script!
+ ***************************************************************/
 
-class TestCase extends \PHPUnit_Framework_TestCase {
+/**
+ * Base test case for all core installer tests
+ * 
+ * @author Christian Opitz <christian.opitz at netresearch.de>
+ */
+abstract class TestCase extends \PHPUnit_Framework_TestCase {
 	/**
 	 * @var \Composer\Util\Filesystem
 	 */
@@ -92,15 +108,19 @@ class TestCase extends \PHPUnit_Framework_TestCase {
 			if ($dir) {
 				$this->filesystem->ensureDirectoryExists($path . '/' . $dir);
 			}
-			file_put_contents($path . '/' . $file, $file);
+			file_put_contents($path . '/' . $file, $this->getFixtureContent($file, $package));
 		}
 	}
 
 	/**
 	 * @return \Composer\Package\Package
 	 */
-	protected function getPackageMock() {
-		return new \Composer\Package\Package('typo3/cms', '1.0.0.0', '1.0.0');
+	protected function getPackageMock($version = '1.0.0') {
+		return new \Composer\Package\Package('typo3/cms', $version . '.0', $version);
+	}
+
+	protected function getFixtureContent($file, \Composer\Package\Package $package) {
+		return $file . '-' . $package->getName() . '-' . $package->getVersion();
 	}
 }
 ?>

@@ -1,27 +1,43 @@
 <?php
-namespace Netresearch\Test\Composer\Installer\Typo3;
+namespace TYPO3\CMS\Tests\Functional\Composer\Installer;
 
-/*                                                                        *
- * This script belongs to the Composer-TYPO3-Installer package            *
- * (c) 2014 Netresearch GmbH & Co. KG                                     *
- * This copyright notice MUST APPEAR in all copies of the script!         *
- *                                                                        *
- * It is free software; you can redistribute it and/or modify it under    *
- * the terms of the GNU Lesser General Public License, either version 3   *
- * of the License, or (at your option) any later version.                 *
- *                                                                        *
- * The TYPO3 project - inspiring people to share!                         *
- *                                                                        */
+/***************************************************************
+ * Copyright notice
+ *
+ * (c) 2014 Christian Opitz <christian.opitz at netresearch.de>
+ * All rights reserved
+ *
+ * This script is part of the TYPO3 project. The TYPO3 project is
+ * free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * The GNU General Public License can be found at
+ * http://www.gnu.org/copyleft/gpl.html.
+ *
+ * This script is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * This copyright notice MUST APPEAR in all copies of the script!
+ ***************************************************************/
 
+/**
+ * Test for the core installer
+ * 
+ * @author Christian Opitz <christian.opitz at netresearch.de>
+ */
 class CoreInstallerTest extends CoreInstaller\TestCase {
 	/**
-	 * @var Netresearch\Composer\Installer\Typo3\CoreInstaller
+	 * @var TYPO3\CMS\Composer\Installer\CoreInstaller
 	 */
 	protected $installer;
 
 	public function setUp() {
 		parent::setUp();
-		$this->installer = new \Netresearch\Composer\Installer\Typo3\CoreInstaller($this->io, $this->composer);
+		$this->installer = new \TYPO3\CMS\Composer\Installer\CoreInstaller($this->io, $this->composer);
 	}
 
 	public function testCorrectDriverIsSelected() {
@@ -56,7 +72,7 @@ class CoreInstallerTest extends CoreInstaller\TestCase {
 	}
 
 	/**
-	 * @expectedException Netresearch\Composer\Installer\Typo3\CoreInstaller\NoDriverFoundException
+	 * @expectedException TYPO3\CMS\Composer\Installer\CoreInstaller\NoDriverFoundException
 	 */
 	public function testExceptionIsThrownWhenNoDriverWasSet() {
 		$this->installer->setAvailableDrivers(array());
@@ -64,7 +80,7 @@ class CoreInstallerTest extends CoreInstaller\TestCase {
 	}
 
 	/**
-	 * @expectedException Netresearch\Composer\Installer\Typo3\CoreInstaller\DriverMissingInterfaceException
+	 * @expectedException TYPO3\CMS\Composer\Installer\CoreInstaller\DriverMissingInterfaceException
 	 */
 	public function testExceptionIsThrownWhenWrongDriverClassWasSet() {
 		$this->installer->setAvailableDrivers(array('stdClass'));
@@ -79,7 +95,7 @@ class CoreInstallerTest extends CoreInstaller\TestCase {
 		try {
 			$this->installer->getDriver();
 			$this->fail('No driver should be found');
-		} catch (\Netresearch\Composer\Installer\Typo3\CoreInstaller\NoDriverFoundException $ex) {
+		} catch (\TYPO3\CMS\Composer\Installer\CoreInstaller\NoDriverFoundException $ex) {
 			$drivers = $this->installer->getAvailableDrivers();
 			$this->assertInstanceOf(get_class($mock), $drivers[0], 'Driver wasn\'t instantiated');
 		}
@@ -112,7 +128,7 @@ class CoreInstallerTest extends CoreInstaller\TestCase {
 	}
 
 	/**
-	 * @expectedException Netresearch\Composer\Installer\Typo3\CoreInstaller\PackageNotInstalledException
+	 * @expectedException TYPO3\CMS\Composer\Installer\CoreInstaller\PackageNotInstalledException
 	 */
 	public function testUninstallNotInstalledPackage() {
 		$repo = $this->getRepositoryMock();
@@ -136,7 +152,7 @@ class CoreInstallerTest extends CoreInstaller\TestCase {
 	}
 
 	/**
-	 * @expectedException Netresearch\Composer\Installer\Typo3\CoreInstaller\PackageNotInstalledException
+	 * @expectedException TYPO3\CMS\Composer\Installer\CoreInstaller\PackageNotInstalledException
 	 */
 	public function testUpdateNotInstalledPackage() {
 		$repo = $this->getRepositoryMock();
@@ -176,7 +192,7 @@ class CoreInstallerTest extends CoreInstaller\TestCase {
 	 */
 	protected function getDriverMock() {
 		return $this->getMockForAbstractClass(
-			'Netresearch\Composer\Installer\Typo3\CoreInstaller\CoreInstallerInterface'
+			'TYPO3\CMS\Composer\Installer\CoreInstaller\CoreInstallerInterface'
 		);
 	}
 

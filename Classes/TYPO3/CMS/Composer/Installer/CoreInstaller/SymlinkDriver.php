@@ -1,20 +1,37 @@
 <?php
-namespace Netresearch\Composer\Installer\Typo3\CoreInstaller;
+namespace TYPO3\CMS\Composer\Installer\CoreInstaller;
 
-/*                                                                        *
- * This script belongs to the Composer-TYPO3-Installer package            *
- * (c) 2014 Netresearch GmbH & Co. KG                                     *
- * This copyright notice MUST APPEAR in all copies of the script!         *
- *                                                                        *
- * It is free software; you can redistribute it and/or modify it under    *
- * the terms of the GNU Lesser General Public License, either version 3   *
- * of the License, or (at your option) any later version.                 *
- *                                                                        *
- * The TYPO3 project - inspiring people to share!                         *
- *                                                                        */
+/***************************************************************
+ * Copyright notice
+ *
+ * (c) 2014 Christian Opitz <christian.opitz at netresearch.de>
+ * All rights reserved
+ *
+ * This script is part of the TYPO3 project. The TYPO3 project is
+ * free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * The GNU General Public License can be found at
+ * http://www.gnu.org/copyleft/gpl.html.
+ *
+ * This script is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * This copyright notice MUST APPEAR in all copies of the script!
+ ***************************************************************/
 
 use Composer\Package\PackageInterface;
+use TYPO3\CMS\Composer\Installer\Util;
 
+/**
+ * Driver to use, when the FS supports symlinks
+ * 
+ * @author Christian Opitz <christian.opitz at netresearch.de>
+ */
 class SymlinkDriver extends CoreInstallerAbstract implements CoreInstallerInterface {
 
 	public function getInstallPath(PackageInterface $package) {
@@ -31,7 +48,7 @@ class SymlinkDriver extends CoreInstallerAbstract implements CoreInstallerInterf
 	/**
 	 * Also under linux symlinks are not always supported for example
 	 * when using it in smbfs mounted folder - test that
-	 * 
+	 *
 	 * @staticvar NULL $isSymlinkPossible
 	 * @return boolean
 	 */
@@ -79,7 +96,7 @@ class SymlinkDriver extends CoreInstallerAbstract implements CoreInstallerInterf
 	}
 
 	protected function linkMatchesTarget($link, $target) {
-		return realpath($link) === realpath($target);
+		return Util::realpath($link) === Util::realpath($target);
 	}
 
 
