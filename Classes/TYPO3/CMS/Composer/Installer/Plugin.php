@@ -30,12 +30,13 @@ use Composer\Plugin\PluginInterface;
 
 /**
  * The plugin that registers the installers (registered by extra key in composer.json)
- * 
+ *
  * @author Christian Opitz <christian.opitz at netresearch.de>
  */
 class Plugin implements PluginInterface {
 		public function activate(Composer $composer, IOInterface $io) {
-			$coreInstaller = new CoreInstaller($io, $composer);
+			$getTypo3OrgService = new CoreInstaller\GetTypo3OrgService($io);
+			$coreInstaller = new CoreInstaller($composer, new Util\Filesystem(), $getTypo3OrgService);
 			$composer->getInstallationManager()->addInstaller($coreInstaller);
 		}
 }

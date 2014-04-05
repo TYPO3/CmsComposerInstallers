@@ -24,161 +24,60 @@ namespace TYPO3\CMS\Composer\Installer;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
-use Composer\Installer\InstallerInterface;
-use Composer\Package\PackageInterface;
-use Composer\Repository\InstalledRepositoryInterface;
-
 /**
- * TYPO3 Core installer (delegates most FS related tasks to drivers)
- * 
- * @author Christian Opitz <christian.opitz at netresearch.de>
+ * TYPO3 Core installer
+ *
  */
-class CoreInstaller  extends CoreInstaller\CoreInstallerAbstract implements InstallerInterface
-{
-	/**
-	 * @var CoreInstaller\CoreInstallerInterface
-	 */
-	protected $driver;
+class CoreInstaller implements \Composer\Installer\InstallerInterface {
+
+	const TYPO3_SRC_DIR		= 'typo3_src';
+	const TYPO3_DIR			= 'typo3';
+	const TYPO3_INDEX_PHP	= 'index.php';
+
+	protected $symlinks = array();
 
 	/**
-	 * @var array
+	 * @var \Composer\Composer
 	 */
-	protected $availableDrivers = array(
-		'TYPO3\CMS\Composer\Installer\CoreInstaller\SymlinkDriver',
-		'TYPO3\CMS\Composer\Installer\CoreInstaller\CopyDriver'
-	);
+	protected $composer;
 
 	/**
-	 * Determine and return the driver
-	 *
-	 * @return CoreInstaller\CoreInstallerInterface
+	 * @var \Composer\Downloader\DownloadManager
 	 */
-	public function getDriver() {
-		if (!$this->driver) {
-			$interface = __CLASS__ . '\CoreInstallerInterface';
-			foreach ($this->availableDrivers as &$driver) {
-				if (!is_subclass_of($driver, $interface)) {
-					throw new CoreInstaller\DriverMissingInterfaceException($driver, $interface);
-				}
-				if (is_string($driver)) {
-					$driver = new $driver($this->io, $this->composer, $this->filesystem);
-				}
-				/* @var $driver CoreInstaller\CoreInstallerInterface */
-				if ($driver->isPossible()) {
-					$this->driver = $driver;
-					break;
-				}
-			}
-			if (!$this->driver) {
-				throw new CoreInstaller\NoDriverFoundException();
-			}
-		}
-		return $this->driver;
+	protected $downloadManager;
+
+	/**
+	 * @var Util\Filesystem
+	 */
+	protected $filesystem;
+
+	/**
+	 * @var CoreInstaller\GetTypo3OrgService
+	 */
+	protected $getTypo3OrgService;
+
+	/**
+	 * @param \Composer\Composer $composer
+	 * @param Util\Filesystem $filesystem
+	 */
+	public function __construct(\Composer\Composer $composer, Util\Filesystem $filesystem, CoreInstaller\GetTypo3OrgService $getTypo3OrgService) {
+		$this->composer = $composer;
+		$this->downloadManager = $composer->getDownloadManager();
+		$this->filesystem = $filesystem;
+		$this->getTypo3OrgService = $getTypo3OrgService;
+		$this->initializeDeployTargets();
 	}
 
 	/**
-	 * Set or reset the driver
 	 *
-	 * @param \TYPO3\CMS\Composer\Installer\CoreInstaller\CoreInstallerInterface $driver
 	 */
-	public function setDriver(CoreInstaller\CoreInstallerInterface $driver = NULL) {
-		$this->driver = $driver;
-	}
-
-
-	/**
-	 * Get the available drivers
-	 *
-	 * @return array
-	 */
-	public function getAvailableDrivers() {
-		return $this->availableDrivers;
-	}
-
-	/**
-	 * Set the available drivers
-	 *
-	 * @param array $availableDrivers
-	 * @return \TYPO3\CMS\Composer\Installer\CoreInstaller
-	 */
-	public function setAvailableDrivers(array $availableDrivers) {
-		$this->availableDrivers = $availableDrivers;
-		return $this;
-	}
-
-	/**
-	 * Get the path, this package is installed to
-	 *
-	 * @param \Composer\Package\PackageInterface $package
-	 * @return string
-	 */
-	public function getInstallPath(PackageInterface $package) {
-		return $this->getDriver()->getInstallPath($package);
-	}
-
-	/**
-	 * Install a package
-	 *
-	 * @param \Composer\Repository\InstalledRepositoryInterface $repo
-	 * @param \Composer\Package\PackageInterface $package
-	 */
-	public function install(InstalledRepositoryInterface $repo, PackageInterface $package) {
-		$this->getDriver()->install($package);
-		if (!$repo->hasPackage($package)) {
-			$repo->addPackage(clone $package);
-		}
-	}
-
-	/**
-	 * Determines if a package is installed
-	 *
-	 * @param \Composer\Repository\InstalledRepositoryInterface $repo
-	 * @param \Composer\Package\PackageInterface $package
-	 * @return boolean
-	 */
-	public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package) {
-		if (!$repo->hasPackage($package)) {
-			return FALSE;
-		}
-		return $this->getDriver()->isInstalled($package);
-	}
-
-	/**
-	 * Uninstalls a package
-	 *
-	 * @param \Composer\Repository\InstalledRepositoryInterface $repo
-	 * @param \Composer\Package\PackageInterface $package
-	 * @throws \InvalidArgumentException
-	 */
-	public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package) {
-
-		if (!$repo->hasPackage($package)) {
-			throw new CoreInstaller\PackageNotInstalledException($package);
-		}
-		$repo->removePackage($package);
-
-		$this->getDriver()->uninstall($package);
-	}
-
-	/**
-	 * Updates a package
-	 *
-	 * @param \Composer\Repository\InstalledRepositoryInterface $repo
-	 * @param \Composer\Package\PackageInterface $initial
-	 * @param \Composer\Package\PackageInterface $target
-	 * @throws \InvalidArgumentException
-	 */
-	public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target) {
-		if (!$repo->hasPackage($initial)) {
-			throw new CoreInstaller\PackageNotInstalledException($initial);
-		}
-
-		$this->getDriver()->update($initial, $target);
-
-		$repo->removePackage($initial);
-		if (!$repo->hasPackage($target)) {
-			$repo->addPackage(clone $target);
-		}
+	protected function initializeDeployTargets() {
+		$this->symlinks = array(
+			self::TYPO3_SRC_DIR . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP
+				=> self::TYPO3_INDEX_PHP,
+			self::TYPO3_SRC_DIR . DIRECTORY_SEPARATOR . self::TYPO3_DIR
+				=> self::TYPO3_DIR
+		);
 	}
 
 	/**
@@ -190,5 +89,133 @@ class CoreInstaller  extends CoreInstaller\CoreInstallerAbstract implements Inst
 	public function supports($packageType) {
 		return $packageType === 'typo3-cms-core';
 	}
+
+	/**
+	 * Checks that provided package is installed.
+	 *
+	 * @param \Composer\Repository\InstalledRepositoryInterface $repo repository in which to check
+	 * @param \Composer\Package\PackageInterface $package package instance
+	 *
+	 * @return bool
+	 */
+	public function isInstalled(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package) {
+		return $repo->hasPackage($package)
+			&& is_readable($this->getInstallPath($package))
+			&& $this->filesystem->allFilesExist($this->symlinks);
+	}
+
+	/**
+	 * Installs specific package.
+	 *
+	 * @param \Composer\Repository\InstalledRepositoryInterface $repo repository in which to check
+	 * @param \Composer\Package\PackageInterface $package package instance
+	 */
+	public function install(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package) {
+		$this->getTypo3OrgService->addDistToPackage($package);
+
+		if ($this->filesystem->someFilesExist($this->symlinks)) {
+			$this->filesystem->removeSymlinks($this->symlinks);
+		}
+
+		$this->installCode($package);
+
+		$this->filesystem->establishSymlinks($this->symlinks);
+
+		if (!$repo->hasPackage($package)) {
+			$repo->addPackage(clone $package);
+		}
+	}
+
+	/**
+	 * Updates specific package.
+	 *
+	 * @param \Composer\Repository\InstalledRepositoryInterface $repo repository in which to check
+	 * @param \Composer\Package\PackageInterface $initial already installed package version
+	 * @param \Composer\Package\PackageInterface $target updated version
+	 */
+	public function update(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $initial, \Composer\Package\PackageInterface $target) {
+		$this->getTypo3OrgService->addDistToPackage($initial);
+		$this->getTypo3OrgService->addDistToPackage($target);
+
+		if ($this->filesystem->someFilesExist($this->symlinks)) {
+			$this->filesystem->removeSymlinks($this->symlinks);
+		}
+
+		$this->update($repo, $initial, $target);
+
+		$this->filesystem->establishSymlinks($this->symlinks);
+	}
+
+	/**
+	 * Uninstalls specific package.
+	 *
+	 * @param \Composer\Repository\InstalledRepositoryInterface $repo repository in which to check
+	 * @param \Composer\Package\PackageInterface $package package instance
+	 */
+	public function uninstall(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package) {
+		if (!$repo->hasPackage($package)) {
+			throw new \InvalidArgumentException('Package is not installed: '.$package);
+		}
+
+		if ($this->filesystem->someFilesExist($this->symlinks)) {
+			$this->filesystem->removeSymlinks($this->symlinks);
+		}
+
+		$this->removeCode($package);
+		$repo->removePackage($package);
+	}
+
+	/**
+	 * Returns the installation path of a package
+	 *
+	 * @param  \Composer\Package\PackageInterface $package
+	 * @return string
+	 */
+	public function getInstallPath(\Composer\Package\PackageInterface $package) {
+		return self::TYPO3_SRC_DIR;
+	}
+
+	/**
+	 * @param \Composer\Package\PackageInterface $package
+	 */
+	protected function installCode(\Composer\Package\PackageInterface $package) {
+		$downloadPath = $this->getInstallPath($package);
+		$this->downloadManager->download($package, $downloadPath);
+	}
+
+	/**
+	 * @param \Composer\Package\PackageInterface $initial
+	 * @param \Composer\Package\PackageInterface $target
+	 */
+	protected function updateCode(\Composer\Package\PackageInterface $initial, \Composer\Package\PackageInterface $target) {
+		// Currently the install path for all versions is the same.
+		// In the future the install path for two core versions may differ.
+		$initialDownloadPath = $this->getInstallPath($initial);
+		$targetDownloadPath = $this->getInstallPath($target);
+		if ($targetDownloadPath !== $initialDownloadPath) {
+			// if the target and initial dirs intersect, we force a remove + install
+			// to avoid the rename wiping the target dir as part of the initial dir cleanup
+			if (substr($initialDownloadPath, 0, strlen($targetDownloadPath)) === $targetDownloadPath
+				|| substr($targetDownloadPath, 0, strlen($initialDownloadPath)) === $initialDownloadPath
+			) {
+				$this->removeCode($initial);
+				$this->installCode($target);
+
+				return;
+			}
+
+			$this->filesystem->rename($initialDownloadPath, $targetDownloadPath);
+		}
+		$this->downloadManager->update($initial, $target, $targetDownloadPath);
+	}
+
+	/**
+	 * @param \Composer\Package\PackageInterface $package
+	 */
+	protected function removeCode(\Composer\Package\PackageInterface $package) {
+		$downloadPath = $this->getInstallPath($package);
+		$this->downloadManager->remove($package, $downloadPath);
+	}
 }
+
 ?>
