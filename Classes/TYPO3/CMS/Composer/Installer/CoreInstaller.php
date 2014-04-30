@@ -134,7 +134,7 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 			$this->filesystem->removeSymlinks($this->symlinks);
 		}
 
-		$this->updateCode($repo, $initial, $target);
+		$this->updateCode($initial, $target);
 
 		$this->filesystem->establishSymlinks($this->symlinks);
 
