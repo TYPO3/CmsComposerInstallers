@@ -65,13 +65,6 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 		$this->downloadManager = $composer->getDownloadManager();
 		$this->filesystem = $filesystem;
 		$this->getTypo3OrgService = $getTypo3OrgService;
-		$this->initializeDeployTargets();
-	}
-
-	/**
-	 *
-	 */
-	protected function initializeDeployTargets() {
 		$this->symlinks = array(
 			self::TYPO3_SRC_DIR . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP
 				=> self::TYPO3_INDEX_PHP,
@@ -141,9 +134,14 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 			$this->filesystem->removeSymlinks($this->symlinks);
 		}
 
-		$this->update($repo, $initial, $target);
+		$this->updateCode($repo, $initial, $target);
 
 		$this->filesystem->establishSymlinks($this->symlinks);
+
+		$repo->removePackage($initial);
+		if (!$repo->hasPackage($target)) {
+			$repo->addPackage(clone $target);
+		}
 	}
 
 	/**
