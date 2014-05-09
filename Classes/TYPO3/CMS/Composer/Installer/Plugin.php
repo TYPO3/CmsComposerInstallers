@@ -32,12 +32,36 @@ use Composer\Plugin\PluginInterface;
  * The plugin that registers the installers (registered by extra key in composer.json)
  *
  * @author Christian Opitz <christian.opitz at netresearch.de>
+ * @author Thomas Maroschik <tmaroschik@dfau.de>
  */
 class Plugin implements PluginInterface {
-		public function activate(Composer $composer, IOInterface $io) {
-			$getTypo3OrgService = new CoreInstaller\GetTypo3OrgService($io);
-			$coreInstaller = new CoreInstaller($composer, new Util\Filesystem(), $getTypo3OrgService);
-			$composer->getInstallationManager()->addInstaller($coreInstaller);
-		}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function activate(Composer $composer, IOInterface $io) {
+		$filesystem = new Util\Filesystem();
+		$composer
+			->getInstallationManager()
+			->addInstaller(
+				new CoreInstaller(
+					$composer,
+					$filesystem,
+					new CoreInstaller\GetTypo3OrgService($io)
+				)
+			);
+		$composer
+			->getInstallationManager()
+			->addInstaller(
+				new ExtensionInstaller($composer, $filesystem)
+			);
+		$composer
+			->getDownloadManager()
+			->setDownloader(
+				't3x',
+				new Downloader\T3xDownloader($io, $composer->getConfig())
+			);
+	}
 }
+
 ?>

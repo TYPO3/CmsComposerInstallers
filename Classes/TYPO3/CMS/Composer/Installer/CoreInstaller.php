@@ -27,6 +27,8 @@ namespace TYPO3\CMS\Composer\Installer;
 /**
  * TYPO3 Core installer
  *
+ * @author Christian Opitz <christian.opitz at netresearch.de>
+ * @author Thomas Maroschik <tmaroschik@dfau.de>
  */
 class CoreInstaller implements \Composer\Installer\InstallerInterface {
 
