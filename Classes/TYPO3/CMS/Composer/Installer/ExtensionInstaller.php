@@ -114,7 +114,7 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 	 * @param PackageInterface $initial already installed package version
 	 * @param PackageInterface $target updated version
 	 *
-	 * @throws \Composer\Installer\InvalidArgumentException if $initial package is not installed
+	 * @throws \InvalidArgumentException if $initial package is not installed
 	 */
 	public function update(\Composer\Repository\InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target) {
 		if (!$repo->hasPackage($initial)) {
@@ -135,6 +135,8 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 	 *
 	 * @param \Composer\Repository\InstalledRepositoryInterface $repo repository in which to check
 	 * @param PackageInterface $package package instance
+	 *
+	 * @throws \InvalidArgumentException if $initial package is not installed
 	 */
 	public function uninstall(\Composer\Repository\InstalledRepositoryInterface $repo, PackageInterface $package) {
 		if (!$repo->hasPackage($package)) {
@@ -201,7 +203,7 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 	 * @param PackageInterface $package
 	 */
 	protected function removeCode(PackageInterface $package) {
-		$this->downloadManager->remove($package, $this->extensionDir);
+		$this->downloadManager->remove($package, $this->getInstallPath($package));
 	}
 
 	/**
