@@ -68,6 +68,7 @@ class CoreVendorInstaller extends LibraryInstaller {
 	}
 
 	protected function installCode( PackageInterface $package ) {
+		$this->getTypo3OrgService->addDistToPackage($package);
 		parent::installCode( $package );
 		$this->filesystem->symlink( $this->getInstallPath( $package ), $this->typo3_link, false );
 	}
