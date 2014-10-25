@@ -73,9 +73,10 @@ class CoreVendorInstaller extends LibraryInstaller {
 		parent::installCode( $package );
 
 		$this->filesystem->ensureDirectoryExists( $this->web_dir );
-		$source_dir = $this->getInstallPath( $package ) . DIRECTORY_SEPARATOR . self::DIR_TYPO3;
-		$link = $this->filesystem->findShortestPath( $this->web_dir, $source_dir, false );
-		$this->filesystem->symlink( $link, $this->web_dir . self::DIR_TYPO3, false );
+		$source = $this->getInstallPath( $package ) . DIRECTORY_SEPARATOR . self::DIR_TYPO3;
+		$target = $this->web_dir . self::DIR_TYPO3;
+		$link = $this->filesystem->findShortestPath( $target, $source, false );
+		$this->filesystem->symlink( $link, $target, false );
 	}
 
 	protected function removeCode( PackageInterface $package ) {
