@@ -79,9 +79,10 @@ class Filesystem extends \Composer\Util\Filesystem {
 	 * @param bool $copyOnFailure
 	 */
 	public function symlink($source, $target, $copyOnFailure = TRUE) {
-		if (!file_exists($source)) {
-			throw new \InvalidArgumentException('The symlink source "' . $source . '" is not available.');
-		}
+//		??!! creating a dangling symlink is perfectly ok - and this prohibits relative links
+//		if (!file_exists($source)) {
+//			throw new \InvalidArgumentException('The symlink source "' . $source . '" is not available.');
+//		}
 		if (file_exists($target)) {
 			throw new \InvalidArgumentException('The symlink target "' . $target . '" already exists.');
 		}
