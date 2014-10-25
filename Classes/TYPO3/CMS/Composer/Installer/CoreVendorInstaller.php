@@ -50,7 +50,7 @@ class CoreVendorInstaller extends LibraryInstaller {
 	/**
 	 * @var string
 	 */
-	protected $typo3_link;
+	protected $web_dir;
 
 	public function __construct( IOInterface $io, Composer $composer, Filesystem $filesystem = null, GetTypo3OrgService $getTypo3OrgService = null ) {
 		$filesystem = $filesystem ?: new Filesystem();
@@ -59,22 +59,28 @@ class CoreVendorInstaller extends LibraryInstaller {
 		$this->getTypo3OrgService = $getTypo3OrgService ?: new GetTypo3OrgService( $io );
 
 		$textra = $composer->getPackage()->getExtra();
-		$this->typo3_link = (isset($textra['typo3_web_dir']) ? $textra['typo3_web_dir'] . '/' : './' ) . self::DIR_TYPO3;
+		$this->web_dir = getcwd() . DIRECTORY_SEPARATOR .
+			(isset($textra['typo3_web_dir']) ? $textra['typo3_web_dir'] : '') . DIRECTORY_SEPARATOR;
 	}
 
 	public function isInstalled( InstalledRepositoryInterface $repo, PackageInterface $package ) {
 		return parent::isInstalled( $repo, $package ) &&
-			$this->filesystem->allFilesExist( array( $this->typo3_link) );
+			$this->filesystem->allFilesExist( array( $this->web_dir . self::DIR_TYPO3 ) );
 	}
 
 	protected function installCode( PackageInterface $package ) {
 		$this->getTypo3OrgService->addDistToPackage($package);
 		parent::installCode( $package );
-		$this->filesystem->symlink( $this->getInstallPath( $package ), $this->typo3_link, false );
+
+		$this->filesystem->ensureDirectoryExists( $this->web_dir );
+		$source_dir = $this->getInstallPath( $package ) . DIRECTORY_SEPARATOR . self::DIR_TYPO3;
+		$target_dir = $this->web_dir . self::DIR_TYPO3;
+		$link = $this->filesystem->findShortestPath( $target_dir, $source_dir, true );
+		$this->filesystem->symlink( $link, $target_dir, false );
 	}
 
 	protected function removeCode( PackageInterface $package ) {
-		$this->filesystem->remove( $this->typo3_link );
+		$this->filesystem->remove( $this->web_dir . self::DIR_TYPO3 );
 		parent::removeCode( $package );
 	}
 
