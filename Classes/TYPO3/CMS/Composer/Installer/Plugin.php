@@ -40,21 +40,32 @@ class Plugin implements PluginInterface {
 	 * {@inheritDoc}
 	 */
 	public function activate(Composer $composer, IOInterface $io) {
-		$filesystem = new Util\Filesystem();
-		$composer
-			->getInstallationManager()
-			->addInstaller(
-				new CoreInstaller(
-					$composer,
-					$filesystem,
-					new CoreInstaller\GetTypo3OrgService($io)
-				)
+		$textra = $composer->getPackage()->getExtra();
+		if ( isset($textra['typo3_vendor_based']) && $textra['typo3_vendor_based'] ) {
+			$composer->getInstallationManager()->addInstaller(
+				new CoreVendorInstaller( $io, $composer )
 			);
-		$composer
-			->getInstallationManager()
-			->addInstaller(
-				new ExtensionInstaller($composer, $filesystem)
+			$composer->getInstallationManager()->addInstaller(
+				new ExtensionVendorInstaller( $io, $composer )
 			);
+		}
+		else {
+			$filesystem = new Util\Filesystem();
+			$composer
+				->getInstallationManager()
+				->addInstaller(
+					new CoreInstaller(
+						$composer,
+						$filesystem,
+						new CoreInstaller\GetTypo3OrgService($io)
+					)
+				);
+			$composer
+				->getInstallationManager()
+				->addInstaller(
+					new ExtensionInstaller($composer, $filesystem)
+				);
+		}
 		$composer
 			->getDownloadManager()
 			->setDownloader(
