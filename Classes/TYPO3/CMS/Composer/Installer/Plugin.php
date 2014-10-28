@@ -27,6 +27,7 @@ namespace TYPO3\CMS\Composer\Installer;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
+use TYPO3\CMS\Composer\Installer\Util\EventListener;
 
 /**
  * The plugin that registers the installers (registered by extra key in composer.json)
@@ -41,20 +42,35 @@ class Plugin implements PluginInterface {
 	 */
 	public function activate(Composer $composer, IOInterface $io) {
 		$filesystem = new Util\Filesystem();
-		$composer
-			->getInstallationManager()
-			->addInstaller(
-				new CoreInstaller(
-					$composer,
-					$filesystem,
-					new CoreInstaller\GetTypo3OrgService($io)
-				)
+
+		$textra = $composer->getPackage()->getExtra();
+		if ( isset($textra['typo3_vendor_based']) && $textra['typo3_vendor_based'] ) {
+			$composer->getInstallationManager()->addInstaller(
+				new CoreVendorInstaller( $io, $composer, $filesystem )
 			);
-		$composer
-			->getInstallationManager()
-			->addInstaller(
-				new ExtensionInstaller($composer, $filesystem)
+			$composer->getInstallationManager()->addInstaller(
+				new ExtensionVendorInstaller( $io, $composer, $filesystem )
 			);
+			$composer->getEventDispatcher()->addSubscriber(
+				new EventListener(  $composer, $filesystem )
+			);
+		}
+		else {
+			$composer
+				->getInstallationManager()
+				->addInstaller(
+					new CoreInstaller(
+						$composer,
+						$filesystem,
+						new CoreInstaller\GetTypo3OrgService($io)
+					)
+				);
+			$composer
+				->getInstallationManager()
+				->addInstaller(
+					new ExtensionInstaller($composer, $filesystem)
+				);
+		}
 		$composer
 			->getDownloadManager()
 			->setDownloader(
@@ -62,6 +78,7 @@ class Plugin implements PluginInterface {
 				new Downloader\T3xDownloader($io, $composer->getConfig())
 			);
 	}
+
 }
 
 ?>
