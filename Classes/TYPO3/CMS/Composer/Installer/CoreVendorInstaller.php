@@ -40,7 +40,7 @@ use TYPO3\CMS\Composer\Installer\CoreInstaller\GetTypo3OrgService;
 class CoreVendorInstaller extends LibraryInstaller {
 
 	const TYPE_TYPO3_CORE = 'typo3-cms-core';
-	const DIR_TYPO3       = 'typo3';
+	const DIR_TYPO3SRC    = 'typo3_src';
 
 	/**
 	 * @var CoreInstaller\GetTypo3OrgService
@@ -65,7 +65,7 @@ class CoreVendorInstaller extends LibraryInstaller {
 
 	public function isInstalled( InstalledRepositoryInterface $repo, PackageInterface $package ) {
 		return parent::isInstalled( $repo, $package ) &&
-			$this->filesystem->allFilesExist( array( $this->web_dir . self::DIR_TYPO3 ) );
+			$this->filesystem->allFilesExist( array( $this->web_dir . self::DIR_TYPO3SRC ) );
 	}
 
 	protected function installCode( PackageInterface $package ) {
@@ -73,14 +73,14 @@ class CoreVendorInstaller extends LibraryInstaller {
 		parent::installCode( $package );
 
 		$this->filesystem->ensureDirectoryExists( $this->web_dir );
-		$source = $this->getInstallPath( $package ) . DIRECTORY_SEPARATOR . self::DIR_TYPO3;
-		$target = $this->web_dir . self::DIR_TYPO3;
+		$source = $this->getInstallPath( $package );
+		$target = $this->web_dir . self::DIR_TYPO3SRC;
 		$link = $this->filesystem->findShortestPath( $target, $source, false );
 		$this->filesystem->symlink( $link, $target, false );
 	}
 
 	protected function removeCode( PackageInterface $package ) {
-		$this->filesystem->remove( $this->web_dir . self::DIR_TYPO3 );
+		$this->filesystem->remove( $this->web_dir . self::DIR_TYPO3SRC );
 		parent::removeCode( $package );
 	}
 

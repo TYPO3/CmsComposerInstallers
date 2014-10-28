@@ -79,9 +79,7 @@ class EventListener implements EventSubscriberInterface {
 		}
 
 		if ( $core && $extensions ) {
-			$core_ext_dir = $this->composer->getInstallationManager()->getInstallPath( $core ) . DIRECTORY_SEPARATOR .
-				CoreVendorInstaller::DIR_TYPO3 . DIRECTORY_SEPARATOR .
-				'ext';
+			$core_ext_dir = $this->composer->getInstallationManager()->getInstallPath( $core ) . '/typo3/ext';
 			$this->filesystem->emptyDirectory( $core_ext_dir, true );
 			foreach ( $extensions as $one ) {
 				$source = $this->composer->getInstallationManager()->getInstallPath( $one );
