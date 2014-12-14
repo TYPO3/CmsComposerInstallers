@@ -23,6 +23,7 @@ namespace TYPO3\CMS\Composer\Installer;
  *
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
+use Composer\Util\Filesystem;
 
 /**
  * TYPO3 Core installer
@@ -172,7 +173,9 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	 * @return string
 	 */
 	public function getInstallPath(\Composer\Package\PackageInterface $package) {
-		return self::TYPO3_SRC_DIR;
+		$filesystem = new Filesystem();
+		$filesystem->ensureDirectoryExists(self::TYPO3_SRC_DIR);
+		return realpath(self::TYPO3_SRC_DIR);
 	}
 
 	/**
