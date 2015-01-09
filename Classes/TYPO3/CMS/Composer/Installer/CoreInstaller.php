@@ -58,6 +58,12 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	 */
 	protected $getTypo3OrgService;
 
+
+	/**
+	 * @var bool
+	 */
+	protected $sourceAsSymlink = false;
+
 	/**
 	 * @param \Composer\Composer $composer
 	 * @param Util\Filesystem $filesystem
@@ -67,12 +73,14 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 		$this->downloadManager = $composer->getDownloadManager();
 		$this->filesystem = $filesystem;
 		$this->getTypo3OrgService = $getTypo3OrgService;
-		$this->symlinks = array(
-			self::TYPO3_SRC_DIR . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP
-				=> self::TYPO3_INDEX_PHP,
-			self::TYPO3_SRC_DIR . DIRECTORY_SEPARATOR . self::TYPO3_DIR
-				=> self::TYPO3_DIR
-		);
+		// Optionally use symlinks for source
+		if(array_key_exists('source-as-symlink', $composer->getPackage()->getExtra())
+			&& is_string($composer->getPackage()->getExtra()['source-as-symlink'])) {
+			$this->sourceAsSymlink = true;
+			$this->symlinks[$composer->getPackage()->getExtra()['source-as-symlink']] = self::TYPO3_SRC_DIR;
+		}
+		$this->symlinks[self::TYPO3_SRC_DIR . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP] = self::TYPO3_INDEX_PHP;
+		$this->symlinks[self::TYPO3_SRC_DIR . DIRECTORY_SEPARATOR . self::TYPO3_DIR] = self::TYPO3_DIR;
 	}
 
 	/**
@@ -106,7 +114,9 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	 * @param \Composer\Package\PackageInterface $package package instance
 	 */
 	public function install(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package) {
-		$this->getTypo3OrgService->addDistToPackage($package);
+		if ($this->sourceAsSymlink === false) {
+			$this->getTypo3OrgService->addDistToPackage($package);
+		}
 
 		if ($this->filesystem->someFilesExist($this->symlinks)) {
 			$this->filesystem->removeSymlinks($this->symlinks);
@@ -116,8 +126,10 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 
 		$this->filesystem->establishSymlinks($this->symlinks);
 
-		if (!$repo->hasPackage($package)) {
-			$repo->addPackage(clone $package);
+		if ($this->sourceAsSymlink === false) {
+			if (!$repo->hasPackage($package)) {
+				$repo->addPackage(clone $package);
+			}
 		}
 	}
 
@@ -129,8 +141,10 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	 * @param \Composer\Package\PackageInterface $target updated version
 	 */
 	public function update(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $initial, \Composer\Package\PackageInterface $target) {
-		$this->getTypo3OrgService->addDistToPackage($initial);
-		$this->getTypo3OrgService->addDistToPackage($target);
+		if ($this->sourceAsSymlink === false) {
+			$this->getTypo3OrgService->addDistToPackage($initial);
+			$this->getTypo3OrgService->addDistToPackage($target);
+		}
 
 		if ($this->filesystem->someFilesExist($this->symlinks)) {
 			$this->filesystem->removeSymlinks($this->symlinks);
@@ -140,9 +154,11 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 
 		$this->filesystem->establishSymlinks($this->symlinks);
 
-		$repo->removePackage($initial);
-		if (!$repo->hasPackage($target)) {
-			$repo->addPackage(clone $target);
+		if ($this->sourceAsSymlink === false) {
+			$repo->removePackage($initial);
+			if (!$repo->hasPackage($target)) {
+				$repo->addPackage(clone $target);
+			}
 		}
 	}
 
@@ -180,8 +196,10 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	 * @param \Composer\Package\PackageInterface $package
 	 */
 	protected function installCode(\Composer\Package\PackageInterface $package) {
-		$downloadPath = $this->getInstallPath($package);
-		$this->downloadManager->download($package, $downloadPath);
+		if ($this->sourceAsSymlink === false) {
+			$downloadPath = $this->getInstallPath($package);
+			$this->downloadManager->download($package, $downloadPath);
+		}
 	}
 
 	/**
@@ -189,33 +207,37 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	 * @param \Composer\Package\PackageInterface $target
 	 */
 	protected function updateCode(\Composer\Package\PackageInterface $initial, \Composer\Package\PackageInterface $target) {
-		// Currently the install path for all versions is the same.
-		// In the future the install path for two core versions may differ.
-		$initialDownloadPath = $this->getInstallPath($initial);
-		$targetDownloadPath = $this->getInstallPath($target);
-		if ($targetDownloadPath !== $initialDownloadPath) {
-			// if the target and initial dirs intersect, we force a remove + install
-			// to avoid the rename wiping the target dir as part of the initial dir cleanup
-			if (substr($initialDownloadPath, 0, strlen($targetDownloadPath)) === $targetDownloadPath
-				|| substr($targetDownloadPath, 0, strlen($initialDownloadPath)) === $initialDownloadPath
-			) {
-				$this->removeCode($initial);
-				$this->installCode($target);
+		if ($this->sourceAsSymlink === false) {
+			// Currently the install path for all versions is the same.
+			// In the future the install path for two core versions may differ.
+			$initialDownloadPath = $this->getInstallPath($initial);
+			$targetDownloadPath = $this->getInstallPath($target);
+			if ($targetDownloadPath !== $initialDownloadPath) {
+				// if the target and initial dirs intersect, we force a remove + install
+				// to avoid the rename wiping the target dir as part of the initial dir cleanup
+				if (substr($initialDownloadPath, 0, strlen($targetDownloadPath)) === $targetDownloadPath
+					|| substr($targetDownloadPath, 0, strlen($initialDownloadPath)) === $initialDownloadPath
+				) {
+					$this->removeCode($initial);
+					$this->installCode($target);
 
-				return;
+					return;
+				}
+
+				$this->filesystem->rename($initialDownloadPath, $targetDownloadPath);
 			}
-
-			$this->filesystem->rename($initialDownloadPath, $targetDownloadPath);
+			$this->downloadManager->update($initial, $target, $targetDownloadPath);
 		}
-		$this->downloadManager->update($initial, $target, $targetDownloadPath);
 	}
 
 	/**
 	 * @param \Composer\Package\PackageInterface $package
 	 */
 	protected function removeCode(\Composer\Package\PackageInterface $package) {
-		$downloadPath = $this->getInstallPath($package);
-		$this->downloadManager->remove($package, $downloadPath);
+		if ($this->sourceAsSymlink === false) {
+			$downloadPath = $this->getInstallPath($package);
+			$this->downloadManager->remove($package, $downloadPath);
+		}
 	}
 }
 
