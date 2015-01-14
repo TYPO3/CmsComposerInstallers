@@ -36,6 +36,9 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 	const TYPO3_CONF_DIR = 'typo3conf';
 	const TYPO3_EXT_DIR = 'ext';
 
+	const TYPO3_EXTENSION_INSTALL = 'install';
+	const TYPO3_EXTENSION_UNINSTALL = 'uninstall';
+
 	/**
 	 * @var string
 	 */
@@ -173,6 +176,7 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 	 */
 	protected function installCode(PackageInterface $package) {
 		$this->downloadManager->download($package, $this->getInstallPath($package));
+		$this->updateTypo3Instance(self::TYPO3_EXTENSION_INSTALL, $package);
 	}
 
 	/**
@@ -197,12 +201,14 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 			$this->filesystem->rename($initialDownloadPath, $targetDownloadPath);
 		}
 		$this->downloadManager->update($initial, $target, $targetDownloadPath);
+		$this->updateTypo3Instance(self::TYPO3_EXTENSION_INSTALL, $target);
 	}
 
 	/**
 	 * @param PackageInterface $package
 	 */
 	protected function removeCode(PackageInterface $package) {
+		$this->updateTypo3Instance(self::TYPO3_EXTENSION_UNINSTALL, $package);
 		$this->downloadManager->remove($package, $this->getInstallPath($package));
 	}
 
@@ -212,5 +218,28 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 	protected function initializeExtensionDir() {
 		$this->filesystem->ensureDirectoryExists($this->extensionDir);
 		$this->extensionDir = realpath($this->extensionDir);
+	}
+
+	/**
+	 * Installs/Uninstalls the extension using TYPO3 CLI API
+	 * @param  string $mode install/uninstall
+	 * @param  PackageInterface $package
+	 */
+	private function updateTypo3Instance($mode, $package){
+		$extensionKey = basename($this->getInstallPath($package));
+		$projectRootPath = dirname(dirname($this->extensionDir));
+
+		$typo3CliScript = $projectRootPath."/typo3/cli_dispatch.phpsh";
+		if (file_exists($typo3CliScript)){
+			exec($typo3CliScript." extbase extension:".$mode." ".$extensionKey." 2>&1 >/dev/null", $stdErr);
+			$execReturnMessage = implode(" ",$stdErr);
+
+			//TODO: error handling needs to be improved
+			if (preg_match("/error/", $execReturnMessage)){
+				echo "Extension ".$extensionKey." could not be installed via Extension-Manager because TYPO3 installation is not initialized".PHP_EOL.PHP_EOL;
+			}elseif (preg_match('/_cli_lowlevel/', $execReturnMessage)){
+				echo "Extension ".$extensionKey." could not be installed via Extension-Manager because _cli_lowlevel user is not present".PHP_EOL.PHP_EOL;
+			}
+		}
 	}
 }
