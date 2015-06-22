@@ -280,7 +280,7 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
 
 		// Traverse files.
 		foreach ($filesArray as $fileName => $fileInfo) {
-			if ($fileName != 'ext_emconf.php') {
+			if (ltrim($fileName, '/') != 'ext_emconf.php') {
 				$md5Array[$fileName] = substr($fileInfo['content_md5'], 0, 4);
 			}
 		}
