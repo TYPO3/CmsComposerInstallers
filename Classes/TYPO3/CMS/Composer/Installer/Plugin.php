@@ -27,6 +27,7 @@ namespace TYPO3\CMS\Composer\Installer;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
+use Composer\Cache;
 
 /**
  * The plugin that registers the installers (registered by extra key in composer.json)
@@ -55,11 +56,18 @@ class Plugin implements PluginInterface {
 			->addInstaller(
 				new ExtensionInstaller($composer, $filesystem)
 			);
+
+		$cache = null;
+		if ($composer->getConfig()->get('cache-files-ttl') > 0) {
+			$cache = new Cache($io, $composer->getConfig()->get('cache-files-dir'), 'a-z0-9_./');
+		}
+
+
 		$composer
 			->getDownloadManager()
 			->setDownloader(
 				't3x',
-				new Downloader\T3xDownloader($io, $composer->getConfig())
+				new Downloader\T3xDownloader($io, $composer->getConfig(), null, $cache)
 			);
 	}
 }
