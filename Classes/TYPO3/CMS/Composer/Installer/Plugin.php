@@ -46,6 +46,7 @@ class Plugin implements PluginInterface {
 			->getInstallationManager()
 			->addInstaller(
 				new CoreInstaller(
+					$io,
 					$composer,
 					$filesystem,
 					new CoreInstaller\GetTypo3OrgService($io)

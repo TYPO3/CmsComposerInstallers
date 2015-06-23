@@ -30,28 +30,11 @@ namespace TYPO3\CMS\Composer\Installer;
  * @author Christian Opitz <christian.opitz at netresearch.de>
  * @author Thomas Maroschik <tmaroschik@dfau.de>
  */
-class CoreInstaller implements \Composer\Installer\InstallerInterface {
+class CoreInstaller extends \Composer\Installer\LibraryInstaller {
 
-	const TYPO3_SRC_DIR		= 'typo3_src';
-	const TYPO3_DIR			= 'typo3';
+	const TYPO3_SRC_DIR = 'typo3_src';
+	const TYPO3_DIR = 'typo3';
 	const TYPO3_INDEX_PHP	= 'index.php';
-
-	protected $symlinks = array();
-
-	/**
-	 * @var \Composer\Composer
-	 */
-	protected $composer;
-
-	/**
-	 * @var \Composer\Downloader\DownloadManager
-	 */
-	protected $downloadManager;
-
-	/**
-	 * @var Util\Filesystem
-	 */
-	protected $filesystem;
 
 	/**
 	 * @var CoreInstaller\GetTypo3OrgService
@@ -59,30 +42,14 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	protected $getTypo3OrgService;
 
 	/**
+	 * @param \Composer\IO\IOInterface $io
 	 * @param \Composer\Composer $composer
 	 * @param Util\Filesystem $filesystem
 	 */
-	public function __construct(\Composer\Composer $composer, Util\Filesystem $filesystem, CoreInstaller\GetTypo3OrgService $getTypo3OrgService) {
-		$this->composer = $composer;
-		$this->downloadManager = $composer->getDownloadManager();
-		$this->filesystem = $filesystem;
-		$this->getTypo3OrgService = $getTypo3OrgService;
-		$this->symlinks = array(
-			self::TYPO3_SRC_DIR . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP
-				=> self::TYPO3_INDEX_PHP,
-			self::TYPO3_SRC_DIR . DIRECTORY_SEPARATOR . self::TYPO3_DIR
-				=> self::TYPO3_DIR
-		);
-	}
+	public function __construct(\Composer\IO\IOInterface $io, \Composer\Composer $composer, Util\Filesystem $filesystem, CoreInstaller\GetTypo3OrgService $getTypo3OrgService) {
+		parent::__construct($io, $composer, 'typo3-cms-core', $filesystem);
 
-	/**
-	 * Returns if this installer can install that package type
-	 *
-	 * @param string $packageType
-	 * @return boolean
-	 */
-	public function supports($packageType) {
-		return $packageType === 'typo3-cms-core';
+		$this->getTypo3OrgService = $getTypo3OrgService;
 	}
 
 	/**
@@ -94,9 +61,7 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	 * @return bool
 	 */
 	public function isInstalled(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package) {
-		return $repo->hasPackage($package)
-			&& is_readable($this->getInstallPath($package))
-			&& $this->filesystem->allFilesExist($this->symlinks);
+		return parent::isInstalled($repo, $package) && $this->filesystem->allFilesExist($this->getSymlinks($package));
 	}
 
 	/**
@@ -108,17 +73,15 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	public function install(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package) {
 		$this->getTypo3OrgService->addDistToPackage($package);
 
-		if ($this->filesystem->someFilesExist($this->symlinks)) {
-			$this->filesystem->removeSymlinks($this->symlinks);
+		$symlinks = $this->getSymlinks($package);
+
+		if ($this->filesystem->someFilesExist($symlinks)) {
+			$this->filesystem->removeSymlinks($symlinks);
 		}
 
-		$this->installCode($package);
+		parent::install($repo, $package);
 
-		$this->filesystem->establishSymlinks($this->symlinks);
-
-		if (!$repo->hasPackage($package)) {
-			$repo->addPackage(clone $package);
-		}
+		$this->filesystem->establishSymlinks($symlinks);
 	}
 
 	/**
@@ -132,18 +95,15 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 		$this->getTypo3OrgService->addDistToPackage($initial);
 		$this->getTypo3OrgService->addDistToPackage($target);
 
-		if ($this->filesystem->someFilesExist($this->symlinks)) {
-			$this->filesystem->removeSymlinks($this->symlinks);
+		$symlinks = $this->getSymlinks($package);
+
+		if ($this->filesystem->someFilesExist($symlinks)) {
+			$this->filesystem->removeSymlinks($symlinks);
 		}
 
-		$this->updateCode($initial, $target);
+		parent::update($repo, $initial, $target);
 
-		$this->filesystem->establishSymlinks($this->symlinks);
-
-		$repo->removePackage($initial);
-		if (!$repo->hasPackage($target)) {
-			$repo->addPackage(clone $target);
-		}
+		$this->filesystem->establishSymlinks($symlinks);
 	}
 
 	/**
@@ -153,23 +113,23 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	 * @param \Composer\Package\PackageInterface $package package instance
 	 */
 	public function uninstall(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package) {
-		if (!$repo->hasPackage($package)) {
-			throw new \InvalidArgumentException('Package is not installed: '.$package);
-		}
+		parent::uninstall($repo, $package);
 
-		if ($this->filesystem->someFilesExist($this->symlinks)) {
-			$this->filesystem->removeSymlinks($this->symlinks);
-		}
+		$symlinks = $this->getSymlinks($package);
 
-		$this->removeCode($package);
-		$repo->removePackage($package);
+		if ($this->filesystem->someFilesExist($symlinks)) {
+			$this->filesystem->removeSymlinks($symlinks);
+		}
 	}
 
 	/**
 	 * Returns the installation path of a package
+	 * Returns the list of expected symlinks
 	 *
 	 * @param  \Composer\Package\PackageInterface $package
 	 * @return string
+	 * @param \Composer\Package\PackageInterface $package package instance
+	 * @return array
 	 */
 	public function getInstallPath(\Composer\Package\PackageInterface $package) {
 		$this->filesystem->ensureDirectoryExists(self::TYPO3_SRC_DIR);
@@ -177,45 +137,18 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	}
 
 	/**
-	 * @param \Composer\Package\PackageInterface $package
+	 * Returns the list of expected symlinks
+	 *
+	 * @param \Composer\Package\PackageInterface $package package instance
+	 * @return array
 	 */
-	protected function installCode(\Composer\Package\PackageInterface $package) {
-		$downloadPath = $this->getInstallPath($package);
-		$this->downloadManager->download($package, $downloadPath);
-	}
+	protected function getSymlinks(\Composer\Package\PackageInterface $package) {
+		$installPath = $this->getInstallPath($package);
 
-	/**
-	 * @param \Composer\Package\PackageInterface $initial
-	 * @param \Composer\Package\PackageInterface $target
-	 */
-	protected function updateCode(\Composer\Package\PackageInterface $initial, \Composer\Package\PackageInterface $target) {
-		// Currently the install path for all versions is the same.
-		// In the future the install path for two core versions may differ.
-		$initialDownloadPath = $this->getInstallPath($initial);
-		$targetDownloadPath = $this->getInstallPath($target);
-		if ($targetDownloadPath !== $initialDownloadPath) {
-			// if the target and initial dirs intersect, we force a remove + install
-			// to avoid the rename wiping the target dir as part of the initial dir cleanup
-			if (substr($initialDownloadPath, 0, strlen($targetDownloadPath)) === $targetDownloadPath
-				|| substr($targetDownloadPath, 0, strlen($initialDownloadPath)) === $initialDownloadPath
-			) {
-				$this->removeCode($initial);
-				$this->installCode($target);
-
-				return;
-			}
-
-			$this->filesystem->rename($initialDownloadPath, $targetDownloadPath);
-		}
-		$this->downloadManager->update($initial, $target, $targetDownloadPath);
-	}
-
-	/**
-	 * @param \Composer\Package\PackageInterface $package
-	 */
-	protected function removeCode(\Composer\Package\PackageInterface $package) {
-		$downloadPath = $this->getInstallPath($package);
-		$this->downloadManager->remove($package, $downloadPath);
+		return array(
+			$installPath . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP => self::TYPO3_INDEX_PHP,
+			$installPath . DIRECTORY_SEPARATOR . self::TYPO3_DIR => self::TYPO3_DIR,
+		);
 	}
 }
 
