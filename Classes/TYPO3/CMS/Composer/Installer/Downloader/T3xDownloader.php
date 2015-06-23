@@ -98,7 +98,7 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface {
 				if (is_file($path . $extensionFileName)) {
 					$localFileContentHash = md5(file_get_contents($path . $extensionFileName));
 
-					if (substr($localFileContentHash, 0, 4) != $extensionFileHash) {
+					if (substr($localFileContentHash, 0, 4) !== $extensionFileHash) {
 						$messages[] = $extensionFileName . ' - File is modified';
 					}
 				} else {
@@ -107,7 +107,7 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface {
 			}
 
 
-			if ($package->getPrettyVersion() != $EM_CONF[$_EXTKEY]['version']) {
+			if ($package->getPrettyVersion() !== $EM_CONF[$_EXTKEY]['version']) {
 				$messages[] = 'Local Version is ' . $EM_CONF[$_EXTKEY]['version'] . ' but should be ' . $package->getPrettyVersion();
 			}
 
@@ -126,14 +126,14 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface {
 	 */
 	public function decodeTerExchangeData($stream) {
 		$parts = explode(':', $stream, 3);
-		if ($parts[1] == 'gzcompress') {
+		if ($parts[1] === 'gzcompress') {
 			if (function_exists('gzuncompress')) {
 				$parts[2] = gzuncompress($parts[2]);
 			} else {
 				throw new \RuntimeException('Decoding Error: No decompressor available for compressed content. gzcompress()/gzuncompress() functions are not available!', 1359124403);
 			}
 		}
-		if (md5($parts[2]) == $parts[0]) {
+		if (md5($parts[2]) === $parts[0]) {
 			$output = unserialize($parts[2]);
 			if (!is_array($output)) {
 				throw new \RuntimeException('Error: Content could not be unserialized to an array. Strange (since MD5 hashes match!)', 1359124554);
@@ -280,7 +280,7 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
 
 		// Traverse files.
 		foreach ($filesArray as $fileName => $fileInfo) {
-			if ($fileName != 'ext_emconf.php') {
+			if ($fileName !== 'ext_emconf.php') {
 				$md5Array[$fileName] = substr($fileInfo['content_md5'], 0, 4);
 			}
 		}
