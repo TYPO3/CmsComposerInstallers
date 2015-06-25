@@ -250,13 +250,14 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface {
 	public function constructEmConf(array $extensionData) {
 		$emConf = $this->fixEmConf($extensionData['EM_CONF']);
 		$emConf['_md5_values_when_last_written'] = serialize($this->extensionMD5array($extensionData['FILES']));
+		$uniqueIdentifier = md5($emConf['_md5_values_when_last_written']);
 		$emConf = var_export($emConf, TRUE);
 		$code = '<?php
 
 /***************************************************************
  * Extension Manager/Repository config file for ext "' . $extensionData['extKey'] . '".
  *
- * Auto generated ' . date('d-m-Y H:i') . '
+ * Auto generated | Identifier: ' . $uniqueIdentifier . '
  *
  * Manual updates:
  * Only the data in the array - everything else is removed by next
