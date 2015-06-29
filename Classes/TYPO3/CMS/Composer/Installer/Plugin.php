@@ -25,9 +25,12 @@ namespace TYPO3\CMS\Composer\Installer;
  ***************************************************************/
 
 use Composer\Composer;
+use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Cache;
+use Composer\Script\ScriptEvents;
+use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
 /**
  * The plugin that registers the installers (registered by extra key in composer.json)
@@ -35,13 +38,22 @@ use Composer\Cache;
  * @author Christian Opitz <christian.opitz at netresearch.de>
  * @author Thomas Maroschik <tmaroschik@dfau.de>
  */
-class Plugin implements PluginInterface {
+class Plugin implements PluginInterface, EventSubscriberInterface {
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public static function getSubscribedEvents() {
+		return array(
+			ScriptEvents::POST_AUTOLOAD_DUMP => 'postAutoload'
+		);
+	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	public function activate(Composer $composer, IOInterface $io) {
-		$filesystem = new Util\Filesystem();
+		$filesystem = new Filesystem();
 		$composer
 			->getInstallationManager()
 			->addInstaller(
@@ -62,7 +74,6 @@ class Plugin implements PluginInterface {
 			$cache = new Cache($io, $composer->getConfig()->get('cache-files-dir'), 'a-z0-9_./');
 		}
 
-
 		$composer
 			->getDownloadManager()
 			->setDownloader(
@@ -70,6 +81,14 @@ class Plugin implements PluginInterface {
 				new Downloader\T3xDownloader($io, $composer->getConfig(), null, $cache)
 			);
 	}
-}
 
-?>
+	/**
+	 * @param \Composer\Script\Event $event
+	 */
+	public function postAutoload(\Composer\Script\Event $event) {
+		$autoloadConnector = new \TYPO3\CMS\Composer\Plugin\Core\AutoloadConnector();
+		$autoloadConnector->linkAutoloader($event);
+		$autoloadConnector->insertComposerModeConstant($event);
+	}
+
+}

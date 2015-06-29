@@ -24,6 +24,8 @@ namespace TYPO3\CMS\Composer\Installer;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
+
 /**
  * TYPO3 Core installer
  *
@@ -49,7 +51,7 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	protected $downloadManager;
 
 	/**
-	 * @var Util\Filesystem
+	 * @var Filesystem
 	 */
 	protected $filesystem;
 
@@ -60,9 +62,9 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 
 	/**
 	 * @param \Composer\Composer $composer
-	 * @param Util\Filesystem $filesystem
+	 * @param Filesystem $filesystem
 	 */
-	public function __construct(\Composer\Composer $composer, Util\Filesystem $filesystem, CoreInstaller\GetTypo3OrgService $getTypo3OrgService) {
+	public function __construct(\Composer\Composer $composer, Filesystem $filesystem, CoreInstaller\GetTypo3OrgService $getTypo3OrgService) {
 		$this->composer = $composer;
 		$this->downloadManager = $composer->getDownloadManager();
 		$this->filesystem = $filesystem;
