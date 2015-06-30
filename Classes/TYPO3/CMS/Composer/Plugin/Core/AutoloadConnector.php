@@ -75,6 +75,7 @@ class AutoloadConnector {
 					);
 					file_put_contents($autoloaderTargetDir . DIRECTORY_SEPARATOR . $autoloaderFileName, implode(chr(10), $code));
 				}
+				$this->insertComposerModeConstant($event);
 				break;
 			}
 		}
@@ -83,7 +84,7 @@ class AutoloadConnector {
 	/**
 	 * @param \Composer\Script\Event $event
 	 */
-	public function insertComposerModeConstant(\Composer\Script\Event $event) {
+	protected function insertComposerModeConstant(\Composer\Script\Event $event) {
 		$composer = $event->getComposer();
 		$composerConfig = $composer->getConfig();
 		$vendorDir = $composerConfig->get('vendor-dir');

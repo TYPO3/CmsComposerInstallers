@@ -88,7 +88,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 	public function postAutoload(\Composer\Script\Event $event) {
 		$autoloadConnector = new \TYPO3\CMS\Composer\Plugin\Core\AutoloadConnector();
 		$autoloadConnector->linkAutoloader($event);
-		$autoloadConnector->insertComposerModeConstant($event);
 	}
 
 }
