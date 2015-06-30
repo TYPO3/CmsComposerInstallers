@@ -100,7 +100,7 @@ class AutoloadConnector {
 
 		$contents = file_get_contents($autoloadFile);
 		$constant = "if (!defined('TYPO3_COMPOSER_MODE')) {\n";
-		$constant .= "	define('TYPO3_COMPOSER_MODE', TRUE);\n\n";
+		$constant .= "	define('TYPO3_COMPOSER_MODE', TRUE);\n";
 		$constant .= "}\n\n";
 
 		// Regex modifiers:
