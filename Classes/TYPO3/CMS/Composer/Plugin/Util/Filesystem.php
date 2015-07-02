@@ -67,15 +67,16 @@ class Filesystem extends \Composer\Util\Filesystem {
 	 * @param string $source
 	 * @param string $target
 	 * @param bool $copyOnFailure
+	 * @param bool $makeRelative Create a relative link instead of an absolute
 	 */
-	public function symlink($source, $target, $copyOnFailure = TRUE) {
+	public function symlink($source, $target, $copyOnFailure = TRUE, $makeRelative = FALSE) {
 		if (!file_exists($source)) {
 			throw new \InvalidArgumentException('The symlink source "' . $source . '" is not available.');
 		}
 		if (file_exists($target)) {
 			throw new \InvalidArgumentException('The symlink target "' . $target . '" already exists.');
 		}
-		$symlinkSuccessfull = @symlink($source, $target);
+		$symlinkSuccessfull = @symlink($makeRelative ? $this->findShortestPath($target, $source) : $source, $target);
 		if (!$symlinkSuccessfull && !$copyOnFailure) {
 			throw new \RuntimeException('Symlinking target "' . $target . '" to source "' . $source . '" failed.', 1430494084);
 		} elseif (!$symlinkSuccessfull && $copyOnFailure) {
