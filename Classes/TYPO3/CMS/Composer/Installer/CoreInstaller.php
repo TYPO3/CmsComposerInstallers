@@ -95,16 +95,6 @@ class CoreInstaller extends BaseInstaller {
 	}
 
 	/**
-	 * Returns if this installer can install that package type
-	 *
-	 * @param string $packageType
-	 * @return boolean
-	 */
-	public function supports($packageType) {
-		return $packageType === 'typo3-cms-core';
-	}
-
-	/**
 	 * Checks that provided package is installed.
 	 *
 	 * @param \Composer\Repository\InstalledRepositoryInterface $repo repository in which to check
@@ -182,17 +172,6 @@ class CoreInstaller extends BaseInstaller {
 
 		$this->removeCode($package);
 		$repo->removePackage($package);
-	}
-
-	/**
-	 * Returns the installation path of a package
-	 *
-	 * @param  \Composer\Package\PackageInterface $package
-	 * @return string
-	 */
-	public function getInstallPath(\Composer\Package\PackageInterface $package) {
-		$this->filesystem->ensureDirectoryExists(self::TYPO3_SRC_DIR);
-		return realpath(self::TYPO3_SRC_DIR);
 	}
 
 	/**
