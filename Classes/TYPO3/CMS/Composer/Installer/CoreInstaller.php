@@ -116,7 +116,7 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 
 		$this->installCode($package);
 
-		$this->filesystem->establishSymlinks($this->symlinks);
+		$this->filesystem->establishSymlinks($this->symlinks, TRUE);
 
 		if (!$repo->hasPackage($package)) {
 			$repo->addPackage(clone $package);
@@ -140,7 +140,7 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 
 		$this->updateCode($initial, $target);
 
-		$this->filesystem->establishSymlinks($this->symlinks);
+		$this->filesystem->establishSymlinks($this->symlinks, TRUE);
 
 		$repo->removePackage($initial);
 		if (!$repo->hasPackage($target)) {
