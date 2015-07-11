@@ -32,12 +32,26 @@ use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
  * @author Christian Opitz <christian.opitz at netresearch.de>
  * @author Thomas Maroschik <tmaroschik@dfau.de>
  */
-class CoreInstaller implements \Composer\Installer\InstallerInterface {
+class CoreInstaller extends BaseInstaller {
 
-	const TYPO3_SRC_DIR		= 'typo3_src';
-	const TYPO3_DIR			= 'typo3';
-	const TYPO3_INDEX_PHP	= 'index.php';
+	const TYPO3_SRC_DIR = 'typo3_src';
+	const TYPO3_DIR = 'typo3';
+	const TYPO3_INDEX_PHP = 'index.php';
 
+	/**
+	 * Install locations for packages by type
+	 *
+	 * @var array
+	 */
+	protected $locations = array(
+		'typo3-cms-core' => self::TYPO3_SRC_DIR
+	);
+
+	/**
+	 * Symlink to create
+	 *
+	 * @var array
+	 */
 	protected $symlinks = array();
 
 	/**
@@ -69,12 +83,15 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 		$this->downloadManager = $composer->getDownloadManager();
 		$this->filesystem = $filesystem;
 		$this->getTypo3OrgService = $getTypo3OrgService;
-		$this->symlinks = array(
-			self::TYPO3_SRC_DIR . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP
-				=> self::TYPO3_INDEX_PHP,
-			self::TYPO3_SRC_DIR . DIRECTORY_SEPARATOR . self::TYPO3_DIR
-				=> self::TYPO3_DIR
-		);
+		$extra = $this->composer->getPackage()->getExtra();
+		if(!isset($extra['typo3-core-symlinks'])) {
+			$this->symlinks = array(
+				self::TYPO3_SRC_DIR . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP => self::TYPO3_INDEX_PHP,
+				self::TYPO3_SRC_DIR . DIRECTORY_SEPARATOR . self::TYPO3_DIR => self::TYPO3_DIR
+			);
+		} elseif(is_array($extra['typo3-core-symlinks']) && !empty($extra['typo3-core-symlinks'])) {
+			$this->symlinks = $extra['typo3-core-symlinks'];
+		}
 	}
 
 	/**
