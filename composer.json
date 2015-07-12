@@ -23,7 +23,8 @@
     "minimum-stability": "dev",
     "replace": {
         "lw/typo3cms-installers": "*",
-        "netresearch/composer-installers": "*"
+        "netresearch/composer-installers": "*",
+        "typo3/cms-composer-installers": "*"
     },
     "require": {
         "composer-plugin-api": "^1.0.0"
