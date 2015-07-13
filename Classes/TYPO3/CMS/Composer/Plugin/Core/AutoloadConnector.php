@@ -13,6 +13,7 @@ namespace TYPO3\CMS\Composer\Plugin\Core;
  *
  * The TYPO3 project - inspiring people to share!
  */
+use TYPO3\CMS\Composer\Plugin\Config;
 
 /**
  * Creates a symlink of the central autoload.php file in the vendor directory of the TYPO3 core package
@@ -87,6 +88,10 @@ class AutoloadConnector {
 	 */
 	protected function insertComposerModeConstant(\Composer\Script\Event $event) {
 		$composer = $event->getComposer();
+		$pluginConfig = Config::load($composer);
+		if (!$pluginConfig->get('composer-mode')) {
+			return;
+		}
 		$composerConfig = $composer->getConfig();
 		$vendorDir = $composerConfig->get('vendor-dir');
 		$autoloadFile = $vendorDir . '/autoload.php';
