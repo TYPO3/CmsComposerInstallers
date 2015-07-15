@@ -12,11 +12,12 @@ class Config {
 	 * @var array
 	 */
 	public static $defaultConfig = array(
-		'web-dir' => '',
-		'backend-dir' => '{$web-dir}/typo3/',
-		'config-dir' => 'typo3conf/',
-		'temporary-dir' => 'typo3temp/',
+		'web-dir' => '.',
+		'backend-dir' => '{$web-dir}/typo3',
+		'config-dir' => '{$web-dir}/typo3conf',
+		'temporary-dir' => '{$web-dir}/typo3temp',
 		'cache-dir' => '{$temporary-dir}/Cache',
+		'cms-package-dir' => 'typo3_src',
 		'composer-mode' => true,
 	);
 
@@ -69,6 +70,7 @@ class Config {
 			case 'configuration-dir':
 			case 'temporary-dir':
 			case 'cache-dir':
+			case 'cms-package-dir':
 				$val = rtrim($this->process($this->config[$key], $flags), '/\\');
 				return ($flags & self::RELATIVE_PATHS == 1) ? $val : $this->realpath($val);
 			default:
@@ -168,6 +170,13 @@ class Config {
 			if (is_array($rootPackageExtraConfig)) {
 				$config->merge($rootPackageExtraConfig);
 			}
+			$config->merge(
+				array(
+					'typo3/cms' => array(
+						'vendor-dir' => $composer->getConfig()->get('vendor-dir')
+					)
+				)
+			);
 		}
 		return $config;
 	}

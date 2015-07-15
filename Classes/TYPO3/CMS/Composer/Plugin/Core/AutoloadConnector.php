@@ -61,8 +61,7 @@ class AutoloadConnector {
 					$this->filesystem->symlink(
 						$autoloaderSourceDir . DIRECTORY_SEPARATOR . $autoloaderFileName,
 						$autoloaderTargetDir . DIRECTORY_SEPARATOR . $autoloaderFileName,
-						FALSE,
-						TRUE
+						FALSE
 					);
 				} catch (\RuntimeException $e) {
 					if ($e->getCode() !== 1430494084) {

@@ -46,11 +46,13 @@ class Filesystem extends \Composer\Util\Filesystem {
 	}
 
 	/**
-	 *
+	 * @param array $links
+	 * @param bool $copyOnFailure
+	 * @param bool $makeRelative
 	 */
-	public function establishSymlinks(array $links) {
+	public function establishSymlinks(array $links, $copyOnFailure = TRUE, $makeRelative = TRUE) {
 		foreach ($links as $source => $target) {
-			$this->symlink($source, $target);
+			$this->symlink($source, $target, $copyOnFailure, $makeRelative);
 		}
 	}
 
@@ -69,7 +71,7 @@ class Filesystem extends \Composer\Util\Filesystem {
 	 * @param bool $copyOnFailure
 	 * @param bool $makeRelative Create a relative link instead of an absolute
 	 */
-	public function symlink($source, $target, $copyOnFailure = TRUE, $makeRelative = FALSE) {
+	public function symlink($source, $target, $copyOnFailure = TRUE, $makeRelative = TRUE) {
 		if (!file_exists($source)) {
 			throw new \InvalidArgumentException('The symlink source "' . $source . '" is not available.');
 		}

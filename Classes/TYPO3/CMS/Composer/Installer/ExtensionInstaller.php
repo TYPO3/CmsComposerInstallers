@@ -25,6 +25,7 @@ namespace TYPO3\CMS\Composer\Installer;
  ***************************************************************/
 
 use Composer\Package\PackageInterface;
+use TYPO3\CMS\Composer\Plugin\Config;
 
 /**
  * Enter descriptions here
@@ -33,7 +34,6 @@ use Composer\Package\PackageInterface;
  */
 class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 
-	const TYPO3_CONF_DIR = 'typo3conf';
 	const TYPO3_EXT_DIR = 'ext';
 
 	/**
@@ -57,6 +57,11 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 	protected $filesystem;
 
 	/**
+	 * @var Config
+	 */
+	protected $pluginConfig;
+
+	/**
 	 * @param \Composer\Composer $composer
 	 * @param \Composer\Util\Filesystem $filesystem
 	 */
@@ -65,7 +70,23 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 		$this->downloadManager = $composer->getDownloadManager();
 
 		$this->filesystem = $filesystem ? : new \Composer\Util\Filesystem();
-		$this->extensionDir = self::TYPO3_CONF_DIR . DIRECTORY_SEPARATOR . self::TYPO3_EXT_DIR;
+		$this->initializeConfiguration();
+		$this->initializeExtensionDir();
+	}
+
+	/**
+	 * Read plugin configuration
+	 */
+	protected function initializeConfiguration() {
+		$this->pluginConfig = Config::load($this->composer);
+	}
+
+	/**
+	 * Initialize the extension dir based on configuration
+	 */
+	protected function initializeExtensionDir() {
+		$configDir = $this->filesystem->normalizePath($this->pluginConfig->get('config-dir'));
+		$this->extensionDir = $configDir . DIRECTORY_SEPARATOR . self::TYPO3_EXT_DIR;
 	}
 
 	/**
@@ -99,8 +120,6 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 	 * @param PackageInterface $package package instance
 	 */
 	public function install(\Composer\Repository\InstalledRepositoryInterface $repo, PackageInterface $package) {
-		$this->initializeExtensionDir();
-
 		$this->installCode($package);
 		if (!$repo->hasPackage($package)) {
 			$repo->addPackage(clone $package);
@@ -120,9 +139,6 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 		if (!$repo->hasPackage($initial)) {
 			throw new \InvalidArgumentException('Package is not installed: ' . $initial);
 		}
-
-		$this->initializeExtensionDir();
-
 		$this->updateCode($initial, $target);
 		$repo->removePackage($initial);
 		if (!$repo->hasPackage($target)) {
@@ -206,11 +222,4 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 		$this->downloadManager->remove($package, $this->getInstallPath($package));
 	}
 
-	/**
-	 *
-	 */
-	protected function initializeExtensionDir() {
-		$this->filesystem->ensureDirectoryExists($this->extensionDir);
-		$this->extensionDir = realpath($this->extensionDir);
-	}
 }

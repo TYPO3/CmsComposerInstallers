@@ -24,6 +24,7 @@ namespace TYPO3\CMS\Composer\Installer;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
 /**
@@ -34,7 +35,6 @@ use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
  */
 class CoreInstaller implements \Composer\Installer\InstallerInterface {
 
-	const TYPO3_SRC_DIR		= 'typo3_src';
 	const TYPO3_DIR			= 'typo3';
 	const TYPO3_INDEX_PHP	= 'index.php';
 
@@ -61,6 +61,11 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	protected $getTypo3OrgService;
 
 	/**
+	 * @var Config
+	 */
+	protected $pluginConfig;
+
+	/**
 	 * @param \Composer\Composer $composer
 	 * @param Filesystem $filesystem
 	 */
@@ -69,11 +74,30 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 		$this->downloadManager = $composer->getDownloadManager();
 		$this->filesystem = $filesystem;
 		$this->getTypo3OrgService = $getTypo3OrgService;
+		$this->initializeConfiguration();
+		$this->initializeSymlinks();
+	}
+
+	/**
+	 * Read plugin configuration
+	 */
+	protected function initializeConfiguration() {
+		$this->pluginConfig = Config::load($this->composer);
+	}
+
+	/**
+	 * Initialize symlinks with configuration
+	 */
+	protected function initializeSymlinks() {
+		$webDir = $this->filesystem->normalizePath($this->pluginConfig->get('web-dir'));
+		$this->filesystem->ensureDirectoryExists($webDir);
+		$backendDir = $this->filesystem->normalizePath($this->pluginConfig->get('backend-dir'));
+		$sourcesDir = $this->determineInstallPath();
 		$this->symlinks = array(
-			self::TYPO3_SRC_DIR . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP
-				=> self::TYPO3_INDEX_PHP,
-			self::TYPO3_SRC_DIR . DIRECTORY_SEPARATOR . self::TYPO3_DIR
-				=> self::TYPO3_DIR
+			$sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP
+				=> $webDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP,
+			$sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_DIR
+				=> $backendDir
 		);
 	}
 
@@ -174,8 +198,14 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	 * @return string
 	 */
 	public function getInstallPath(\Composer\Package\PackageInterface $package) {
-		$this->filesystem->ensureDirectoryExists(self::TYPO3_SRC_DIR);
-		return realpath(self::TYPO3_SRC_DIR);
+		return $this->determineInstallPath();
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function determineInstallPath() {
+		return $this->pluginConfig->get('cms-package-dir');
 	}
 
 	/**
