@@ -31,15 +31,11 @@ use Composer\Package\PackageInterface;
  *
  * @author Thomas Maroschik <tmaroschik@dfau.de>
  */
-class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
+class ExtensionInstaller extends BaseInstaller {
 
-	const TYPO3_CONF_DIR = 'typo3conf';
-	const TYPO3_EXT_DIR = 'ext';
-
-	/**
-	 * @var string
-	 */
-	protected $extensionDir;
+	protected $locations = array(
+		'typo3-cms-extension' => 'typo3conf/ext/{$name}'
+	);
 
 	/**
 	 * @var \Composer\Composer
@@ -65,19 +61,6 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 		$this->downloadManager = $composer->getDownloadManager();
 
 		$this->filesystem = $filesystem ? : new \Composer\Util\Filesystem();
-		$this->extensionDir = self::TYPO3_CONF_DIR . DIRECTORY_SEPARATOR . self::TYPO3_EXT_DIR;
-	}
-
-	/**
-	 * Decides if the installer supports the given type
-	 *
-	 * @param  string $packageType
-	 * @return bool
-	 */
-	public function supports($packageType) {
-		return $packageType !== 'typo3-cms-core'
-			// strncmp is about 20% faster than substr
-			&& strncmp('typo3-cms-', $packageType, 10) === 0;
 	}
 
 	/**
@@ -99,7 +82,6 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 	 * @param PackageInterface $package package instance
 	 */
 	public function install(\Composer\Repository\InstalledRepositoryInterface $repo, PackageInterface $package) {
-		$this->initializeExtensionDir();
 
 		$this->installCode($package);
 		if (!$repo->hasPackage($package)) {
@@ -120,8 +102,6 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 		if (!$repo->hasPackage($initial)) {
 			throw new \InvalidArgumentException('Package is not installed: ' . $initial);
 		}
-
-		$this->initializeExtensionDir();
 
 		$this->updateCode($initial, $target);
 		$repo->removePackage($initial);
@@ -153,7 +133,7 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 	 * @param  PackageInterface $package
 	 * @return string           path
 	 */
-	public function getInstallPath(PackageInterface $package) {
+	public function getVendorAndPackageName(PackageInterface $package) {
 		$extensionKey = '';
 		foreach ($package->getReplaces() as $packageName => $version) {
 			if (strpos($packageName, '/') === FALSE) {
@@ -163,9 +143,10 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 		}
 		if (empty($extensionKey)) {
 			list(, $extensionKey) = explode('/', $package->getName(), 2);
-			$extensionKey = str_replace('-', '_', $extensionKey);
 		}
-		return $this->extensionDir . DIRECTORY_SEPARATOR . $extensionKey;
+		$extensionKey = str_replace('-', '_', $extensionKey);
+
+		return array('', $extensionKey);
 	}
 
 	/**
@@ -204,13 +185,5 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 	 */
 	protected function removeCode(PackageInterface $package) {
 		$this->downloadManager->remove($package, $this->getInstallPath($package));
-	}
-
-	/**
-	 *
-	 */
-	protected function initializeExtensionDir() {
-		$this->filesystem->ensureDirectoryExists($this->extensionDir);
-		$this->extensionDir = realpath($this->extensionDir);
 	}
 }
