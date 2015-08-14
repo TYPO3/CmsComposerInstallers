@@ -233,6 +233,12 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface {
 	 * @param string $path path of the extension folder
 	 */
 	protected function writeEmConf(array $extensionData, $path) {
+		// sometimes data from TER is not up2date so we prefer data from possibly existing ext_emconf.php
+		$existingEmConf = $this->getExtEmconfContent($path);
+		if (isset($existingEmConf['constraints'])) {
+			$extensionData['EM_CONF']['constraints'] = $existingEmConf['constraints'];
+		}
+
 		$emConfContent = $this->constructEmConf($extensionData);
 		if ($fd = fopen($path . 'ext_emconf.php', 'wb')) {
 			fwrite($fd, $emConfContent);
@@ -369,6 +375,28 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
 			}
 		}
 		return $constraint;
+	}
+
+	/**
+	 * Get content of ext_emconf.php in path if it exists
+	 *
+	 * @param string $path
+	 * @return array
+	 */
+	private function getExtEmconfContent($path)
+	{
+		$extEmconfPath = $path . 'ext_emconf.php';
+		$_EXTKEY = basename($path);
+		if (file_exists($extEmconfPath)) {
+			/** @var $EM_CONF array */
+			include $extEmconfPath;
+
+			if (isset($EM_CONF) && isset($EM_CONF[$_EXTKEY])) {
+				return $EM_CONF[$_EXTKEY];
+			}
+		}
+
+		return array();
 	}
 
 	/**
