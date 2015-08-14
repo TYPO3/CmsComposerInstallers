@@ -296,13 +296,16 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
 	 * @return array
 	 */
 	public function fixEmConf(array $emConf) {
-		if (!isset($emConf['constraints']) || !isset($emConf['constraints']['depends']) || !isset($emConf['constraints']['conflicts']) || !isset($emConf['constraints']['suggests'])) {
+		if (
+			!isset($emConf['constraints']) || !isset($emConf['constraints']['depends'])
+			|| !isset($emConf['constraints']['conflicts']) || !isset($emConf['constraints']['suggests'])
+		) {
 			if (!isset($emConf['constraints']) || !isset($emConf['constraints']['depends'])) {
 				$emConf['constraints']['depends'] = $this->stringToDependency($emConf['dependencies']);
-				if (strlen($emConf['PHP_version'])) {
+				if ((string)$emConf['PHP_version'] !== '') {
 					$emConf['constraints']['depends']['php'] = $emConf['PHP_version'];
 				}
-				if (strlen($emConf['TYPO3_version'])) {
+				if ((string)$emConf['TYPO3_version'] !== '') {
 					$emConf['constraints']['depends']['typo3'] = $emConf['TYPO3_version'];
 				}
 			}
@@ -317,10 +320,25 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
 			$emConf['dependencies'] = $this->dependencyToString($emConf['constraints']);
 			$emConf['conflicts'] = $this->dependencyToString($emConf['constraints'], 'conflicts');
 		}
+
+		// Remove TER v1-style entries
+		unset($emConf['dependencies']);
+		unset($emConf['conflicts']);
+		unset($emConf['suggests']);
 		unset($emConf['private']);
 		unset($emConf['download_password']);
 		unset($emConf['TYPO3_version']);
 		unset($emConf['PHP_version']);
+		unset($emConf['internal']);
+		unset($emConf['module']);
+		unset($emConf['loadOrder']);
+		unset($emConf['lockType']);
+		unset($emConf['shy']);
+		unset($emConf['priority']);
+		unset($emConf['modify_tables']);
+		unset($emConf['CGLcompliance']);
+		unset($emConf['CGLcompliance_note']);
+
 		return $emConf;
 	}
 
