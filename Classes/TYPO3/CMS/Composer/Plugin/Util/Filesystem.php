@@ -78,7 +78,17 @@ class Filesystem extends \Composer\Util\Filesystem {
 		if (file_exists($target)) {
 			throw new \InvalidArgumentException('The symlink target "' . $target . '" already exists.');
 		}
-		$symlinkSuccessfull = @symlink($makeRelative ? $this->findShortestPath($target, $source) : $source, $target);
+
+		if ($makeRelative) {
+			$symlinkSource = $this->findShortestPath($target, $source);
+			if (DIRECTORY_SEPARATOR === '\\') {
+				$symlinkSource = str_replace('/', '\\', $symlinkSource);
+			}
+		} else {
+			$symlinkSource = $source;
+		}
+
+		$symlinkSuccessfull = @symlink($symlinkSource, $target);
 		if (!$symlinkSuccessfull && !$copyOnFailure) {
 			throw new \RuntimeException('Symlinking target "' . $target . '" to source "' . $source . '" failed.', 1430494084);
 		} elseif (!$symlinkSuccessfull && $copyOnFailure) {
