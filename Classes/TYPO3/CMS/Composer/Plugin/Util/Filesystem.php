@@ -79,16 +79,23 @@ class Filesystem extends \Composer\Util\Filesystem {
 			throw new \InvalidArgumentException('The symlink target "' . $target . '" already exists.');
 		}
 		// As Windows needs a relative path with backslashes, we ensure the proper directory separator is used
-		$source = strtr($makeRelative ? $this->findShortestPath($target, $source) : $source, '/', DIRECTORY_SEPARATOR);
-		$target = strtr($target, '/', DIRECTORY_SEPARATOR);
-		$symlinkSuccessfull = @symlink($source, $target);
+		$symlinkSource = strtr($makeRelative ? $this->findShortestPath($target, $source) : $source, '/', DIRECTORY_SEPARATOR);
+		$symlinkTarget = strtr($target, '/', DIRECTORY_SEPARATOR);
+		$symlinkSuccessfull = @symlink($symlinkSource, $symlinkTarget);
+		if (!$symlinkSuccessfull && !stristr(PHP_OS, 'darwin') && !stristr(PHP_OS, 'cygwin') && stristr(PHP_OS, 'win')) {
+			// Try fallback to mklink for Windows, because symlink can't handle relative paths starting with "..\"
+			$output = NULL;
+			$parameter = is_dir($source) ? ' /D' : '';
+			$processExecutor = new \Composer\Util\ProcessExecutor();
+			$symlinkSuccessfull = $processExecutor->execute('mklink' . $parameter . ' ' . escapeshellarg($symlinkTarget) . ' ' . escapeshellarg($symlinkSource), $output) === 0;
+		}
 		if (!$symlinkSuccessfull && !$copyOnFailure) {
-			throw new \RuntimeException('Symlinking target "' . $target . '" to source "' . $source . '" failed.', 1430494084);
+			throw new \RuntimeException('Symlinking target "' . $symlinkTarget . '" to source "' . $symlinkSource . '" ("' . $source . '")  failed.', 1430494084);
 		} elseif (!$symlinkSuccessfull && $copyOnFailure) {
 			try {
-				$this->copy($source, $target);
+				$this->copy($symlinkSource, $symlinkTarget);
 			} catch (\Exception $exception) {
-				throw new \RuntimeException('Neiter symlinking nor copying target "' . $target . '" to source "' . $source . '" worked.', 1430494090);
+				throw new \RuntimeException('Neiter symlinking nor copying target "' . $symlinkTarget . '" to source "' . $symlinkSource . '" ("' . $source . '") worked.', 1430494090);
 			}
 		}
 	}
