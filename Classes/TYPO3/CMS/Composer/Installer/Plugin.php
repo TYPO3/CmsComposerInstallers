@@ -60,7 +60,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 				new CoreInstaller(
 					$composer,
 					$filesystem,
-					new CoreInstaller\GetTypo3OrgService($io)
+					new CoreInstaller\GetTypo3OrgService($io),
+					$io
 				)
 			);
 		$composer

@@ -14,6 +14,8 @@ namespace TYPO3\CMS\Composer\Plugin\Util;
  * The TYPO3 project - inspiring people to share!
  */
 
+use TYPO3\CMS\Composer\Plugin\Util\Exception\SymlinkException;
+
 /**
  * An additional wrapper around filesystem
  */
@@ -93,12 +95,12 @@ class Filesystem extends \Composer\Util\Filesystem {
 			}
 		}
 		if (!$symlinkSuccessfull && !$copyOnFailure) {
-			throw new \RuntimeException('Symlinking target "' . $symlinkTarget . '" to source "' . $symlinkSource . '" ("' . $source . '")  failed.' . $additionalErrorInformation, 1430494084);
+			throw new SymlinkException('Symlinking target "' . $symlinkTarget . '" to source "' . $symlinkSource . '" ("' . $source . '")  failed.' . $additionalErrorInformation, 1430494084);
 		} elseif (!$symlinkSuccessfull && $copyOnFailure) {
 			try {
 				$this->copy($symlinkSource, $symlinkTarget);
 			} catch (\Exception $exception) {
-				throw new \RuntimeException('Neither symlinking nor copying target "' . $symlinkTarget . '" to source "' . $symlinkSource . '" ("' . $source . '") worked.' . $additionalErrorInformation, 1430494090);
+				throw new SymlinkException('Neither symlinking nor copying target "' . $symlinkTarget . '" to source "' . $symlinkSource . '" ("' . $source . '") worked.' . $additionalErrorInformation, 1430494090);
 			}
 		}
 	}
