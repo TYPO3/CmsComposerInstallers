@@ -87,8 +87,7 @@ class Filesystem extends \Composer\Util\Filesystem {
 			// Try fallback to mklink for Windows, because symlink can't handle relative paths starting with "..\"
 			$output = NULL;
 			$parameter = is_dir($source) ? ' /D' : '';
-			$processExecutor = new \Composer\Util\ProcessExecutor();
-			$symlinkSuccessfull = $processExecutor->execute('mklink' . $parameter . ' ' . escapeshellarg($symlinkTarget) . ' ' . escapeshellarg($symlinkSource), $output) === 0;
+			$symlinkSuccessfull = $this->getProcess()->execute('mklink' . $parameter . ' ' . escapeshellarg($symlinkTarget) . ' ' . escapeshellarg($symlinkSource), $output) === 0;
 			if (!$symlinkSuccessfull) {
 				$additionalErrorInformation = PHP_EOL . ' ' . PHP_EOL . 'Windows system detected - please ensure you are running the Composer command with administrator rights to be able to create symlinks.';
 			}
