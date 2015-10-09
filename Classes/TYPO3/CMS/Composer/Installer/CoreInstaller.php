@@ -24,7 +24,9 @@ namespace TYPO3\CMS\Composer\Installer;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Composer\IO\IOInterface;
 use TYPO3\CMS\Composer\Plugin\Config;
+use TYPO3\CMS\Composer\Plugin\Util\Exception\SymlinkException;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
 /**
@@ -61,6 +63,11 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	protected $getTypo3OrgService;
 
 	/**
+	 * @var IOInterface
+	 */
+	protected $io;
+
+	/**
 	 * @var Config
 	 */
 	protected $pluginConfig;
@@ -69,10 +76,11 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	 * @param \Composer\Composer $composer
 	 * @param Filesystem $filesystem
 	 */
-	public function __construct(\Composer\Composer $composer, Filesystem $filesystem, CoreInstaller\GetTypo3OrgService $getTypo3OrgService) {
+	public function __construct(\Composer\Composer $composer, Filesystem $filesystem, CoreInstaller\GetTypo3OrgService $getTypo3OrgService, IOInterface $io) {
 		$this->composer = $composer;
 		$this->downloadManager = $composer->getDownloadManager();
 		$this->filesystem = $filesystem;
+		$this->io = $io;
 		$this->getTypo3OrgService = $getTypo3OrgService;
 		$this->initializeConfiguration();
 		$this->initializeSymlinks();
@@ -140,7 +148,11 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 
 		$this->installCode($package);
 
-		$this->filesystem->establishSymlinks($this->symlinks, FALSE);
+		try  {
+			$this->filesystem->establishSymlinks($this->symlinks, FALSE);
+		} catch (SymlinkException $e) {
+			$this->io->writeError('<error>' . $e->getMessage() . '</error>');
+		}
 
 		if (!$repo->hasPackage($package)) {
 			$repo->addPackage(clone $package);
