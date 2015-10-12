@@ -18,7 +18,9 @@
         }
     ],
     "autoload": {
-        "psr-0": { "": "Classes/"}
+        "psr-0": {
+            "TYPO3\\CMS\\Composer\\Installer\\": "Classes/"
+        }
     },
     "minimum-stability": "dev",
     "replace": {
