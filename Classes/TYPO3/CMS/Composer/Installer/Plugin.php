@@ -57,11 +57,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface {
 		$composer
 			->getInstallationManager()
 			->addInstaller(
-				new CoreInstaller(
-					$composer,
-					$filesystem,
-					new CoreInstaller\GetTypo3OrgService($io)
-				)
+				new CoreInstaller($composer, $filesystem)
 			);
 		$composer
 			->getInstallationManager()

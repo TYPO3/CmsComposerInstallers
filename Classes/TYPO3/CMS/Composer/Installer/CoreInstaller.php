@@ -56,11 +56,6 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	protected $filesystem;
 
 	/**
-	 * @var CoreInstaller\GetTypo3OrgService
-	 */
-	protected $getTypo3OrgService;
-
-	/**
 	 * @var Config
 	 */
 	protected $pluginConfig;
@@ -69,11 +64,10 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	 * @param \Composer\Composer $composer
 	 * @param Filesystem $filesystem
 	 */
-	public function __construct(\Composer\Composer $composer, Filesystem $filesystem, CoreInstaller\GetTypo3OrgService $getTypo3OrgService) {
+	public function __construct(\Composer\Composer $composer, Filesystem $filesystem) {
 		$this->composer = $composer;
 		$this->downloadManager = $composer->getDownloadManager();
 		$this->filesystem = $filesystem;
-		$this->getTypo3OrgService = $getTypo3OrgService;
 		$this->initializeConfiguration();
 		$this->initializeSymlinks();
 	}
@@ -132,8 +126,6 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	 * @param \Composer\Package\PackageInterface $package package instance
 	 */
 	public function install(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package) {
-		$this->getTypo3OrgService->addDistToPackage($package);
-
 		if ($this->filesystem->someFilesExist($this->symlinks)) {
 			$this->filesystem->removeSymlinks($this->symlinks);
 		}
@@ -155,9 +147,6 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	 * @param \Composer\Package\PackageInterface $target updated version
 	 */
 	public function update(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $initial, \Composer\Package\PackageInterface $target) {
-		$this->getTypo3OrgService->addDistToPackage($initial);
-		$this->getTypo3OrgService->addDistToPackage($target);
-
 		if ($this->filesystem->someFilesExist($this->symlinks)) {
 			$this->filesystem->removeSymlinks($this->symlinks);
 		}
@@ -250,5 +239,3 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 		$this->downloadManager->remove($package, $downloadPath);
 	}
 }
-
-?>
