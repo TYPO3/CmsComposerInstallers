@@ -28,6 +28,9 @@
     "require": {
         "composer-plugin-api": "^1.0.0"
     },
+    "conflict": {
+        "composer/installers": "*"
+    }
     "require-dev": {
         "composer/composer": "1.*"
     },
