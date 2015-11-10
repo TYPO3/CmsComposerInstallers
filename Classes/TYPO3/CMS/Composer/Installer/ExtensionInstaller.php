@@ -181,6 +181,12 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 			list(, $extensionKey) = explode('/', $package->getName(), 2);
 			$extensionKey = str_replace('-', '_', $extensionKey);
 		}
+
+		$extra = $package->getExtra();
+		if (!empty($extra) && !empty($extra['installer-name'])) {
+			$extensionKey = $extra['installer-name'];
+		}
+
 		return $this->extensionDir . DIRECTORY_SEPARATOR . $extensionKey;
 	}
 
