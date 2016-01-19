@@ -375,7 +375,7 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
 			if (isset($dependency[$type]['typo3'])) {
 				unset($dependency[$type]['typo3']);
 			}
-			$dependencyString = count($dependency[$type]) ? implode(',', array_keys($dependency[$type])) : '';
+			$dependencyString = !empty($dependency[$type]) ? implode(',', array_keys($dependency[$type])) : '';
 			return $dependencyString;
 		}
 		return '';
