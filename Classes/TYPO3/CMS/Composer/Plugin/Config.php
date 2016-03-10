@@ -48,8 +48,8 @@ class Config {
 	 */
 	public function merge(array $config) {
 		// Override defaults with given config
-		if (!empty($config['typo3/cms']) && is_array($config['typo3/cms'])) {
-			foreach ($config['typo3/cms'] as $key => $val) {
+		if (!empty($config) && is_array($config)) {
+			foreach ($config as $key => $val) {
 				$this->config[$key] = $val;
 			}
 		}
@@ -167,16 +167,16 @@ class Config {
 			$baseDir = static::extractBaseDir($composer->getConfig());
 			$config = new static($baseDir);
 			$rootPackageExtraConfig = $composer->getPackage()->getExtra();
+
+			$extrasKey = !in_array('--no-dev', $_SERVER['argv']) && isset($rootPackageExtraConfig['typo3/cms-dev'])
+				? 'typo3/cms-dev'
+				: 'typo3/cms';
+
 			if (is_array($rootPackageExtraConfig)) {
-				$config->merge($rootPackageExtraConfig);
+				$config->merge($rootPackageExtraConfig[$extrasKey]);
 			}
-			$config->merge(
-				array(
-					'typo3/cms' => array(
-						'vendor-dir' => $composer->getConfig()->get('vendor-dir')
-					)
-				)
-			);
+
+			$config->merge(array('vendor-dir' => $composer->getConfig()->get('vendor-dir')));
 		}
 		return $config;
 	}
