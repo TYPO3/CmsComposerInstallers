@@ -83,6 +83,10 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface {
 	 * Initialize symlinks with configuration
 	 */
 	protected function initializeSymlinks() {
+		if ($this->pluginConfig->get('establish-symlinks') === false) {
+			return;
+		}
+
 		$webDir = $this->filesystem->normalizePath($this->pluginConfig->get('web-dir'));
 		$this->filesystem->ensureDirectoryExists($webDir);
 		$backendDir = $this->filesystem->normalizePath($this->pluginConfig->get('backend-dir'));

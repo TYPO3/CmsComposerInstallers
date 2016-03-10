@@ -19,6 +19,7 @@ class Config {
 		'cache-dir' => '{$temporary-dir}/Cache',
 		'cms-package-dir' => 'typo3_src',
 		'composer-mode' => true,
+		'establish-symlinks' => true,
 	);
 
 	/**
