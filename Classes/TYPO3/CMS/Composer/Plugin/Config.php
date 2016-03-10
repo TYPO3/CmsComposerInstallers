@@ -175,7 +175,7 @@ class Config {
 				? 'typo3/cms-dev'
 				: 'typo3/cms';
 
-			if (is_array($rootPackageExtraConfig)) {
+			if (is_array($rootPackageExtraConfig) && isset($rootPackageExtraConfig[$extrasKey])) {
 				$config->merge($rootPackageExtraConfig[$extrasKey]);
 			}
 
