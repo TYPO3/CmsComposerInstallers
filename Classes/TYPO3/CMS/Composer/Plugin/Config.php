@@ -18,6 +18,7 @@ class Config {
 		'temporary-dir' => '{$web-dir}/typo3temp',
 		'cache-dir' => '{$temporary-dir}/Cache',
 		'cms-package-dir' => 'typo3_src',
+		'use-ext-dir' => true,
 		'composer-mode' => true,
 	);
 
