@@ -15,9 +15,12 @@ class Config {
 		'web-dir' => '.',
 		'backend-dir' => '{$web-dir}/typo3',
 		'config-dir' => '{$web-dir}/typo3conf',
+		'ext-dir' => '{$config-dir}/ext',
 		'temporary-dir' => '{$web-dir}/typo3temp',
 		'cache-dir' => '{$temporary-dir}/Cache',
 		'cms-package-dir' => 'typo3_src',
+		'use-ext-dir' => true,
+		'skip-symlinks' => false,
 		'composer-mode' => true,
 	);
 
@@ -48,8 +51,8 @@ class Config {
 	 */
 	public function merge(array $config) {
 		// Override defaults with given config
-		if (!empty($config['typo3/cms']) && is_array($config['typo3/cms'])) {
-			foreach ($config['typo3/cms'] as $key => $val) {
+		if (!empty($config) && is_array($config)) {
+			foreach ($config as $key => $val) {
 				$this->config[$key] = $val;
 			}
 		}
@@ -167,16 +170,16 @@ class Config {
 			$baseDir = static::extractBaseDir($composer->getConfig());
 			$config = new static($baseDir);
 			$rootPackageExtraConfig = $composer->getPackage()->getExtra();
-			if (is_array($rootPackageExtraConfig)) {
-				$config->merge($rootPackageExtraConfig);
+
+			$extrasKey = !in_array('--no-dev', $_SERVER['argv']) && isset($rootPackageExtraConfig['typo3/cms-dev'])
+				? 'typo3/cms-dev'
+				: 'typo3/cms';
+
+			if (is_array($rootPackageExtraConfig) && isset($rootPackageExtraConfig[$extrasKey])) {
+				$config->merge($rootPackageExtraConfig[$extrasKey]);
 			}
-			$config->merge(
-				array(
-					'typo3/cms' => array(
-						'vendor-dir' => $composer->getConfig()->get('vendor-dir')
-					)
-				)
-			);
+
+			$config->merge(array('vendor-dir' => $composer->getConfig()->get('vendor-dir')));
 		}
 		return $config;
 	}

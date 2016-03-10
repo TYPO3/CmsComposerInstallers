@@ -34,8 +34,6 @@ use TYPO3\CMS\Composer\Plugin\Config;
  */
 class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 
-	const TYPO3_EXT_DIR = 'ext';
-
 	/**
 	 * @var string
 	 */
@@ -85,8 +83,7 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 	 * Initialize the extension dir based on configuration
 	 */
 	protected function initializeExtensionDir() {
-		$configDir = $this->filesystem->normalizePath($this->pluginConfig->get('config-dir'));
-		$this->extensionDir = $configDir . DIRECTORY_SEPARATOR . self::TYPO3_EXT_DIR;
+		$this->extensionDir = $this->filesystem->normalizePath($this->pluginConfig->get('ext-dir'));
 	}
 
 	/**
@@ -170,6 +167,10 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 	 * @return string           path
 	 */
 	public function getInstallPath(PackageInterface $package) {
+		if ($this->pluginConfig->get('use-ext-dir') === FALSE) {
+			return $this->filesystem->normalizePath($this->pluginConfig->get('vendor-dir')) . DIRECTORY_SEPARATOR . $package->getName();
+		}
+
 		$extensionKey = '';
 		foreach ($package->getReplaces() as $packageName => $version) {
 			if (strpos($packageName, '/') === FALSE) {
