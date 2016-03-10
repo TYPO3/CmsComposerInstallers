@@ -15,9 +15,11 @@ class Config {
 		'web-dir' => '.',
 		'backend-dir' => '{$web-dir}/typo3',
 		'config-dir' => '{$web-dir}/typo3conf',
+		'ext-dir' => '{$config-dir}/ext',
 		'temporary-dir' => '{$web-dir}/typo3temp',
 		'cache-dir' => '{$temporary-dir}/Cache',
 		'cms-package-dir' => 'typo3_src',
+		'use-ext-dir' => true,
 		'skip-symlinks' => false,
 		'composer-mode' => true,
 	);
