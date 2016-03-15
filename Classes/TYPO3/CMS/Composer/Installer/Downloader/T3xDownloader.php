@@ -296,9 +296,19 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
 	 * @return array
 	 */
 	public function fixEmConf(array $emConf) {
-		if (!isset($emConf['constraints']) || !isset($emConf['constraints']['depends']) || !isset($emConf['constraints']['conflicts']) || !isset($emConf['constraints']['suggests'])) {
+		if (
+			!isset($emConf['constraints']) || 
+			!isset($emConf['constraints']['depends']) || 
+			!isset($emConf['constraints']['conflicts']) || 
+			!isset($emConf['constraints']['suggests'])
+		) {
 			if (!isset($emConf['constraints']) || !isset($emConf['constraints']['depends'])) {
-				$emConf['constraints']['depends'] = $this->stringToDependency($emConf['dependencies']);
+				if (isset($emConf['dependencies'])) {
+					$emConf['constraints']['depends'] = $this->stringToDependency($emConf['dependencies']);
+				} else {
+					$emConf['constraints']['depends'] = array();
+				}
+
 				if (strlen($emConf['PHP_version'])) {
 					$emConf['constraints']['depends']['php'] = $emConf['PHP_version'];
 				}
@@ -307,7 +317,11 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
 				}
 			}
 			if (!isset($emConf['constraints']) || !isset($emConf['constraints']['conflicts'])) {
-				$emConf['constraints']['conflicts'] = $this->stringToDependency($emConf['conflicts']);
+				if (isset($emConf['conflicts'])) {
+					$emConf['constraints']['conflicts'] = $this->stringToDependency($emConf['conflicts']);
+				} else {
+					$emConf['constraints']['conflicts'] = array();
+				}
 			}
 			if (!isset($emConf['constraints']) || !isset($emConf['constraints']['suggests'])) {
 				$emConf['constraints']['suggests'] = array();
