@@ -314,7 +314,7 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
 			|| !isset($emConf['constraints']['conflicts']) || !isset($emConf['constraints']['suggests'])
 		) {
 			if (!isset($emConf['constraints']) || !isset($emConf['constraints']['depends'])) {
-				$emConf['constraints']['depends'] = $this->stringToDependency($emConf['dependencies']);
+				$emConf['constraints']['depends'] = isset($emConf['dependencies']) ? $this->stringToDependency($emConf['dependencies']) : array();
 				if ((string)$emConf['PHP_version'] !== '') {
 					$emConf['constraints']['depends']['php'] = $emConf['PHP_version'];
 				}
@@ -323,7 +323,7 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
 				}
 			}
 			if (!isset($emConf['constraints']) || !isset($emConf['constraints']['conflicts'])) {
-				$emConf['constraints']['conflicts'] = $this->stringToDependency($emConf['conflicts']);
+				$emConf['constraints']['conflicts'] = isset($emConf['conflicts']) ? $this->stringToDependency($emConf['conflicts']) : array();
 			}
 			if (!isset($emConf['constraints']) || !isset($emConf['constraints']['suggests'])) {
 				$emConf['constraints']['suggests'] = array();
