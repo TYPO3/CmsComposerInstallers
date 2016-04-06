@@ -24,11 +24,11 @@ namespace TYPO3\CMS\Composer\Installer;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Composer\Cache;
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
-use Composer\Cache;
 use Composer\Script\ScriptEvents;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
@@ -38,52 +38,54 @@ use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
  * @author Christian Opitz <christian.opitz at netresearch.de>
  * @author Thomas Maroschik <tmaroschik@dfau.de>
  */
-class Plugin implements PluginInterface, EventSubscriberInterface {
+class Plugin implements PluginInterface, EventSubscriberInterface
+{
+    /**
+     * {@inheritDoc}
+     */
+    public static function getSubscribedEvents()
+    {
+        return array(
+            ScriptEvents::POST_AUTOLOAD_DUMP => 'postAutoload'
+        );
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public static function getSubscribedEvents() {
-		return array(
-			ScriptEvents::POST_AUTOLOAD_DUMP => 'postAutoload'
-		);
-	}
+    /**
+     * {@inheritDoc}
+     */
+    public function activate(Composer $composer, IOInterface $io)
+    {
+        $filesystem = new Filesystem();
+        $composer
+            ->getInstallationManager()
+            ->addInstaller(
+                new CoreInstaller($composer, $filesystem)
+            );
+        $composer
+            ->getInstallationManager()
+            ->addInstaller(
+                new ExtensionInstaller($composer, $filesystem)
+            );
 
-	/**
-	 * {@inheritDoc}
-	 */
-	public function activate(Composer $composer, IOInterface $io) {
-		$filesystem = new Filesystem();
-		$composer
-			->getInstallationManager()
-			->addInstaller(
-				new CoreInstaller($composer, $filesystem)
-			);
-		$composer
-			->getInstallationManager()
-			->addInstaller(
-				new ExtensionInstaller($composer, $filesystem)
-			);
+        $cache = null;
+        if ($composer->getConfig()->get('cache-files-ttl') > 0) {
+            $cache = new Cache($io, $composer->getConfig()->get('cache-files-dir'), 'a-z0-9_./');
+        }
 
-		$cache = null;
-		if ($composer->getConfig()->get('cache-files-ttl') > 0) {
-			$cache = new Cache($io, $composer->getConfig()->get('cache-files-dir'), 'a-z0-9_./');
-		}
+        $composer
+            ->getDownloadManager()
+            ->setDownloader(
+                't3x',
+                new Downloader\T3xDownloader($io, $composer->getConfig(), null, $cache)
+            );
+    }
 
-		$composer
-			->getDownloadManager()
-			->setDownloader(
-				't3x',
-				new Downloader\T3xDownloader($io, $composer->getConfig(), null, $cache)
-			);
-	}
-
-	/**
-	 * @param \Composer\Script\Event $event
-	 */
-	public function postAutoload(\Composer\Script\Event $event) {
-		$autoloadConnector = new \TYPO3\CMS\Composer\Plugin\Core\AutoloadConnector();
-		$autoloadConnector->linkAutoloader($event);
-	}
-
+    /**
+     * @param \Composer\Script\Event $event
+     */
+    public function postAutoload(\Composer\Script\Event $event)
+    {
+        $autoloadConnector = new \TYPO3\CMS\Composer\Plugin\Core\AutoloadConnector();
+        $autoloadConnector->linkAutoloader($event);
+    }
 }
