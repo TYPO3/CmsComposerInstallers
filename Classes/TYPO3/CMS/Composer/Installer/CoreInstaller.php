@@ -1,31 +1,26 @@
 <?php
 namespace TYPO3\CMS\Composer\Installer;
 
-/***************************************************************
- * Copyright notice
+/*
+ * This file is part of the TYPO3 project.
  *
- * (c) 2014 Christian Opitz <christian.opitz at netresearch.de>
- * All rights reserved
+ * It is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU General Public License, either version 2
+ * of the License, or any later version.
  *
- * This script is part of the TYPO3 project. The TYPO3 project is
- * free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
+ * For the full copyright and license information, please read the
+ * LICENSE.txt file that was distributed with this source code.
  *
- * The GNU General Public License can be found at
- * http://www.gnu.org/copyleft/gpl.html.
- *
- * This script is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * This copyright notice MUST APPEAR in all copies of the script!
- ***************************************************************/
+ * The TYPO3 project - inspiring people to share!
+ */
 
+use Composer\Composer;
+use Composer\Downloader\DownloadManager;
 use Composer\Installer\BinaryInstaller;
+use Composer\Installer\InstallerInterface;
 use Composer\IO\IOInterface;
+use Composer\Package\PackageInterface;
+use Composer\Repository\InstalledRepositoryInterface;
 use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
@@ -34,21 +29,25 @@ use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
  *
  * @author Christian Opitz <christian.opitz at netresearch.de>
  * @author Thomas Maroschik <tmaroschik@dfau.de>
+ * @author Helmut Hummel <info@helhum.io>
  */
-class CoreInstaller implements \Composer\Installer\InstallerInterface
+class CoreInstaller implements InstallerInterface
 {
     const TYPO3_DIR            = 'typo3';
     const TYPO3_INDEX_PHP    = 'index.php';
 
+    /**
+     * @var array
+     */
     protected $symlinks = array();
 
     /**
-     * @var \Composer\Composer
+     * @var Composer
      */
     protected $composer;
 
     /**
-     * @var \Composer\Downloader\DownloadManager
+     * @var DownloadManager
      */
     protected $downloadManager;
 
@@ -69,11 +68,11 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface
 
     /**
      * @param IOInterface $io
-     * @param \Composer\Composer $composer
+     * @param Composer $composer
      * @param Filesystem $filesystem
      * @param BinaryInstaller $binaryInstaller
      */
-    public function __construct(IOInterface $io, \Composer\Composer $composer, \Composer\Util\Filesystem $filesystem, BinaryInstaller $binaryInstaller)
+    public function __construct(IOInterface $io, Composer $composer, Filesystem $filesystem, BinaryInstaller $binaryInstaller)
     {
         $this->composer = $composer;
         $this->downloadManager = $composer->getDownloadManager();
@@ -99,7 +98,6 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface
         if ($this->pluginConfig->get('prepare-web-dir') === false) {
             return;
         }
-
         $webDir = $this->filesystem->normalizePath($this->pluginConfig->get('web-dir'));
         $this->filesystem->ensureDirectoryExists($webDir);
         $backendDir = $this->filesystem->normalizePath($this->pluginConfig->get('backend-dir'));
@@ -126,12 +124,12 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface
     /**
      * Checks that provided package is installed.
      *
-     * @param \Composer\Repository\InstalledRepositoryInterface $repo repository in which to check
-     * @param \Composer\Package\PackageInterface $package package instance
+     * @param InstalledRepositoryInterface $repo repository in which to check
+     * @param PackageInterface $package package instance
      *
      * @return bool
      */
-    public function isInstalled(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package)
+    public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
         return $repo->hasPackage($package)
             && is_readable($this->getInstallPath($package))
@@ -141,10 +139,10 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface
     /**
      * Installs specific package.
      *
-     * @param \Composer\Repository\InstalledRepositoryInterface $repo repository in which to check
-     * @param \Composer\Package\PackageInterface $package package instance
+     * @param InstalledRepositoryInterface $repo repository in which to check
+     * @param PackageInterface $package package instance
      */
-    public function install(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package)
+    public function install(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
         if ($this->filesystem->someFilesExist($this->symlinks)) {
             $this->filesystem->removeSymlinks($this->symlinks);
@@ -168,11 +166,11 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface
     /**
      * Updates specific package.
      *
-     * @param \Composer\Repository\InstalledRepositoryInterface $repo repository in which to check
-     * @param \Composer\Package\PackageInterface $initial already installed package version
-     * @param \Composer\Package\PackageInterface $target updated version
+     * @param InstalledRepositoryInterface $repo repository in which to check
+     * @param PackageInterface $initial already installed package version
+     * @param PackageInterface $target updated version
      */
-    public function update(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $initial, \Composer\Package\PackageInterface $target)
+    public function update(InstalledRepositoryInterface $repo, PackageInterface $initial, PackageInterface $target)
     {
         if ($this->filesystem->someFilesExist($this->symlinks)) {
             $this->filesystem->removeSymlinks($this->symlinks);
@@ -191,10 +189,10 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface
     /**
      * Uninstalls specific package.
      *
-     * @param \Composer\Repository\InstalledRepositoryInterface $repo repository in which to check
-     * @param \Composer\Package\PackageInterface $package package instance
+     * @param InstalledRepositoryInterface $repo repository in which to check
+     * @param PackageInterface $package package instance
      */
-    public function uninstall(\Composer\Repository\InstalledRepositoryInterface $repo, \Composer\Package\PackageInterface $package)
+    public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
         if (!$repo->hasPackage($package)) {
             throw new \InvalidArgumentException('Package is not installed: ' . $package);
@@ -211,10 +209,10 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface
     /**
      * Returns the installation path of a package
      *
-     * @param  \Composer\Package\PackageInterface $package
+     * @param  PackageInterface $package
      * @return string
      */
-    public function getInstallPath(\Composer\Package\PackageInterface $package)
+    public function getInstallPath(PackageInterface $package)
     {
         return $this->determineInstallPath();
     }
@@ -228,19 +226,19 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface
     }
 
     /**
-     * @param \Composer\Package\PackageInterface $package
+     * @param PackageInterface $package
      */
-    protected function installCode(\Composer\Package\PackageInterface $package)
+    protected function installCode(PackageInterface $package)
     {
         $downloadPath = $this->getInstallPath($package);
         $this->downloadManager->download($package, $downloadPath);
     }
 
     /**
-     * @param \Composer\Package\PackageInterface $initial
-     * @param \Composer\Package\PackageInterface $target
+     * @param PackageInterface $initial
+     * @param PackageInterface $target
      */
-    protected function updateCode(\Composer\Package\PackageInterface $initial, \Composer\Package\PackageInterface $target)
+    protected function updateCode(PackageInterface $initial, PackageInterface $target)
     {
         // Currently the install path for all versions is the same.
         // In the future the install path for two core versions may differ.
@@ -264,9 +262,9 @@ class CoreInstaller implements \Composer\Installer\InstallerInterface
     }
 
     /**
-     * @param \Composer\Package\PackageInterface $package
+     * @param PackageInterface $package
      */
-    protected function removeCode(\Composer\Package\PackageInterface $package)
+    protected function removeCode(PackageInterface $package)
     {
         $downloadPath = $this->getInstallPath($package);
         $this->downloadManager->remove($package, $downloadPath);

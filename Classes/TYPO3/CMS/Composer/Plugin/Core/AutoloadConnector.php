@@ -13,32 +13,37 @@ namespace TYPO3\CMS\Composer\Plugin\Core;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+use Composer\Script\Event;
 use TYPO3\CMS\Composer\Plugin\Config;
+use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
 /**
  * Creates a symlink of the central autoload.php file in the vendor directory of the TYPO3 core package
  * If symlinking is not possible, a proxy file is created, which requires the autoload file in the vendor directory
  * Nothing is done if the composer.json of typo3/cms is the root.
+ *
+ * @author Helmut Hummel <info@helhum.io>
  */
 class AutoloadConnector
 {
     /**
-     * @var \TYPO3\CMS\Composer\Plugin\Util\Filesystem
+     * @var Filesystem
      */
     protected $filesystem;
 
     /**
-     * @param \TYPO3\CMS\Composer\Plugin\Util\Filesystem
+     * @param Filesystem $filesystem
      */
-    public function __construct($filesystem = null)
+    public function __construct(Filesystem $filesystem = null)
     {
-        $this->filesystem = $this->filesystem ?: new \TYPO3\CMS\Composer\Plugin\Util\Filesystem();
+        $this->filesystem = $this->filesystem ?: new Filesystem();
     }
 
     /**
-     * @param \Composer\Script\Event $event
+     * @param Event $event
      */
-    public function linkAutoloader(\Composer\Script\Event $event)
+    public function linkAutoloader(Event $event)
     {
         $composer = $event->getComposer();
         $composerConfig = $composer->getConfig();
@@ -85,9 +90,9 @@ class AutoloadConnector
     }
 
     /**
-     * @param \Composer\Script\Event $event
+     * @param Event $event
      */
-    protected function insertComposerModeConstant(\Composer\Script\Event $event)
+    protected function insertComposerModeConstant(Event $event)
     {
         $composer = $event->getComposer();
         $pluginConfig = Config::load($composer);
