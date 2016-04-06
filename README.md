@@ -11,6 +11,7 @@ The behavior of the installer can be influenced by configuration in the extra se
   "extra": {
       "typo3/cms": {
           "web-dir": "web",
+          "prepare-web-dir": true,
           "cms-package-dir": "{$vendor-dir}/typo3/cms"
       }
     }
@@ -21,6 +22,12 @@ You can specify a relative path from the base directory, where the public docume
 Links to the typo3 folder and the index.php will be established in this folder by the installer.
 
 *The default value* is "", which means next to your next to your root `composer.json`. This default value is kept for compatiblity reasons, but is recommended to have the document root in a separate folder so that the vendor folder and the composer.lock file are not accessible.
+
+#### `prepare-web-dir`
+Whether or not links to the typo3 folder and the index.php will be established in the web directory.
+At a later point, this option might affect other actions like publishing assets.
+
+*The default value* is "true".
 
 #### `cms-package-dir`
 You can specify a relative path from the base directory, where the typo3/cms package should be installed into.
