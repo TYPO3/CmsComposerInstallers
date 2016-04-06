@@ -6,11 +6,15 @@
     "keywords": [
         "installer", "typo3", "cms", "core", "extension"
     ],
-    "homepage": "http://forge.typo3.org/projects/team-composer",
+    "homepage": "https://github.com/TYPO3/CmsComposerInstallers",
     "authors": [
         {
             "name": "Christian Opitz",
             "email": "christian.opitz@netresearch.de"
+        },
+        {
+            "name": "Helmut Hummel",
+            "email": "info@helhum.io"
         },
         {
             "name": "Lars Peipmann",
