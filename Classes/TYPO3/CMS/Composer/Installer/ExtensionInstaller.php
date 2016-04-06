@@ -170,6 +170,10 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface {
 	 * @return string           path
 	 */
 	public function getInstallPath(PackageInterface $package) {
+		if ($this->pluginConfig->get('use-ext-dir') === false) {
+			return $this->filesystem->normalizePath($this->pluginConfig->get('vendor-dir')) . DIRECTORY_SEPARATOR . $package->getName();
+		}
+
 		$extensionKey = '';
 		foreach ($package->getReplaces() as $packageName => $version) {
 			if (strpos($packageName, '/') === FALSE) {
