@@ -24,6 +24,8 @@ namespace TYPO3\CMS\Composer\Installer;
  * This copyright notice MUST APPEAR in all copies of the script!
  ***************************************************************/
 
+use Composer\Installer\BinaryInstaller;
+use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use TYPO3\CMS\Composer\Plugin\Config;
 
@@ -62,15 +64,23 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface
     protected $pluginConfig;
 
     /**
+     * @var BinaryInstaller
+     */
+    protected $binaryInstaller;
+
+    /**
+     * @param IOInterface $io
      * @param \Composer\Composer $composer
      * @param \Composer\Util\Filesystem $filesystem
+     * @param BinaryInstaller $binaryInstaller
      */
-    public function __construct(\Composer\Composer $composer, \Composer\Util\Filesystem $filesystem = null)
+    public function __construct(IOInterface $io, \Composer\Composer $composer, \Composer\Util\Filesystem $filesystem, BinaryInstaller $binaryInstaller)
     {
         $this->composer = $composer;
         $this->downloadManager = $composer->getDownloadManager();
 
-        $this->filesystem = $filesystem ? : new \Composer\Util\Filesystem();
+        $this->filesystem = $filesystem;
+        $this->binaryInstaller = $binaryInstaller;
         $this->initializeConfiguration();
         $this->initializeExtensionDir();
     }
@@ -126,7 +136,13 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface
      */
     public function install(\Composer\Repository\InstalledRepositoryInterface $repo, PackageInterface $package)
     {
+        $downloadPath = $this->getInstallPath($package);
+        // Remove the binaries if it appears the package files are missing
+        if (!is_readable($downloadPath) && $repo->hasPackage($package)) {
+            $this->binaryInstaller->removeBinaries($package);
+        }
         $this->installCode($package);
+        $this->binaryInstaller->installBinaries($package, $this->getInstallPath($package));
         if (!$repo->hasPackage($package)) {
             $repo->addPackage(clone $package);
         }
@@ -146,7 +162,9 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface
         if (!$repo->hasPackage($initial)) {
             throw new \InvalidArgumentException('Package is not installed: ' . $initial);
         }
+        $this->binaryInstaller->removeBinaries($initial);
         $this->updateCode($initial, $target);
+        $this->binaryInstaller->installBinaries($target, $this->getInstallPath($target));
         $repo->removePackage($initial);
         if (!$repo->hasPackage($target)) {
             $repo->addPackage(clone $target);
@@ -168,6 +186,7 @@ class ExtensionInstaller implements \Composer\Installer\InstallerInterface
         }
 
         $this->removeCode($package);
+        $this->binaryInstaller->removeBinaries($package);
         $repo->removePackage($package);
     }
 

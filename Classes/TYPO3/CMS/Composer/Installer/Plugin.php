@@ -27,6 +27,7 @@ namespace TYPO3\CMS\Composer\Installer;
 use Composer\Cache;
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
+use Composer\Installer\BinaryInstaller;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\ScriptEvents;
@@ -56,15 +57,16 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function activate(Composer $composer, IOInterface $io)
     {
         $filesystem = new Filesystem();
+        $binaryInstaller = new BinaryInstaller($io, rtrim($composer->getConfig()->get('bin-dir'), '/'), $composer->getConfig()->get('bin-compat'), $filesystem);
         $composer
             ->getInstallationManager()
             ->addInstaller(
-                new CoreInstaller($composer, $filesystem)
+                new CoreInstaller($io, $composer, $filesystem, $binaryInstaller)
             );
         $composer
             ->getInstallationManager()
             ->addInstaller(
-                new ExtensionInstaller($composer, $filesystem)
+                new ExtensionInstaller($io, $composer, $filesystem, $binaryInstaller)
             );
 
         $cache = null;
