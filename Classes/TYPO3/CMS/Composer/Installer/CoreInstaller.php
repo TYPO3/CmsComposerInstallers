@@ -70,24 +70,17 @@ class CoreInstaller implements InstallerInterface
      * @param IOInterface $io
      * @param Composer $composer
      * @param Filesystem $filesystem
+     * @param Config $pluginConfig
      * @param BinaryInstaller $binaryInstaller
      */
-    public function __construct(IOInterface $io, Composer $composer, Filesystem $filesystem, BinaryInstaller $binaryInstaller)
+    public function __construct(IOInterface $io, Composer $composer, Filesystem $filesystem, Config $pluginConfig, BinaryInstaller $binaryInstaller)
     {
         $this->composer = $composer;
         $this->downloadManager = $composer->getDownloadManager();
         $this->filesystem = $filesystem;
         $this->binaryInstaller = $binaryInstaller;
-        $this->initializeConfiguration();
+        $this->pluginConfig = $pluginConfig;
         $this->initializeSymlinks();
-    }
-
-    /**
-     * Read plugin configuration
-     */
-    protected function initializeConfiguration()
-    {
-        $this->pluginConfig = Config::load($this->composer);
     }
 
     /**

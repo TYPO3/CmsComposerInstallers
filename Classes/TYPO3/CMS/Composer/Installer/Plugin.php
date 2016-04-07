@@ -22,6 +22,7 @@ use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
+use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\Core\AutoloadConnector;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
@@ -51,15 +52,16 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         $filesystem = new Filesystem();
         $binaryInstaller = new BinaryInstaller($io, rtrim($composer->getConfig()->get('bin-dir'), '/'), $composer->getConfig()->get('bin-compat'), $filesystem);
+        $pluginConfig = Config::load($composer);
         $composer
             ->getInstallationManager()
             ->addInstaller(
-                new CoreInstaller($io, $composer, $filesystem, $binaryInstaller)
+                new CoreInstaller($io, $composer, $filesystem, $pluginConfig, $binaryInstaller)
             );
         $composer
             ->getInstallationManager()
             ->addInstaller(
-                new ExtensionInstaller($io, $composer, $filesystem, $binaryInstaller)
+                new ExtensionInstaller($io, $composer, $filesystem, $pluginConfig, $binaryInstaller)
             );
 
         $cache = null;
