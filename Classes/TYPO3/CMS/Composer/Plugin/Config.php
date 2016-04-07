@@ -30,6 +30,7 @@ class Config
         'web-dir' => '.',
         'backend-dir' => '{$web-dir}/typo3',
         'config-dir' => '{$web-dir}/typo3conf',
+        'extension-dir' => '{$config-dir}/ext',
         'temporary-dir' => '{$web-dir}/typo3temp',
         'cache-dir' => '{$temporary-dir}/Cache',
         'cms-package-dir' => 'typo3_src',
@@ -86,6 +87,7 @@ class Config
             case 'web-dir':
             case 'backend-dir':
             case 'config-dir':
+            case 'extension-dir':
             case 'temporary-dir':
             case 'cache-dir':
             case 'cms-package-dir':

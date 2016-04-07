@@ -37,11 +37,16 @@ You can specify a relative path from the base directory, where the typo3/cms pac
 #### `config-dir`
 You can specify a relative path from the base directory, where the configuration folder is located.
 Extensions will be installed in a sub directory `ext` within this directory.
-The name of the extgension directory is implied by the first replaces entry, or (if a replaces section is not present in the extension composer.json), the second part of th vendor name, where all dashes (-) are converted to underscores (_).
+The name of the extension directory is implied by the first replaces entry, or (if a replaces section is not present in the extension composer.json), the second part of th vendor name, where all dashes (-) are converted to underscores (_).
 Example: For the vendor name `helhum/typo3-console` an extension directory with the name `typo3_console` is implied.
 
 *The default value* is "{$web-dir}/typo3conf". TYPO3 requires extensions to be present in `typo3conf/ext` If this value is changed, a proper publication (link or copy) of the extensions into this directory must be taken care of manually.
 
+#### `extension-dir`
+You can specify a relative path from the base directory, where the extensions should be installed into.
+
+*The default value* is "{$config-dir}/ext". TYPO3 requires extensions to be present in `typo3conf/ext` If this value is changed, a proper publication (link or copy) of the extensions into this directory must be taken care of manually.
+
 ## Feedback/ Bugreports/ Contribution
 
-Bugreports, feature requests and pull requests are welcome in the Github repository: https://github.com/TYPO3/CmsComposerInstallers/
+Bug reports, feature requests and pull requests are welcome in the Github repository: https://github.com/TYPO3/CmsComposerInstallers/

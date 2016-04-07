@@ -33,8 +33,6 @@ use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
  */
 class ExtensionInstaller implements InstallerInterface
 {
-    const TYPO3_EXT_DIR = 'ext';
-
     /**
      * @var string
      */
@@ -95,8 +93,7 @@ class ExtensionInstaller implements InstallerInterface
      */
     protected function initializeExtensionDir()
     {
-        $configDir = $this->filesystem->normalizePath($this->pluginConfig->get('config-dir'));
-        $this->extensionDir = $configDir . DIRECTORY_SEPARATOR . self::TYPO3_EXT_DIR;
+        $this->extensionDir = $this->filesystem->normalizePath($this->pluginConfig->get('extension-dir'));
     }
 
     /**
@@ -108,7 +105,6 @@ class ExtensionInstaller implements InstallerInterface
     public function supports($packageType)
     {
         return $packageType !== 'typo3-cms-core'
-            // strncmp is about 20% faster than substr
             && strncmp('typo3-cms-', $packageType, 10) === 0;
     }
 
