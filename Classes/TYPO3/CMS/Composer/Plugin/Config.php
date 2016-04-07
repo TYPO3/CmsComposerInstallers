@@ -85,7 +85,7 @@ class Config
         switch ($key) {
             case 'web-dir':
             case 'backend-dir':
-            case 'configuration-dir':
+            case 'config-dir':
             case 'temporary-dir':
             case 'cache-dir':
             case 'cms-package-dir':
