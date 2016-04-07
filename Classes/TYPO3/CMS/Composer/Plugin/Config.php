@@ -36,6 +36,7 @@ class Config
         'cms-package-dir' => 'typo3_src',
         'composer-mode' => true,
         'prepare-web-dir' => true,
+        'imply-extension-key' => true,
     );
 
     /**

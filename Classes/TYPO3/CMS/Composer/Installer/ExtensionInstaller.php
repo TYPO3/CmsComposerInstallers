@@ -176,7 +176,22 @@ class ExtensionInstaller implements InstallerInterface
      */
     public function getInstallPath(PackageInterface $package)
     {
-        $extensionKey = '';
+        if ($this->pluginConfig->get('imply-extension-key')) {
+            $extensionInstallDir = $this->implyExtensionKey($package);
+        } else {
+            $extensionInstallDir = $package->getName();
+        }
+        return $this->extensionDir . DIRECTORY_SEPARATOR . $extensionInstallDir;
+    }
+
+    /**
+     * Implies the extension key from replaces or package name
+     *
+     * @param PackageInterface $package
+     * @return string
+     */
+    protected function implyExtensionKey(PackageInterface $package)
+    {
         foreach ($package->getReplaces() as $packageName => $version) {
             if (strpos($packageName, '/') === false) {
                 $extensionKey = trim($packageName);
@@ -187,7 +202,7 @@ class ExtensionInstaller implements InstallerInterface
             list(, $extensionKey) = explode('/', $package->getName(), 2);
             $extensionKey = str_replace('-', '_', $extensionKey);
         }
-        return $this->extensionDir . DIRECTORY_SEPARATOR . $extensionKey;
+        return $extensionKey;
     }
 
     /**
