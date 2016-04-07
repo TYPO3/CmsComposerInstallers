@@ -33,7 +33,7 @@
         "composer-plugin-api": "^1.0.0"
     },
     "conflict": {
-        "composer/installers": "*"
+        "composer/installers": "<1.0.24,>1.0.24"
     },
     "require-dev": {
         "composer/composer": "1.*"
