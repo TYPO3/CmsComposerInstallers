@@ -32,7 +32,7 @@ At a later point, this option might affect other actions like publishing assets.
 #### `cms-package-dir`
 You can specify a relative path from the base directory, where the typo3/cms package should be installed into.
 
-*The default value* is `"typo3_cms"`. This default value is kept for compatiblity reasons, but is recommended to let typo3/cms being installed in the vendor directory, which is possible with the example configuration outlined above.
+*The default value* is `"typo3_src"`. This default value is kept for compatiblity reasons, but is recommended to let typo3/cms being installed in the vendor directory, which is possible with the example configuration outlined above.
 
 #### `config-dir`
 You can specify a relative path from the base directory, where the configuration folder is located.
