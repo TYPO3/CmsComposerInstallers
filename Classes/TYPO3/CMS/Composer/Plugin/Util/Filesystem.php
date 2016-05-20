@@ -84,26 +84,47 @@ class Filesystem extends \Composer\Util\Filesystem
             throw new \InvalidArgumentException('The symlink target "' . $target . '" already exists.');
         }
         // As Windows needs a relative path with backslashes, we ensure the proper directory separator is used
-        $symlinkSource = strtr($makeRelative ? $this->findShortestPath($target, $source) : $source, '/', DIRECTORY_SEPARATOR);
+        $symlinkSource = strtr(
+            $makeRelative ? $this->findShortestPath($target, $source) : $source,
+            '/',
+            DIRECTORY_SEPARATOR
+        );
         $symlinkTarget = strtr($target, '/', DIRECTORY_SEPARATOR);
         $symlinkSuccessfull = @symlink($symlinkSource, $symlinkTarget);
         $additionalErrorInformation = '';
-        if (!$symlinkSuccessfull && !stristr(PHP_OS, 'darwin') && !stristr(PHP_OS, 'cygwin') && stristr(PHP_OS, 'win')) {
+        if (!$symlinkSuccessfull && !stristr(PHP_OS, 'darwin') && !stristr(PHP_OS, 'cygwin')
+            && stristr(
+                PHP_OS,
+                'win'
+            )
+        ) {
             // Try fallback to mklink for Windows, because symlink can't handle relative paths starting with "..\"
             $output = null;
             $parameter = is_dir($source) ? ' /D' : '';
-            $symlinkSuccessfull = $this->getProcess()->execute('mklink' . $parameter . ' ' . escapeshellarg($symlinkTarget) . ' ' . escapeshellarg($symlinkSource), $output) === 0;
+            $symlinkSuccessfull = $this->getProcess()->execute(
+                    'mklink' . $parameter . ' ' . escapeshellarg($symlinkTarget) . ' ' . escapeshellarg($symlinkSource),
+                    $output
+                ) === 0;
             if (!$symlinkSuccessfull) {
-                $additionalErrorInformation = PHP_EOL . ' ' . PHP_EOL . 'Windows system detected - please ensure you are running the Composer command with administrator rights to be able to create symlinks.';
+                $additionalErrorInformation = PHP_EOL . ' ' . PHP_EOL
+                                              . 'Windows system detected - please ensure you are running the Composer command with administrator rights to be able to create symlinks.';
             }
         }
         if (!$symlinkSuccessfull && !$copyOnFailure) {
-            throw new \RuntimeException('Symlinking target "' . $symlinkTarget . '" to source "' . $symlinkSource . '" ("' . $source . '")  failed.' . $additionalErrorInformation, 1430494084);
+            throw new \RuntimeException(
+                'Symlinking target "' . $symlinkTarget . '" to source "' . $symlinkSource . '" ("' . $source
+                . '")  failed.' . $additionalErrorInformation,
+                1430494084
+            );
         } elseif (!$symlinkSuccessfull && $copyOnFailure) {
             try {
                 $this->copy($symlinkSource, $symlinkTarget);
             } catch (\Exception $exception) {
-                throw new \RuntimeException('Neither symlinking nor copying target "' . $symlinkTarget . '" to source "' . $symlinkSource . '" ("' . $source . '") worked.' . $additionalErrorInformation, 1430494090);
+                throw new \RuntimeException(
+                    'Neither symlinking nor copying target "' . $symlinkTarget . '" to source "' . $symlinkSource
+                    . '" ("' . $source . '") worked.' . $additionalErrorInformation,
+                    1430494090
+                );
             }
         }
     }
@@ -138,7 +159,9 @@ class Filesystem extends \Composer\Util\Filesystem
     {
         $copySuccessful = @copy($source, $target);
         if (!$copySuccessful) {
-            throw new \RuntimeException('The source "' . $source . '" could not be copied to target "' . $target . '".');
+            throw new \RuntimeException(
+                'The source "' . $source . '" could not be copied to target "' . $target . '".'
+            );
         }
     }
 

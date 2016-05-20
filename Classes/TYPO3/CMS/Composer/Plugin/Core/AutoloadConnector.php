@@ -14,7 +14,9 @@ namespace TYPO3\CMS\Composer\Plugin\Core;
  * The TYPO3 project - inspiring people to share!
  */
 
+use Composer\Json\JsonFile;
 use Composer\Script\Event;
+use Composer\Util\RemoteFilesystem;
 use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
@@ -53,13 +55,15 @@ class AutoloadConnector
             if ($package->getType() === 'typo3-cms-core') {
                 $defaultVendorDir = \Composer\Config::$defaultConfig['vendor-dir'];
 
-                $packagePath = $composer->getInstallationManager()->getInstallPath($package);
-                $jsonFile = new \Composer\Json\JsonFile($packagePath . DIRECTORY_SEPARATOR . 'composer.json', new \Composer\Util\RemoteFilesystem($event->getIO()));
+                $packagePath = $composer->getInstallationManager()->getInstallPath($package) . DIRECTORY_SEPARATOR;
+                $jsonFile = new JsonFile($packagePath . 'composer.json', new RemoteFilesystem($event->getIO()));
                 $packageJson = $jsonFile->read();
-                $packageVendorDir = !empty($packageJson['config']['vendor-dir']) ? $this->filesystem->normalizePath($packageJson['config']['vendor-dir']) : $defaultVendorDir;
+                $packageVendorDir = !empty($packageJson['config']['vendor-dir']) ? $this->filesystem->normalizePath(
+                    $packageJson['config']['vendor-dir']
+                ) : $defaultVendorDir;
 
                 $autoloaderSourceDir = $composerConfig->get('vendor-dir');
-                $autoloaderTargetDir = $packagePath . DIRECTORY_SEPARATOR . $packageVendorDir;
+                $autoloaderTargetDir = $packagePath . $packageVendorDir;
                 $autoloaderFileName = 'autoload.php';
 
                 $this->filesystem->ensureDirectoryExists($autoloaderTargetDir);
@@ -79,9 +83,12 @@ class AutoloadConnector
                         'return require ' . $this->filesystem->findShortestPathCode(
                             $autoloaderTargetDir . DIRECTORY_SEPARATOR . $autoloaderFileName,
                             $autoloaderSourceDir . DIRECTORY_SEPARATOR . $autoloaderFileName
-                        ) . ';'
+                        ) . ';',
                     );
-                    file_put_contents($autoloaderTargetDir . DIRECTORY_SEPARATOR . $autoloaderFileName, implode(chr(10), $code));
+                    file_put_contents(
+                        $autoloaderTargetDir . DIRECTORY_SEPARATOR . $autoloaderFileName,
+                        implode(PHP_EOL, $code)
+                    );
                 }
                 $this->insertComposerModeConstant($event);
                 break;
@@ -104,10 +111,9 @@ class AutoloadConnector
         $autoloadFile = $vendorDir . '/autoload.php';
         $io = $event->getIO();
         if (!file_exists($autoloadFile)) {
-            throw new \RuntimeException(sprintf(
-                'Could not adjust autoloader: The file %s was not found.',
-                $autoloadFile
-            ));
+            throw new \RuntimeException(
+                sprintf('Could not adjust autoloader: The file %s was not found.', $autoloadFile)
+            );
         }
 
         $io->write('<info>Inserting TYPO3_COMPOSER_MODE constant</info>');

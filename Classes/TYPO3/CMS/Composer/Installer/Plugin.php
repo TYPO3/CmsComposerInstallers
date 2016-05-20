@@ -40,9 +40,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            ScriptEvents::POST_AUTOLOAD_DUMP => 'postAutoload'
-        );
+        return array(ScriptEvents::POST_AUTOLOAD_DUMP => 'postAutoload');
     }
 
     /**
@@ -51,7 +49,12 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function activate(Composer $composer, IOInterface $io)
     {
         $filesystem = new Filesystem();
-        $binaryInstaller = new BinaryInstaller($io, rtrim($composer->getConfig()->get('bin-dir'), '/'), $composer->getConfig()->get('bin-compat'), $filesystem);
+        $binaryInstaller = new BinaryInstaller(
+            $io,
+            rtrim($composer->getConfig()->get('bin-dir'), '/'),
+            $composer->getConfig()->get('bin-compat'),
+            $filesystem
+        );
         $pluginConfig = Config::load($composer);
         $composer
             ->getInstallationManager()

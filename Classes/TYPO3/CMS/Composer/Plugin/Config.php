@@ -152,11 +152,13 @@ class Config
             return $value;
         }
 
-        return preg_replace_callback('#\{\$(.+)\}#',
+        return preg_replace_callback(
+            '#\{\$(.+)\}#',
             function ($match) use ($config, $flags) {
                 return $config->get($match[1], $flags);
             },
-            $value);
+            $value
+        );
     }
 
     /**
@@ -201,8 +203,8 @@ class Config
             $config->merge(
                 array(
                     'typo3/cms' => array(
-                        'vendor-dir' => $composer->getConfig()->get('vendor-dir')
-                    )
+                        'vendor-dir' => $composer->getConfig()->get('vendor-dir'),
+                    ),
                 )
             );
         }

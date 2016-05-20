@@ -33,8 +33,8 @@ use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
  */
 class CoreInstaller implements InstallerInterface
 {
-    const TYPO3_DIR            = 'typo3';
-    const TYPO3_INDEX_PHP    = 'index.php';
+    const TYPO3_DIR = 'typo3';
+    const TYPO3_INDEX_PHP = 'index.php';
 
     /**
      * @var array
@@ -73,8 +73,13 @@ class CoreInstaller implements InstallerInterface
      * @param Config $pluginConfig
      * @param BinaryInstaller $binaryInstaller
      */
-    public function __construct(IOInterface $io, Composer $composer, Filesystem $filesystem, Config $pluginConfig, BinaryInstaller $binaryInstaller)
-    {
+    public function __construct(
+        IOInterface $io,
+        Composer $composer,
+        Filesystem $filesystem,
+        Config $pluginConfig,
+        BinaryInstaller $binaryInstaller
+    ) {
         $this->composer = $composer;
         $this->downloadManager = $composer->getDownloadManager();
         $this->filesystem = $filesystem;
@@ -94,12 +99,10 @@ class CoreInstaller implements InstallerInterface
         $webDir = $this->filesystem->normalizePath($this->pluginConfig->get('web-dir'));
         $this->filesystem->ensureDirectoryExists($webDir);
         $backendDir = $this->filesystem->normalizePath($this->pluginConfig->get('backend-dir'));
-        $sourcesDir = $this->determineInstallPath();
+        $sourcesDir = $this->determineInstallPath() . DIRECTORY_SEPARATOR;
         $this->symlinks = array(
-            $sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP
-                => $webDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP,
-            $sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_DIR
-                => $backendDir
+            $sourcesDir . self::TYPO3_INDEX_PHP => $webDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP,
+            $sourcesDir . self::TYPO3_DIR => $backendDir,
         );
     }
 
@@ -125,8 +128,8 @@ class CoreInstaller implements InstallerInterface
     public function isInstalled(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
         return $repo->hasPackage($package)
-            && is_readable($this->getInstallPath($package))
-            && $this->filesystem->allFilesExist($this->symlinks);
+               && is_readable($this->getInstallPath($package))
+               && $this->filesystem->allFilesExist($this->symlinks);
     }
 
     /**

@@ -90,7 +90,8 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface
             }
 
             if ($package->getPrettyVersion() !== $emMetaData['version']) {
-                $messages[] = 'Local Version is ' . $emMetaData['version'] . ' but should be ' . $package->getPrettyVersion();
+                $messages[] = 'Local Version is ' . $emMetaData['version'] . ' but should be '
+                              . $package->getPrettyVersion();
             }
 
             unset($EM_CONF);
@@ -132,16 +133,25 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface
             if (function_exists('gzuncompress')) {
                 $parts[2] = gzuncompress($parts[2]);
             } else {
-                throw new \RuntimeException('Decoding Error: No decompressor available for compressed content. gzcompress()/gzuncompress() functions are not available!', 1359124403);
+                throw new \RuntimeException(
+                    'Decoding Error: No decompressor available for compressed content. gzcompress()/gzuncompress() functions are not available!',
+                    1359124403
+                );
             }
         }
         if (md5($parts[2]) === $parts[0]) {
             $output = unserialize($parts[2]);
             if (!is_array($output)) {
-                throw new \RuntimeException('Error: Content could not be unserialized to an array. Strange (since MD5 hashes match!)', 1359124554);
+                throw new \RuntimeException(
+                    'Error: Content could not be unserialized to an array. Strange (since MD5 hashes match!)',
+                    1359124554
+                );
             }
         } else {
-            throw new \RuntimeException('Error: MD5 mismatch. Maybe the extension file was downloaded and saved as a text file and thereby corrupted!?', 1359124556);
+            throw new \RuntimeException(
+                'Error: MD5 mismatch. Maybe the extension file was downloaded and saved as a text file and thereby corrupted!?',
+                1359124556
+            );
         }
         return $output;
     }
@@ -312,12 +322,17 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
      */
     public function fixEmConf(array $emConf)
     {
-        if (
-            !isset($emConf['constraints']) || !isset($emConf['constraints']['depends'])
-            || !isset($emConf['constraints']['conflicts']) || !isset($emConf['constraints']['suggests'])
+        if (!isset($emConf['constraints'])
+            || !isset($emConf['constraints']['depends'])
+            || !isset($emConf['constraints']['conflicts'])
+            || !isset($emConf['constraints']['suggests'])
         ) {
             if (!isset($emConf['constraints']) || !isset($emConf['constraints']['depends'])) {
-                $emConf['constraints']['depends'] = isset($emConf['dependencies']) ? $this->stringToDependency($emConf['dependencies']) : array();
+                if (isset($emConf['dependencies'])) {
+                    $emConf['constraints']['depends'] = $this->stringToDependency($emConf['dependencies']);
+                } else {
+                    $emConf['constraints']['depends'] = array();
+                }
                 if ((string)$emConf['PHP_version'] !== '') {
                     $emConf['constraints']['depends']['php'] = $emConf['PHP_version'];
                 }
@@ -326,7 +341,11 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
                 }
             }
             if (!isset($emConf['constraints']) || !isset($emConf['constraints']['conflicts'])) {
-                $emConf['constraints']['conflicts'] = isset($emConf['conflicts']) ? $this->stringToDependency($emConf['conflicts']) : array();
+                if (isset($emConf['conflicts'])) {
+                    $emConf['constraints']['conflicts'] = $this->stringToDependency($emConf['conflicts']);
+                } else {
+                    $emConf['constraints']['conflicts'] = array();
+                }
             }
             if (!isset($emConf['constraints']) || !isset($emConf['constraints']['suggests'])) {
                 $emConf['constraints']['suggests'] = array();
