@@ -24,7 +24,6 @@ use Composer\Repository\InstalledRepositoryInterface;
 use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
-
 /**
  * Enter descriptions here
  *
@@ -70,8 +69,13 @@ class ExtensionInstaller implements InstallerInterface
      * @param Config $pluginConfig
      * @param BinaryInstaller $binaryInstaller
      */
-    public function __construct(IOInterface $io, Composer $composer, Filesystem $filesystem, Config $pluginConfig, BinaryInstaller $binaryInstaller)
-    {
+    public function __construct(
+        IOInterface $io,
+        Composer $composer,
+        Filesystem $filesystem,
+        Config $pluginConfig,
+        BinaryInstaller $binaryInstaller
+    ) {
         $this->composer = $composer;
         $this->downloadManager = $composer->getDownloadManager();
 
@@ -89,8 +93,7 @@ class ExtensionInstaller implements InstallerInterface
      */
     public function supports($packageType)
     {
-        return $packageType !== 'typo3-cms-core'
-            && strncmp('typo3-cms-', $packageType, 10) === 0;
+        return $packageType !== 'typo3-cms-core' && strncmp('typo3-cms-', $packageType, 10) === 0;
     }
 
     /**
