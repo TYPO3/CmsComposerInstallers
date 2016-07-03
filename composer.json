@@ -22,7 +22,9 @@
         }
     ],
     "autoload": {
-        "psr-0": { "": "Classes/"}
+        "psr-4": {
+            "TYPO3\\CMS\\Composer\\": "src/"
+        }
     },
     "minimum-stability": "dev",
     "replace": {
