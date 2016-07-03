@@ -80,7 +80,6 @@ class Config
      *
      * @param  string $key
      * @param  int $flags Options (see class constants)
-     * @throws \RuntimeException
      * @return mixed
      */
     public function get($key, $flags = 0)
@@ -93,7 +92,7 @@ class Config
             case 'cache-dir':
             case 'cms-package-dir':
                 $val = rtrim($this->process($this->config[$key], $flags), '/\\');
-                return ($flags & self::RELATIVE_PATHS == 1) ? $val : $this->realpath($val);
+                return ($flags & self::RELATIVE_PATHS === 1) ? $val : $this->realpath($val);
             default:
                 if (!isset($this->config[$key])) {
                     return null;

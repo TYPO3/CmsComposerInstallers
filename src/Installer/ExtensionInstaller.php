@@ -124,7 +124,7 @@ class ExtensionInstaller implements InstallerInterface
             $this->binaryInstaller->removeBinaries($package);
         }
         $this->installCode($package);
-        $this->binaryInstaller->installBinaries($package, $this->getInstallPath($package));
+        $this->binaryInstaller->installBinaries($package, $downloadPath);
         if (!$repo->hasPackage($package)) {
             $repo->addPackage(clone $package);
         }
@@ -157,9 +157,9 @@ class ExtensionInstaller implements InstallerInterface
      * Uninstalls specific package.
      *
      * @param InstalledRepositoryInterface $repo repository in which to check
-     * @param PackageInterface $package package instance
+     * @param PackageInterface $package
      *
-     * @throws \InvalidArgumentException if $initial package is not installed
+     * @throws \InvalidArgumentException if $package is not installed
      */
     public function uninstall(InstalledRepositoryInterface $repo, PackageInterface $package)
     {
@@ -175,8 +175,8 @@ class ExtensionInstaller implements InstallerInterface
     /**
      * Returns the installation path of a package
      *
-     * @param  PackageInterface $package
-     * @return string           path
+     * @param PackageInterface $package
+     * @return string path
      */
     public function getInstallPath(PackageInterface $package)
     {
