@@ -78,7 +78,11 @@ class ExtensionInstaller implements InstallerInterface
         $this->filesystem = $filesystem;
         $this->binaryInstaller = $binaryInstaller;
         $this->pluginConfig = $pluginConfig;
-        $this->extensionDir = $this->filesystem->normalizePath($this->pluginConfig->get('extension-dir'));
+        if ($pluginConfig->get('extensions-in-vendor-dir')) {
+            $this->extensionDir = $this->filesystem->normalizePath($pluginConfig->get('vendor-dir'));
+        } else {
+            $this->extensionDir = $this->filesystem->normalizePath($pluginConfig->get('config-dir')) . '/ext';
+        }
     }
 
     /**
@@ -176,21 +180,21 @@ class ExtensionInstaller implements InstallerInterface
      */
     public function getInstallPath(PackageInterface $package)
     {
-        if ($this->pluginConfig->get('imply-extension-key')) {
-            $extensionInstallDir = $this->implyExtensionKey($package);
-        } else {
+        if ($this->pluginConfig->get('extensions-in-vendor-dir')) {
             $extensionInstallDir = $package->getName();
+        } else {
+            $extensionInstallDir = $this->resolveExtensionKey($package);
         }
         return $this->extensionDir . DIRECTORY_SEPARATOR . $extensionInstallDir;
     }
 
     /**
-     * Implies the extension key from replaces or package name
+     * Resolves the extension key from replaces or package name
      *
      * @param PackageInterface $package
      * @return string
      */
-    protected function implyExtensionKey(PackageInterface $package)
+    protected function resolveExtensionKey(PackageInterface $package)
     {
         foreach ($package->getReplaces() as $packageName => $version) {
             if (strpos($packageName, '/') === false) {

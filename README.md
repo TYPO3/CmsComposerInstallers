@@ -32,21 +32,13 @@ At a later point, this option might affect other actions like publishing assets.
 #### `cms-package-dir`
 You can specify a relative path from the base directory, where the typo3/cms package should be installed into.
 
-*The default value* is `"typo3_src"`. This default value is kept for compatiblity reasons, but is recommended to let typo3/cms being installed in the vendor directory, which is possible with the example configuration outlined above.
+*The default value* is `"typo3_src"`. This default value is kept for compatibility reasons, but is recommended to let typo3/cms being installed in the vendor directory, which is possible with the example configuration outlined above.
 
-#### `config-dir`
-You can specify a relative path from the base directory, where the configuration folder is located.
-By default extensions will be installed in a sub directory `ext` within this directory.
+#### `extensions-in-vendor-dir`
+If this value is `true`, extensions will be installed into the vendor directory, like any other composer package.
 
-*The default value* is `"{$web-dir}/typo3conf"`.
-
-#### `extension-dir`
-You can specify a relative path from the base directory, where the extensions should be installed into.
-
-*The default value* is `"{$config-dir}/ext"`. TYPO3 requires extensions to be present in `typo3conf/ext` If this value is changed, a proper publication (link or copy) of the extensions into this directory must be taken care of manually.
-
-#### `imply-extension-key`
-If this value is `true`, the name of the extension directory is implied by the first replace entry.
+If the value is `false`, extensions will be installed in `typoconf/ext` folder of the TYPO3 installation
+and the name of the extension directory is implied by the first replace entry.
 If a replaces section is not present in the extensions `composer.json`, the second part of the vendor name is used, but all dashes (`-`) are converted to underscores (`_`).
 
 Example:
@@ -66,11 +58,11 @@ Example:
 
 In this case, the install directory `my_extension` would be used, because the replace section takes precedence.
 
-If the value is set to `false`, the package name is used as directory name.
 TYPO3 assumes extensions to be present in a directory below `typo3conf/ext`.
-If this value is set to `false`, the extensions need to be copied or linked to this directory manually!
+If this value is set to `true`, the extensions need to be copied or linked to this directory manually!
+When doing so, the extension name must be properly derived from the composer package name or the replaces section in the extension.
 
-*The default value* is `true`.
+*The default value* is `false`.
 
 ## Feedback/ Bugreports/ Contribution
 

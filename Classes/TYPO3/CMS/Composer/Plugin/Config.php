@@ -28,15 +28,16 @@ class Config
      */
     public static $defaultConfig = array(
         'web-dir' => '.',
+        'prepare-web-dir' => true,
+        'cms-package-dir' => 'typo3_src',
+        'extensions-in-vendor-dir' => false,
+        // The following values are for internal use only and does not represent public API
+        // Names and behaviour of these values might change without notice
+        'composer-mode' => true,
         'backend-dir' => '{$web-dir}/typo3',
         'config-dir' => '{$web-dir}/typo3conf',
-        'extension-dir' => '{$config-dir}/ext',
         'temporary-dir' => '{$web-dir}/typo3temp',
         'cache-dir' => '{$temporary-dir}/Cache',
-        'cms-package-dir' => 'typo3_src',
-        'composer-mode' => true,
-        'prepare-web-dir' => true,
-        'imply-extension-key' => true,
     );
 
     /**
@@ -88,7 +89,6 @@ class Config
             case 'web-dir':
             case 'backend-dir':
             case 'config-dir':
-            case 'extension-dir':
             case 'temporary-dir':
             case 'cache-dir':
             case 'cms-package-dir':
