@@ -37,7 +37,7 @@ You can specify a relative path from the base directory, where the typo3/cms pac
 #### `extensions-in-vendor-dir`
 If this value is `true`, extensions will be installed into the vendor directory, like any other composer package.
 
-If the value is `false`, extensions will be installed in `typoconf/ext` folder of the TYPO3 installation
+If the value is `false`, extensions will be installed in `typo3conf/ext` folder of the TYPO3 installation
 and the name of the extension directory is implied by the first replace entry.
 If a replaces section is not present in the extensions `composer.json`, the second part of the vendor name is used, but all dashes (`-`) are converted to underscores (`_`).
 
