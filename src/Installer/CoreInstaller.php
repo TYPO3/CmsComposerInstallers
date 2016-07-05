@@ -169,7 +169,9 @@ class CoreInstaller implements InstallerInterface
             $this->filesystem->removeSymlinks($this->symlinks);
         }
 
+        $this->binaryInstaller->removeBinaries($initial);
         $this->updateCode($initial, $target);
+        $this->binaryInstaller->installBinaries($target, $this->getInstallPath($target));
 
         $this->filesystem->establishSymlinks($this->symlinks, false);
 
@@ -196,6 +198,7 @@ class CoreInstaller implements InstallerInterface
         }
 
         $this->removeCode($package);
+        $this->binaryInstaller->removeBinaries($package);
         $repo->removePackage($package);
     }
 
