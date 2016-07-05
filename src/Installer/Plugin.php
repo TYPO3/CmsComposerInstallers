@@ -82,6 +82,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function postAutoload(Event $event)
     {
+        // This mitigates the upgrade step from 1.2.x to 1.3.x
+        if (!class_exists('TYPO3\\CMS\\Composer\\Plugin\\Core\\AutoloadConnector')) {
+            require_once __DIR__ . '/../Plugin/Core/AutoloadConnector.php';
+        }
         $autoloadConnector = new AutoloadConnector();
         $autoloadConnector->linkAutoloader($event);
     }
