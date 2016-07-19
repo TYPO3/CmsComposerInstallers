@@ -189,6 +189,17 @@ class ExtensionInstaller implements InstallerInterface
     }
 
     /**
+     * Re-install binary by removing previous one
+     *
+     * @param PackageInterface $package Package instance
+     */
+    public function installBinary(PackageInterface $package)
+    {
+        $this->binaryInstaller->removeBinaries($package);
+        $this->binaryInstaller->installBinaries($package, $this->getInstallPath($package));
+    }
+
+    /**
      * Resolves the extension key from replaces or package name
      *
      * @param PackageInterface $package

@@ -214,6 +214,17 @@ class CoreInstaller implements InstallerInterface
     }
 
     /**
+     * Re-install binary by removing previous one
+     *
+     * @param PackageInterface $package Package instance
+     */
+    public function installBinary(PackageInterface $package)
+    {
+        $this->binaryInstaller->removeBinaries($package);
+        $this->binaryInstaller->installBinaries($package, $this->getInstallPath($package));
+    }
+
+    /**
      * @return string
      */
     protected function determineInstallPath()
