@@ -26,7 +26,6 @@
             "TYPO3\\CMS\\Composer\\": "src/"
         }
     },
-    "minimum-stability": "dev",
     "replace": {
         "lw/typo3cms-installers": "*",
         "netresearch/composer-installers": "*"
@@ -38,7 +37,7 @@
         "composer/installers": "<1.0.24 || >1.0.24"
     },
     "require-dev": {
-        "composer/composer": "1.*"
+        "composer/composer": "^1.2"
     },
     "extra": {
         "class": "TYPO3\\CMS\\Composer\\Installer\\Plugin",

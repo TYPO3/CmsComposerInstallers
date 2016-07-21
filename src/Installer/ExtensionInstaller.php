@@ -17,6 +17,7 @@ namespace TYPO3\CMS\Composer\Installer;
 use Composer\Composer;
 use Composer\Downloader\DownloadManager;
 use Composer\Installer\BinaryInstaller;
+use Composer\Installer\BinaryPresenceInterface;
 use Composer\Installer\InstallerInterface;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
@@ -31,7 +32,7 @@ use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
  * @author Thomas Maroschik <tmaroschik@dfau.de>
  * @author Helmut Hummel <info@helhum.io>
  */
-class ExtensionInstaller implements InstallerInterface
+class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
 {
     /**
      * @var string
@@ -186,6 +187,16 @@ class ExtensionInstaller implements InstallerInterface
             $extensionInstallDir = $this->resolveExtensionKey($package);
         }
         return $this->extensionDir . DIRECTORY_SEPARATOR . $extensionInstallDir;
+    }
+
+    /**
+     * Make sure binaries are installed for a given package.
+     *
+     * @param PackageInterface $package Package instance
+     */
+    public function ensureBinariesPresence(PackageInterface $package)
+    {
+        $this->binaryInstaller->installBinaries($package, $this->getInstallPath($package), false);
     }
 
     /**

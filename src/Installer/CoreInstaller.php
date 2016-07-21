@@ -17,6 +17,7 @@ namespace TYPO3\CMS\Composer\Installer;
 use Composer\Composer;
 use Composer\Downloader\DownloadManager;
 use Composer\Installer\BinaryInstaller;
+use Composer\Installer\BinaryPresenceInterface;
 use Composer\Installer\InstallerInterface;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
@@ -31,7 +32,7 @@ use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
  * @author Thomas Maroschik <tmaroschik@dfau.de>
  * @author Helmut Hummel <info@helhum.io>
  */
-class CoreInstaller implements InstallerInterface
+class CoreInstaller implements InstallerInterface, BinaryPresenceInterface
 {
     const TYPO3_DIR            = 'typo3';
     const TYPO3_INDEX_PHP    = 'index.php';
@@ -211,6 +212,16 @@ class CoreInstaller implements InstallerInterface
     public function getInstallPath(PackageInterface $package)
     {
         return $this->determineInstallPath();
+    }
+
+    /**
+     * Make sure binaries are installed for a given package.
+     *
+     * @param PackageInterface $package Package instance
+     */
+    public function ensureBinariesPresence(PackageInterface $package)
+    {
+        $this->binaryInstaller->installBinaries($package, $this->getInstallPath($package), false);
     }
 
     /**
