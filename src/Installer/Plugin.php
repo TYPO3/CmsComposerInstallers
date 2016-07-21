@@ -50,6 +50,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function activate(Composer $composer, IOInterface $io)
     {
+        $this->ensureComposerConstraints($io);
         $filesystem = new Filesystem();
         $binaryInstaller = new BinaryInstaller($io, rtrim($composer->getConfig()->get('bin-dir'), '/'), $composer->getConfig()->get('bin-compat'), $filesystem);
         $pluginConfig = Config::load($composer);
@@ -84,5 +85,22 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         $autoloadConnector = new AutoloadConnector();
         $autoloadConnector->linkAutoloader($event);
+    }
+
+    /**
+     * @param IOInterface $io
+     */
+    protected function ensureComposerConstraints(IOInterface $io)
+    {
+        if (
+            !class_exists('Composer\\Installer\\BinaryInstaller')
+            || !interface_exists('Composer\\Installer\\BinaryPresenceInterface')
+        ) {
+            $io->writeError('');
+            $io->writeError(sprintf('<error>Composer version (%s) you are using is too low. Please upgrade Composer to 1.2.0 or higher!</error>',
+                Composer::VERSION));
+            $io->writeError('<error>TYPO3 installers plugin will be disabled!</error>');
+            throw new \RuntimeException('TYPO3 Installer disabled!', 1469105842);
+        }
     }
 }
