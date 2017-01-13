@@ -110,14 +110,14 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface
         if (!is_file($path . 'ext_emconf.php')) {
             throw new \RuntimeException('Package is unstable. "ext_emconf.php" is missing', 1439568877);
         }
-        $_EXTKEY = basename($path);
+
         include($path . 'ext_emconf.php');
 
-        if (!is_array($EM_CONF[$_EXTKEY])) {
+        if (!isset($EM_CONF) || !is_array($EM_CONF)) {
             throw new \RuntimeException('Package is unstable. "ext_emconf.php" is corrupt', 1439569163);
         }
 
-        return $EM_CONF[$_EXTKEY];
+        return array_pop($EM_CONF);
     }
 
     /**
