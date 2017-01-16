@@ -27,17 +27,12 @@ class Config
      * @var array
      */
     public static $defaultConfig = array(
-        'web-dir' => '.',
+        'web-dir' => 'web',
         'prepare-web-dir' => true,
-        'cms-package-dir' => 'typo3_src',
         'extensions-in-vendor-dir' => false,
         // The following values are for internal use only and does not represent public API
         // Names and behaviour of these values might change without notice
         'composer-mode' => true,
-        'backend-dir' => '{$web-dir}/typo3',
-        'config-dir' => '{$web-dir}/typo3conf',
-        'temporary-dir' => '{$web-dir}/typo3temp',
-        'cache-dir' => '{$temporary-dir}/Cache',
     );
 
     /**
@@ -86,11 +81,6 @@ class Config
     {
         switch ($key) {
             case 'web-dir':
-            case 'backend-dir':
-            case 'config-dir':
-            case 'temporary-dir':
-            case 'cache-dir':
-            case 'cms-package-dir':
                 $val = rtrim($this->process($this->config[$key], $flags), '/\\');
                 return ($flags & self::RELATIVE_PATHS === 1) ? $val : $this->realpath($val);
             default:

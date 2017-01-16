@@ -23,7 +23,7 @@ use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use TYPO3\CMS\Composer\Plugin\Config;
-use TYPO3\CMS\Composer\Plugin\Core\AutoloadConnector;
+use TYPO3\CMS\Composer\Plugin\PluginImplementation;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
 /**
@@ -36,12 +36,23 @@ use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 class Plugin implements PluginInterface, EventSubscriberInterface
 {
     /**
+     * @var PluginImplementation
+     */
+    private $pluginImplementation;
+
+    /**
+     * @var array
+     */
+    private $handledEvents = array();
+
+    /**
      * {@inheritDoc}
      */
     public static function getSubscribedEvents()
     {
         return array(
-            ScriptEvents::POST_AUTOLOAD_DUMP => 'postAutoload'
+            ScriptEvents::PRE_AUTOLOAD_DUMP => array('listen'),
+            ScriptEvents::POST_AUTOLOAD_DUMP => array('listen')
         );
     }
 
@@ -54,11 +65,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $filesystem = new Filesystem();
         $binaryInstaller = new BinaryInstaller($io, rtrim($composer->getConfig()->get('bin-dir'), '/'), $composer->getConfig()->get('bin-compat'), $filesystem);
         $pluginConfig = Config::load($composer);
-        $composer
-            ->getInstallationManager()
-            ->addInstaller(
-                new CoreInstaller($io, $composer, $filesystem, $pluginConfig, $binaryInstaller)
-            );
         $composer
             ->getInstallationManager()
             ->addInstaller(
@@ -76,6 +82,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 't3x',
                 new Downloader\T3xDownloader($io, $composer->getConfig(), null, $cache)
             );
+
+        $composer->getEventDispatcher()->addSubscriber($this);
     }
 
     /**
@@ -83,14 +91,50 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function postAutoload(Event $event)
     {
-        $autoloadConnector = new AutoloadConnector();
-        $autoloadConnector->linkAutoloader($event);
+        // Deprecated. Stays here for graceful update of the plugin.
+        $this->listen($event);
+    }
+
+    /**
+     * Listens to Composer events.
+     *
+     * This method is very minimalist on purpose. We want to load the actual
+     * implementation only after updating the Composer packages so that we get
+     * the updated version (if available).
+     *
+     * @param Event $event The Composer event.
+     */
+    public function listen(Event $event)
+    {
+        if (!empty($this->handledEvents[$event->getName()])) {
+            return;
+        }
+        $this->handledEvents[$event->getName()] = true;
+        // Plugin has been uninstalled
+        if (!file_exists(__FILE__) || !file_exists(__DIR__ . '/../Plugin/PluginImplementation.php')) {
+            return;
+        }
+
+        // Load the implementation only after updating Composer so that we get
+        // the new version of the plugin when a new one was installed
+        if (null === $this->pluginImplementation) {
+            $this->pluginImplementation = new PluginImplementation($event);
+        }
+
+        switch ($event->getName()) {
+            case ScriptEvents::PRE_AUTOLOAD_DUMP:
+                $this->pluginImplementation->preAutoloadDump();
+                break;
+            case ScriptEvents::POST_AUTOLOAD_DUMP:
+                $this->pluginImplementation->postAutoloadDump();
+                break;
+        }
     }
 
     /**
      * @param IOInterface $io
      */
-    protected function ensureComposerConstraints(IOInterface $io)
+    private function ensureComposerConstraints(IOInterface $io)
     {
         if (
             !class_exists('Composer\\Installer\\BinaryInstaller')

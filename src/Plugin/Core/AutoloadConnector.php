@@ -14,8 +14,9 @@ namespace TYPO3\CMS\Composer\Plugin\Core;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Composer\Script\Event;
-use TYPO3\CMS\Composer\Plugin\Config;
+use Composer\Composer;
+use Composer\IO\IOInterface;
+use Composer\Semver\Constraint\EmptyConstraint;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
 /**
@@ -28,6 +29,16 @@ use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 class AutoloadConnector
 {
     /**
+     * @var IOInterface
+     */
+    private $io;
+
+    /**
+     * @var Composer
+     */
+    private $composer;
+
+    /**
      * @var Filesystem
      */
     protected $filesystem;
@@ -35,93 +46,54 @@ class AutoloadConnector
     /**
      * @param Filesystem $filesystem
      */
-    public function __construct(Filesystem $filesystem = null)
+    public function __construct(IOInterface $io = null, Composer $composer = null, Filesystem $filesystem = null)
     {
+        $this->io = $io;
+        $this->composer = $composer;
         $this->filesystem = $this->filesystem ?: new Filesystem();
     }
 
-    /**
-     * @param Event $event
-     */
-    public function linkAutoloader(Event $event)
+    public function linkAutoLoader($event = null)
     {
-        $composer = $event->getComposer();
-        $composerConfig = $composer->getConfig();
-        $localRepository = $composer->getRepositoryManager()->getLocalRepository();
-
-        foreach ($localRepository->getCanonicalPackages() as $package) {
-            if ($package->getType() === 'typo3-cms-core') {
-                $defaultVendorDir = \Composer\Config::$defaultConfig['vendor-dir'];
-
-                $packagePath = $composer->getInstallationManager()->getInstallPath($package);
-                $jsonFile = new \Composer\Json\JsonFile($packagePath . DIRECTORY_SEPARATOR . 'composer.json', new \Composer\Util\RemoteFilesystem($event->getIO()));
-                $packageJson = $jsonFile->read();
-                $packageVendorDir = !empty($packageJson['config']['vendor-dir']) ? $this->filesystem->normalizePath($packageJson['config']['vendor-dir']) : $defaultVendorDir;
-
-                $autoloaderSourceDir = $composerConfig->get('vendor-dir');
-                $autoloaderTargetDir = $packagePath . DIRECTORY_SEPARATOR . $packageVendorDir;
-                $autoloaderFileName = 'autoload.php';
-
-                $this->filesystem->ensureDirectoryExists($autoloaderTargetDir);
-                $this->filesystem->remove($autoloaderTargetDir . DIRECTORY_SEPARATOR . $autoloaderFileName);
-                try {
-                    $this->filesystem->symlink(
-                        $autoloaderSourceDir . DIRECTORY_SEPARATOR . $autoloaderFileName,
-                        $autoloaderTargetDir . DIRECTORY_SEPARATOR . $autoloaderFileName,
-                        false
-                    );
-                } catch (\RuntimeException $e) {
-                    if ($e->getCode() !== 1430494084) {
-                        throw $e;
-                    }
-                    $code = array(
-                        '<?php',
-                        'return require ' . $this->filesystem->findShortestPathCode(
-                            $autoloaderTargetDir . DIRECTORY_SEPARATOR . $autoloaderFileName,
-                            $autoloaderSourceDir . DIRECTORY_SEPARATOR . $autoloaderFileName
-                        ) . ';'
-                    );
-                    file_put_contents($autoloaderTargetDir . DIRECTORY_SEPARATOR . $autoloaderFileName, implode(chr(10), $code));
-                }
-                $this->insertComposerModeConstant($event);
-                break;
-            }
+        if ($this->composer === null) {
+            // Old plugin called this method, let's be graceful
+            $this->composer = $event->getComposer();
+            $this->io = $event->getIO();
+            $this->io->writeError('<warning>TYPO3 Composer Plugin incomplete update detected.</warning>');
+            $this->io->writeError('<warning>To fully upgrade to the new TYPO3 Composer Plugin, call "composer update" again.</warning>');
         }
-    }
 
-    /**
-     * @param Event $event
-     */
-    protected function insertComposerModeConstant(Event $event)
-    {
-        $composer = $event->getComposer();
-        $pluginConfig = Config::load($composer);
-        if (!$pluginConfig->get('composer-mode')) {
+        if ($this->composer->getPackage()->getName() === 'typo3/cms') {
+            // Nothing to do typo3/cms is root package
             return;
         }
-        $composerConfig = $composer->getConfig();
-        $vendorDir = $composerConfig->get('vendor-dir');
-        $autoloadFile = $vendorDir . '/autoload.php';
-        $io = $event->getIO();
-        if (!file_exists($autoloadFile)) {
-            throw new \RuntimeException(sprintf(
-                'Could not adjust autoloader: The file %s was not found.',
-                $autoloadFile
-            ));
-        }
 
-        $io->write('<info>Inserting TYPO3_COMPOSER_MODE constant</info>');
+        $this->io->writeError('<info>Writing TYPO3 autoload proxy</info>', true, IOInterface::VERBOSE);
 
-        $contents = file_get_contents($autoloadFile);
-        $constant = "if (!defined('TYPO3_COMPOSER_MODE')) {\n";
-        $constant .= "	define('TYPO3_COMPOSER_MODE', TRUE);\n";
-        $constant .= "}\n\n";
+        $composerConfig = $this->composer->getConfig();
+        $localRepository = $this->composer->getRepositoryManager()->getLocalRepository();
+        $package = $localRepository->findPackage('typo3/cms', new EmptyConstraint());
 
-        // Regex modifiers:
-        // "m": \s matches newlines
-        // "D": $ matches at EOF only
-        // Translation: insert before the last "return" in the file
-        $contents = preg_replace('/\n(?=return [^;]+;\s*$)/mD', "\n" . $constant, $contents);
-        file_put_contents($autoloadFile, $contents);
+        $defaultVendorDir = \Composer\Config::$defaultConfig['vendor-dir'];
+
+        $packagePath = $this->composer->getInstallationManager()->getInstallPath($package);
+        $jsonFile = new \Composer\Json\JsonFile($packagePath . DIRECTORY_SEPARATOR . 'composer.json', new \Composer\Util\RemoteFilesystem($this->io));
+        $packageJson = $jsonFile->read();
+        $packageVendorDir = !empty($packageJson['config']['vendor-dir']) ? $this->filesystem->normalizePath($packageJson['config']['vendor-dir']) : $defaultVendorDir;
+
+        $autoLoaderSourceDir = $composerConfig->get('vendor-dir');
+        $autoLoaderTargetDir = "$packagePath/$packageVendorDir";
+        $autoLoaderFileName = 'autoload.php';
+
+        $this->filesystem->ensureDirectoryExists($autoLoaderTargetDir);
+        $this->filesystem->remove("$autoLoaderTargetDir/$autoLoaderFileName");
+        $code = array(
+            '<?php',
+            'return require ' . $this->filesystem->findShortestPathCode(
+                "$autoLoaderTargetDir/$autoLoaderFileName",
+                "$autoLoaderSourceDir/$autoLoaderFileName"
+            ) . ';'
+        );
+        file_put_contents("$autoLoaderTargetDir/$autoLoaderFileName", implode(chr(10), $code));
     }
 }

@@ -23,8 +23,8 @@ if (PHP_SAPI !== 'cli') {
 }
 // Define in which folders to search and which folders to exclude
 // Exclude some directories that are excluded by Git anyways to speed up the sniffing
-$finder = Symfony\CS\Finder\DefaultFinder::create()
-    ->in('Classes');
+$finder = Symfony\CS\Finder::create()
+    ->in('src');
 
 // Return a Code Sniffing configuration using
 // all sniffers needed for PSR-2
@@ -35,7 +35,7 @@ $finder = Symfony\CS\Finder\DefaultFinder::create()
 //  - Remove unused use statements in the PHP source code
 //  - Ensure Concatenation to have at least one whitespace around
 //  - Remove trailing whitespace at the end of blank lines.
-return Symfony\CS\Config\Config::create()
+return Symfony\CS\Config::create()
     ->level(Symfony\CS\FixerInterface::PSR2_LEVEL)
     ->fixers([
         'remove_leading_slash_use',

@@ -11,8 +11,7 @@ The behavior of the installer can be influenced by configuration in the `extra` 
   "extra": {
       "typo3/cms": {
           "web-dir": "web",
-          "prepare-web-dir": true,
-          "cms-package-dir": "{$vendor-dir}/typo3/cms"
+          "prepare-web-dir": true
       }
     }
 ```
@@ -28,11 +27,6 @@ Whether or not links to the `typo3` folder and the `index.php` will be establish
 At a later point, this option might affect other actions like publishing assets.
 
 *The default value* is `true`.
-
-#### `cms-package-dir`
-You can specify a relative path from the base directory, where the typo3/cms package should be installed into.
-
-*The default value* is `"typo3_src"`. This default value is kept for compatibility reasons, but is recommended to let typo3/cms being installed in the vendor directory, which is possible with the example configuration outlined above.
 
 #### `extensions-in-vendor-dir`
 If this value is `true`, extensions will be installed into the vendor directory, like any other composer package.

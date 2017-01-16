@@ -25,7 +25,6 @@ use Composer\Repository\InstalledRepositoryInterface;
 use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
-
 /**
  * Enter descriptions here
  *
@@ -82,7 +81,7 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
         if ($pluginConfig->get('extensions-in-vendor-dir')) {
             $this->extensionDir = $this->filesystem->normalizePath($pluginConfig->get('vendor-dir'));
         } else {
-            $this->extensionDir = $this->filesystem->normalizePath($pluginConfig->get('config-dir')) . '/ext';
+            $this->extensionDir = $this->filesystem->normalizePath($pluginConfig->get('web-dir')) . '/typo3conf/ext';
         }
     }
 
