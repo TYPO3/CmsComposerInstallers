@@ -77,11 +77,11 @@ class PluginImplementation
             ?: new IncludeFile(
                 $io,
                 $composer,
-                array(
+                [
                     new BaseDirToken($io, $pluginConfig),
                     new WebDirToken($io, $pluginConfig),
                     new ComposerModeToken($io, $pluginConfig),
-                ),
+                ],
                 $fileSystem
             );
     }

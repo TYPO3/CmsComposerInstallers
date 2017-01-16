@@ -87,13 +87,13 @@ class AutoloadConnector
 
         $this->filesystem->ensureDirectoryExists($autoLoaderTargetDir);
         $this->filesystem->remove("$autoLoaderTargetDir/$autoLoaderFileName");
-        $code = array(
+        $code = [
             '<?php',
             'return require ' . $this->filesystem->findShortestPathCode(
                 "$autoLoaderTargetDir/$autoLoaderFileName",
                 "$autoLoaderSourceDir/$autoLoaderFileName"
             ) . ';'
-        );
+        ];
         file_put_contents("$autoLoaderTargetDir/$autoLoaderFileName", implode(chr(10), $code));
     }
 }

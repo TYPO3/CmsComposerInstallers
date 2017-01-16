@@ -26,14 +26,14 @@ class Config
     /**
      * @var array
      */
-    public static $defaultConfig = array(
+    public static $defaultConfig = [
         'web-dir' => 'web',
         'prepare-web-dir' => true,
         'extensions-in-vendor-dir' => false,
         // The following values are for internal use only and does not represent public API
         // Names and behaviour of these values might change without notice
         'composer-mode' => true,
-    );
+    ];
 
     /**
      * @var array
@@ -97,7 +97,7 @@ class Config
      */
     public function all($flags = 0)
     {
-        $all = array();
+        $all = [];
         foreach (array_keys($this->config) as $key) {
             $all['config'][$key] = $this->get($key, $flags);
         }
@@ -110,9 +110,9 @@ class Config
      */
     public function raw()
     {
-        return array(
+        return [
             'config' => $this->config,
-        );
+        ];
     }
 
     /**
@@ -188,11 +188,11 @@ class Config
                 $config->merge($rootPackageExtraConfig);
             }
             $config->merge(
-                array(
-                    'typo3/cms' => array(
+                [
+                    'typo3/cms' => [
                         'vendor-dir' => $composer->getConfig()->get('vendor-dir')
-                    )
-                )
+                    ]
+                ]
             );
         }
         return $config;

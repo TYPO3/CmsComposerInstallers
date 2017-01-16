@@ -38,7 +38,7 @@ class WebDirectory
     /**
      * @var array
      */
-    private $symlinks = array();
+    private $symlinks = [];
 
     /**
      * @var Composer
@@ -96,12 +96,12 @@ class WebDirectory
         $this->filesystem->ensureDirectoryExists($webDir);
         $sourcesDir = $this->determineInstallPath();
         $backendDir = $webDir . DIRECTORY_SEPARATOR . self::TYPO3_DIR;
-        $this->symlinks = array(
+        $this->symlinks = [
             $sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP
                 => $webDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP,
             $sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_DIR
                 => $backendDir
-        );
+        ];
     }
 
     private function determineInstallPath()

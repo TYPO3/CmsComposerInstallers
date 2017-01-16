@@ -67,7 +67,7 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface
      */
     public function getLocalChanges(PackageInterface $package, $path)
     {
-        $messages = array();
+        $messages = [];
         $path = rtrim($path, '/') . '/';
 
         // check if there is a ext_emconf.php
@@ -174,7 +174,7 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface
      */
     protected function extractDirectoriesFromExtensionData(array $files)
     {
-        $directories = array();
+        $directories = [];
         foreach ($files as $filePath => $file) {
             preg_match('/(.*)\\//', $filePath, $matches);
             if (count($matches) > 0) {
@@ -249,7 +249,7 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface
      */
     protected function writeEmConf(array $extensionData, $path)
     {
-        $emConfFileData = array();
+        $emConfFileData = [];
         if (file_exists($path . 'ext_emconf.php')) {
             $emConfFileData = $this->getEmConfMetaData($path);
         }
@@ -300,7 +300,7 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
      */
     public function extensionMD5array(array $filesArray)
     {
-        $md5Array = array();
+        $md5Array = [];
 
         // Traverse files.
         foreach ($filesArray as $fileName => $fileInfo) {
@@ -326,7 +326,7 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
             || !isset($emConf['constraints']['conflicts']) || !isset($emConf['constraints']['suggests'])
         ) {
             if (!isset($emConf['constraints']) || !isset($emConf['constraints']['depends'])) {
-                $emConf['constraints']['depends'] = isset($emConf['dependencies']) ? $this->stringToDependency($emConf['dependencies']) : array();
+                $emConf['constraints']['depends'] = isset($emConf['dependencies']) ? $this->stringToDependency($emConf['dependencies']) : [];
                 if ((string)$emConf['PHP_version'] !== '') {
                     $emConf['constraints']['depends']['php'] = $emConf['PHP_version'];
                 }
@@ -335,13 +335,13 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
                 }
             }
             if (!isset($emConf['constraints']) || !isset($emConf['constraints']['conflicts'])) {
-                $emConf['constraints']['conflicts'] = isset($emConf['conflicts']) ? $this->stringToDependency($emConf['conflicts']) : array();
+                $emConf['constraints']['conflicts'] = isset($emConf['conflicts']) ? $this->stringToDependency($emConf['conflicts']) : [];
             }
             if (!isset($emConf['constraints']) || !isset($emConf['constraints']['suggests'])) {
-                $emConf['constraints']['suggests'] = array();
+                $emConf['constraints']['suggests'] = [];
             }
         } elseif (isset($emConf['constraints']) && isset($emConf['dependencies'])) {
-            $emConf['suggests'] = isset($emConf['suggests']) ? $emConf['suggests'] : array();
+            $emConf['suggests'] = isset($emConf['suggests']) ? $emConf['suggests'] : [];
             $emConf['dependencies'] = $this->dependencyToString($emConf['constraints']);
             $emConf['conflicts'] = $this->dependencyToString($emConf['constraints'], 'conflicts');
         }
@@ -406,7 +406,7 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
      */
     public function stringToDependency($dependency)
     {
-        $constraint = array();
+        $constraint = [];
         if (is_string($dependency) && strlen($dependency)) {
             $dependency = explode(',', $dependency);
             foreach ($dependency as $v) {
@@ -424,7 +424,7 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
      */
     protected function convertDependencies($dependencies)
     {
-        $newDependencies = array();
+        $newDependencies = [];
         $dependenciesArray = unserialize($dependencies);
         if (is_array($dependenciesArray)) {
             foreach ($dependenciesArray as $version) {
