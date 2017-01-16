@@ -87,15 +87,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     }
 
     /**
-     * @param Event $event
-     */
-    public function postAutoload(Event $event)
-    {
-        // Deprecated. Stays here for graceful update of the plugin.
-        $this->listen($event);
-    }
-
-    /**
      * Listens to Composer events.
      *
      * This method is very minimalist on purpose. We want to load the actual
@@ -111,7 +102,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         }
         $this->handledEvents[$event->getName()] = true;
         // Plugin has been uninstalled
-        if (!file_exists(__FILE__) || !file_exists(__DIR__ . '/../Plugin/PluginImplementation.php')) {
+        if (!file_exists(__FILE__) || !file_exists(dirname(__DIR__) . '/Plugin/PluginImplementation.php')) {
             return;
         }
 
