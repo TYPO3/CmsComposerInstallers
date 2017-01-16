@@ -108,13 +108,22 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface
     protected function getEmConfMetaData($path)
     {
         if (!is_file($path . 'ext_emconf.php')) {
-            throw new \RuntimeException('Package is unstable. "ext_emconf.php" is missing', 1439568877);
+            throw new \RuntimeException('Package is unstable, "ext_emconf.php" is missing', 1439568877);
         }
         $_EXTKEY = basename($path);
+        
         include($path . 'ext_emconf.php');
+        
+        if (!isset($EM_CONF) || !is_array($EM_CONF)) {
+            throw new \RuntimeException('Package is unstable, "ext_emconf.php" is invalid: missing $EM_CONF array', 1484578406);
+        }
+        
+        if (!isset($EM_CONF[$_EXTKEY])) {
+            throw new \RuntimeException('Package is unstable, "ext_emconf.php" is invalid: missing $EM_CONF[$_EXTKEY], make sure to use $_EXTKEY instead of a fixed string', 1484578650);
+        }
 
         if (!is_array($EM_CONF[$_EXTKEY])) {
-            throw new \RuntimeException('Package is unstable. "ext_emconf.php" is corrupt', 1439569163);
+            throw new \RuntimeException('Package is unstable, "ext_emconf.php" is invalid: expected array for $EM_CONF[$_EXTKEY], got ' . gettype($EM_CONF[$_EXTKEY]) . ' instead', 1439569163);
         }
 
         return $EM_CONF[$_EXTKEY];
