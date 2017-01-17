@@ -78,11 +78,7 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
         $this->filesystem = $filesystem;
         $this->binaryInstaller = $binaryInstaller;
         $this->pluginConfig = $pluginConfig;
-        if ($pluginConfig->get('extensions-in-vendor-dir')) {
-            $this->extensionDir = $this->filesystem->normalizePath($pluginConfig->get('vendor-dir'));
-        } else {
-            $this->extensionDir = $this->filesystem->normalizePath($pluginConfig->get('web-dir')) . '/typo3conf/ext';
-        }
+        $this->extensionDir = $this->filesystem->normalizePath($pluginConfig->get('web-dir')) . '/typo3conf/ext';
     }
 
     /**
@@ -180,11 +176,7 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
      */
     public function getInstallPath(PackageInterface $package)
     {
-        if ($this->pluginConfig->get('extensions-in-vendor-dir')) {
-            $extensionInstallDir = $package->getName();
-        } else {
-            $extensionInstallDir = $this->resolveExtensionKey($package);
-        }
+        $extensionInstallDir = $this->resolveExtensionKey($package);
         return $this->extensionDir . DIRECTORY_SEPARATOR . $extensionInstallDir;
     }
 
@@ -226,6 +218,14 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
         if (empty($extensionKey)) {
             list(, $extensionKey) = explode('/', $package->getName(), 2);
             $extensionKey = str_replace('-', '_', $extensionKey);
+        }
+        $extra = $package->getExtra();
+        if (!empty($extra)) {
+            if (!empty($extra['installer-name'])) {
+                $extensionKey = $extra['installer-name'];
+            } elseif (!empty($extra['typo3/cms']['extensionKey'])) {
+                $extensionKey = $extra['typo3/cms']['extensionKey'];
+            }
         }
         return $extensionKey;
     }
