@@ -17,6 +17,7 @@ namespace TYPO3\CMS\Composer\Plugin;
  * The TYPO3 project - inspiring people to share!
  */
 
+use Composer\Composer;
 use Composer\Script\Event;
 use TYPO3\CMS\Composer\Plugin\Config as PluginConfig;
 use TYPO3\CMS\Composer\Plugin\Core\AutoloadConnector;
@@ -51,6 +52,11 @@ class PluginImplementation
     private $webDirectory;
 
     /**
+     * @var Composer
+     */
+    private $composer;
+
+    /**
      * PluginImplementation constructor.
      *
      * @param Event $event
@@ -66,17 +72,17 @@ class PluginImplementation
         AutoloadConnector $autoLoadConnector = null
     ) {
         $io = $event->getIO();
-        $composer = $event->getComposer();
+        $this->composer = $event->getComposer();
         $fileSystem = new Filesystem();
-        $pluginConfig = PluginConfig::load($composer);
+        $pluginConfig = PluginConfig::load($this->composer);
 
         $this->scriptDispatcher = $scriptDispatcher ?: new ScriptDispatcher($event);
-        $this->autoLoadConnector = $autoLoadConnector ?: new AutoloadConnector($io, $composer, $fileSystem);
-        $this->webDirectory = $webDirectory ?: new WebDirectory($io, $composer, $fileSystem, $pluginConfig);
+        $this->autoLoadConnector = $autoLoadConnector ?: new AutoloadConnector($io, $this->composer, $fileSystem);
+        $this->webDirectory = $webDirectory ?: new WebDirectory($io, $this->composer, $fileSystem, $pluginConfig);
         $this->includeFile = $includeFile
             ?: new IncludeFile(
                 $io,
-                $composer,
+                $this->composer,
                 [
                     new BaseDirToken($io, $pluginConfig),
                     new WebDirToken($io, $pluginConfig),
@@ -88,6 +94,10 @@ class PluginImplementation
 
     public function preAutoloadDump()
     {
+        if ($this->composer->getPackage()->getName() === 'typo3/cms') {
+            // Nothing to do typo3/cms is root package
+            return;
+        }
         $this->includeFile->register();
     }
 
