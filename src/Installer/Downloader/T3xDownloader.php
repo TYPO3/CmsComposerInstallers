@@ -346,6 +346,17 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
             $emConf['conflicts'] = $this->dependencyToString($emConf['constraints'], 'conflicts');
         }
 
+        foreach (array('depends', 'conflicts', 'suggests') as $constraint) {
+            if (empty($emConf['constraints'][$constraint])) {
+                continue;
+            }
+            foreach (array_keys($emConf['constraints'][$constraint]) as $constraintKey) {
+                if (empty($constraintKey)) {
+                    unset($emConf['constraints'][$constraint][$constraintKey]);
+                }
+            }
+        }
+
         // Remove TER v1-style entries
         unset($emConf['dependencies']);
         unset($emConf['conflicts']);
