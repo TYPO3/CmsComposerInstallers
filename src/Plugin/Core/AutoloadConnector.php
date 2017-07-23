@@ -64,7 +64,7 @@ class AutoloadConnector
         }
 
         if ($this->composer->getPackage()->getName() === 'typo3/cms') {
-            // Nothing to do typo3/cms is root package
+            // Nothing to do typo3/cms is root package.
             return;
         }
 
@@ -73,6 +73,10 @@ class AutoloadConnector
         $composerConfig = $this->composer->getConfig();
         $localRepository = $this->composer->getRepositoryManager()->getLocalRepository();
         $package = $localRepository->findPackage('typo3/cms', new EmptyConstraint());
+        if (!$package) {
+            // No typo3/cms package found, no need to do something here.
+            return;
+        }
 
         $defaultVendorDir = \Composer\Config::$defaultConfig['vendor-dir'];
 

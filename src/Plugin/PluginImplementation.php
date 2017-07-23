@@ -103,8 +103,10 @@ class PluginImplementation
 
     public function postAutoloadDump()
     {
-        $this->autoLoadConnector->linkAutoLoader();
-        $this->webDirectory->ensureSymlinks();
-        $this->scriptDispatcher->executeScripts();
+        if (!$this->scriptDispatcher->executeScripts()) {
+            // Fallback to traditional handling for compatibility
+            $this->autoLoadConnector->linkAutoLoader();
+            $this->webDirectory->ensureSymlinks();
+        }
     }
 }

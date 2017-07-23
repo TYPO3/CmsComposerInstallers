@@ -18,7 +18,6 @@ namespace TYPO3\CMS\Composer\Plugin\Core;
  */
 
 use Composer\Autoload\ClassLoader;
-use Composer\IO\IOInterface;
 use Composer\Script\Event;
 
 class ScriptDispatcher
@@ -34,6 +33,21 @@ class ScriptDispatcher
     private $loader;
 
     /**
+     * Array of callables that are executed after autoload dump
+     *
+     * @var array
+     */
+    private static $installerScripts = [];
+
+    /**
+     * @param InstallerScript $script The callable that will be executed
+     * @param int $priority Higher priority results in earlier execution
+     */
+    public static function addInstallerScript(InstallerScript $script, $priority = 50) {
+        self::$installerScripts[$priority][] = $script;
+    }
+
+    /**
      * ScriptDispatcher constructor.
      *
      * @param Event $event
@@ -43,12 +57,29 @@ class ScriptDispatcher
         $this->event = $event;
     }
 
+    /**
+     * @return bool
+     */
     public function executeScripts()
     {
-        if (is_callable(['TYPO3\\CMS\\Core\\Composer\\InstallerScripts', 'setupTypo3'])) {
-            $this->event->getIO()->writeError('<info>Executing typo3/cms package scripts</info>', true, IOInterface::VERBOSE);
+        $io = $this->event->getIO();
+        try {
             $this->registerLoader();
-            \TYPO3\CMS\Core\Composer\InstallerScripts::setupTypo3($this->event);
+            if (empty(self::$installerScripts)) {
+                return false;
+            }
+            ksort(self::$installerScripts, SORT_NUMERIC);
+            $io->writeError('<info>Executing TYPO3 installer scripts</info>', true, $io::VERBOSE);
+            foreach (array_reverse(self::$installerScripts) as $scripts) {
+                /** @var InstallerScript $script */
+                foreach ($scripts as $script) {
+                    if (!$script->run($this->event)) {
+                        break 2;
+                    }
+                }
+            }
+            return true;
+        } finally {
             $this->unRegisterLoader();
         }
     }
@@ -63,6 +94,23 @@ class ScriptDispatcher
         $map = $generator->parseAutoloads($packageMap, $package);
         $this->loader = $generator->createLoader($map);
         $this->loader->register();
+        if (!empty($map['psr-4']) && is_array($map['psr-4'])) {
+            $this->registerInstallerScripts(array_keys($map['psr-4']));
+        }
+    }
+
+    private function registerInstallerScripts(array $psr4Namespaces)
+    {
+        foreach ($psr4Namespaces as $psr4Namespace) {
+            /** @var InstallerScriptsRegistration $scriptsRegistrationCandidate */
+            $scriptsRegistrationCandidate = $psr4Namespace . 'Composer\\InstallerScripts';
+            if (
+                class_exists($scriptsRegistrationCandidate)
+                && in_array(InstallerScriptsRegistration::class, class_implements($scriptsRegistrationCandidate), true)
+            ) {
+                $scriptsRegistrationCandidate::register($this->event);
+            }
+        }
     }
 
     private function unRegisterLoader()

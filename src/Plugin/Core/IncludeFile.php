@@ -20,7 +20,7 @@ namespace TYPO3\CMS\Composer\Plugin\Core;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Util\Filesystem;
-use Helhum\Typo3ConsolePlugin\IncludeFile\TokenInterface;
+use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\TokenInterface;
 
 class IncludeFile
 {

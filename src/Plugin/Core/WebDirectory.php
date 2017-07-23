@@ -94,7 +94,13 @@ class WebDirectory
 
         $webDir = $this->filesystem->normalizePath($this->pluginConfig->get('web-dir'));
         $this->filesystem->ensureDirectoryExists($webDir);
-        $sourcesDir = $this->determineInstallPath();
+        $localRepository = $this->composer->getRepositoryManager()->getLocalRepository();
+        $package = $localRepository->findPackage('typo3/cms', new EmptyConstraint());
+        if (!$package) {
+            // No typo3/cms package found, no need to do something here.
+            return;
+        }
+        $sourcesDir = $this->composer->getInstallationManager()->getInstallPath($package);
         $backendDir = $webDir . DIRECTORY_SEPARATOR . self::TYPO3_DIR;
         $this->symlinks = [
             $sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP
@@ -102,12 +108,5 @@ class WebDirectory
             $sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_DIR
                 => $backendDir
         ];
-    }
-
-    private function determineInstallPath()
-    {
-        $localRepository = $this->composer->getRepositoryManager()->getLocalRepository();
-        $package = $localRepository->findPackage('typo3/cms', new EmptyConstraint());
-        return $this->composer->getInstallationManager()->getInstallPath($package);
     }
 }
