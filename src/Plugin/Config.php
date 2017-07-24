@@ -191,13 +191,6 @@ class Config
             if (is_array($rootPackageExtraConfig)) {
                 $config->merge($rootPackageExtraConfig);
             }
-            $config->merge(
-                [
-                    'typo3/cms' => [
-                        'vendor-dir' => $composer->getConfig()->get('vendor-dir'),
-                    ],
-                ]
-            );
         }
         return $config;
     }
