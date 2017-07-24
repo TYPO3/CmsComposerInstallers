@@ -42,16 +42,6 @@ class PluginImplementation
     private $includeFile;
 
     /**
-     * @var AutoloadConnector
-     */
-    private $autoLoadConnector;
-
-    /**
-     * @var WebDirectory
-     */
-    private $webDirectory;
-
-    /**
      * @var Composer
      */
     private $composer;
@@ -62,14 +52,11 @@ class PluginImplementation
      * @param Event $event
      * @param ScriptDispatcher $scriptDispatcher
      * @param IncludeFile $includeFile
-     * @param AutoloadConnector $autoLoadConnector
      */
     public function __construct(
         Event $event,
         ScriptDispatcher $scriptDispatcher = null,
-        WebDirectory $webDirectory = null,
-        IncludeFile $includeFile = null,
-        AutoloadConnector $autoLoadConnector = null
+        IncludeFile $includeFile = null
     ) {
         $io = $event->getIO();
         $this->composer = $event->getComposer();
@@ -77,8 +64,6 @@ class PluginImplementation
         $pluginConfig = PluginConfig::load($this->composer);
 
         $this->scriptDispatcher = $scriptDispatcher ?: new ScriptDispatcher($event);
-        $this->autoLoadConnector = $autoLoadConnector ?: new AutoloadConnector($io, $this->composer, $fileSystem);
-        $this->webDirectory = $webDirectory ?: new WebDirectory($io, $this->composer, $fileSystem, $pluginConfig);
         $this->includeFile = $includeFile
             ?: new IncludeFile(
                 $io,
@@ -103,10 +88,6 @@ class PluginImplementation
 
     public function postAutoloadDump()
     {
-        if (!$this->scriptDispatcher->executeScripts()) {
-            // Fallback to traditional handling for compatibility
-            $this->autoLoadConnector->linkAutoLoader();
-            $this->webDirectory->ensureSymlinks();
-        }
+        $this->scriptDispatcher->executeScripts();
     }
 }

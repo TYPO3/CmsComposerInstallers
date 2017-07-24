@@ -1,5 +1,5 @@
 <?php
-namespace TYPO3\CMS\Composer\Plugin\Core;
+namespace TYPO3\CMS\Composer\Plugin\Core\InstallerScripts;
 
 /*
  * This file is part of the TYPO3 project.
@@ -16,8 +16,10 @@ namespace TYPO3\CMS\Composer\Plugin\Core;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
+use Composer\Script\Event;
 use Composer\Semver\Constraint\EmptyConstraint;
 use TYPO3\CMS\Composer\Plugin\Config;
+use TYPO3\CMS\Composer\Plugin\Core\InstallerScript;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
 /**
@@ -25,7 +27,7 @@ use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
  *
  * @author Helmut Hummel <info@helhum.io>
  */
-class WebDirectory
+class WebDirectory implements InstallerScript
 {
     const TYPO3_DIR = 'typo3';
     const TYPO3_INDEX_PHP = 'index.php';
@@ -55,27 +57,19 @@ class WebDirectory
      */
     private $pluginConfig;
 
-    /**
-     * @param IOInterface $io
-     * @param Composer $composer
-     * @param Filesystem $filesystem
-     * @param Config $pluginConfig
-     */
-    public function __construct(IOInterface $io, Composer $composer, Filesystem $filesystem, Config $pluginConfig)
+    public function run(Event $event): bool
     {
-        $this->io = $io;
-        $this->composer = $composer;
-        $this->filesystem = $filesystem;
-        $this->pluginConfig = $pluginConfig;
-    }
+        $this->io = $event->getIO();
+        $this->composer = $event->getComposer();
+        $this->filesystem = new Filesystem();
+        $this->pluginConfig = Config::load($this->composer);
 
-    public function ensureSymlinks()
-    {
         $this->initializeSymlinks();
         if ($this->filesystem->someFilesExist($this->symlinks)) {
             $this->filesystem->removeSymlinks($this->symlinks);
         }
         $this->filesystem->establishSymlinks($this->symlinks, false);
+        return true;
     }
 
     /**
@@ -106,7 +100,7 @@ class WebDirectory
             $sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP
                 => $webDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP,
             $sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_DIR
-                => $backendDir
+                => $backendDir,
         ];
     }
 }

@@ -19,6 +19,8 @@ namespace TYPO3\CMS\Composer\Plugin\Core;
 
 use Composer\Autoload\ClassLoader;
 use Composer\Script\Event;
+use TYPO3\CMS\Composer\Plugin\Core\InstallerScripts\AutoloadConnector;
+use TYPO3\CMS\Composer\Plugin\Core\InstallerScripts\WebDirectory;
 
 class ScriptDispatcher
 {
@@ -63,25 +65,26 @@ class ScriptDispatcher
     public function executeScripts()
     {
         $io = $this->event->getIO();
-        try {
-            $this->registerLoader();
-            if (empty(self::$installerScripts)) {
-                return false;
-            }
-            ksort(self::$installerScripts, SORT_NUMERIC);
-            $io->writeError('<info>Executing TYPO3 installer scripts</info>', true, $io::VERBOSE);
-            foreach (array_reverse(self::$installerScripts) as $scripts) {
-                /** @var InstallerScript $script */
-                foreach ($scripts as $script) {
-                    if (!$script->run($this->event)) {
-                        break 2;
-                    }
+        $this->registerLoader();
+
+        if (empty(self::$installerScripts)) {
+            // Fallback to traditional handling for compatibility
+            self::addInstallerScript(new WebDirectory());
+            self::addInstallerScript(new AutoloadConnector());
+        }
+
+        ksort(self::$installerScripts, SORT_NUMERIC);
+        $io->writeError('<info>Executing TYPO3 installer scripts</info>', true, $io::VERBOSE);
+        foreach (array_reverse(self::$installerScripts) as $scripts) {
+            /** @var InstallerScript $script */
+            foreach ($scripts as $script) {
+                if (!$script->run($this->event)) {
+                    break 2;
                 }
             }
-            return true;
-        } finally {
-            $this->unRegisterLoader();
         }
+        $this->unRegisterLoader();
+        return true;
     }
 
     private function registerLoader()

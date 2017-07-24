@@ -1,5 +1,5 @@
 <?php
-namespace TYPO3\CMS\Composer\Plugin\Core;
+namespace TYPO3\CMS\Composer\Plugin\Core\InstallerScripts;
 
 /*
  * This file is part of the TYPO3 project.
@@ -16,7 +16,9 @@ namespace TYPO3\CMS\Composer\Plugin\Core;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
+use Composer\Script\Event;
 use Composer\Semver\Constraint\EmptyConstraint;
+use TYPO3\CMS\Composer\Plugin\Core\InstallerScript;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
 /**
@@ -26,18 +28,8 @@ use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
  *
  * @author Helmut Hummel <info@helhum.io>
  */
-class AutoloadConnector
+class AutoloadConnector implements InstallerScript
 {
-    /**
-     * @var IOInterface
-     */
-    private $io;
-
-    /**
-     * @var Composer
-     */
-    private $composer;
-
     /**
      * @var Filesystem
      */
@@ -46,42 +38,35 @@ class AutoloadConnector
     /**
      * @param Filesystem $filesystem
      */
-    public function __construct(IOInterface $io = null, Composer $composer = null, Filesystem $filesystem = null)
+    public function __construct(Filesystem $filesystem = null)
     {
-        $this->io = $io;
-        $this->composer = $composer;
         $this->filesystem = $this->filesystem ?: new Filesystem();
     }
 
-    public function linkAutoLoader($event = null)
+    public function run(Event $event): bool
     {
-        if ($this->composer === null) {
-            // Old plugin called this method, let's be graceful
-            $this->composer = $event->getComposer();
-            $this->io = $event->getIO();
-            $this->io->writeError('<warning>TYPO3 Composer Plugin incomplete update detected.</warning>');
-            $this->io->writeError('<warning>To fully upgrade to the new TYPO3 Composer Plugin, call "composer update" again.</warning>');
-        }
+        $composer = $event->getComposer();
+        $io = $event->getIO();
 
-        if ($this->composer->getPackage()->getName() === 'typo3/cms') {
+        if ($composer->getPackage()->getName() === 'typo3/cms') {
             // Nothing to do typo3/cms is root package.
-            return;
+            return true;
         }
 
-        $this->io->writeError('<info>Writing TYPO3 autoload proxy</info>', true, IOInterface::VERBOSE);
+        $io->writeError('<info>Writing TYPO3 autoload proxy</info>', true, IOInterface::VERBOSE);
 
-        $composerConfig = $this->composer->getConfig();
-        $localRepository = $this->composer->getRepositoryManager()->getLocalRepository();
+        $composerConfig = $composer->getConfig();
+        $localRepository = $composer->getRepositoryManager()->getLocalRepository();
         $package = $localRepository->findPackage('typo3/cms', new EmptyConstraint());
         if (!$package) {
             // No typo3/cms package found, no need to do something here.
-            return;
+            return true;
         }
 
         $defaultVendorDir = \Composer\Config::$defaultConfig['vendor-dir'];
 
-        $packagePath = $this->composer->getInstallationManager()->getInstallPath($package);
-        $jsonFile = new \Composer\Json\JsonFile($packagePath . DIRECTORY_SEPARATOR . 'composer.json', new \Composer\Util\RemoteFilesystem($this->io));
+        $packagePath = $composer->getInstallationManager()->getInstallPath($package);
+        $jsonFile = new \Composer\Json\JsonFile($packagePath . DIRECTORY_SEPARATOR . 'composer.json', new \Composer\Util\RemoteFilesystem($io));
         $packageJson = $jsonFile->read();
         $packageVendorDir = !empty($packageJson['config']['vendor-dir']) ? $this->filesystem->normalizePath($packageJson['config']['vendor-dir']) : $defaultVendorDir;
 
@@ -99,5 +84,6 @@ class AutoloadConnector
             ) . ';'
         ];
         file_put_contents("$autoLoaderTargetDir/$autoLoaderFileName", implode(chr(10), $code));
+        return true;
     }
 }
