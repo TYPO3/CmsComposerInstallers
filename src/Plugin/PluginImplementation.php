@@ -20,13 +20,11 @@ namespace TYPO3\CMS\Composer\Plugin;
 use Composer\Composer;
 use Composer\Script\Event;
 use TYPO3\CMS\Composer\Plugin\Config as PluginConfig;
-use TYPO3\CMS\Composer\Plugin\Core\AutoloadConnector;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\BaseDirToken;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\ComposerModeToken;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\WebDirToken;
 use TYPO3\CMS\Composer\Plugin\Core\ScriptDispatcher;
-use TYPO3\CMS\Composer\Plugin\Core\WebDirectory;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
 class PluginImplementation

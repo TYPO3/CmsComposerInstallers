@@ -189,8 +189,8 @@ class Config
             $config->merge(
                 [
                     'typo3/cms' => [
-                        'vendor-dir' => $composer->getConfig()->get('vendor-dir')
-                    ]
+                        'vendor-dir' => $composer->getConfig()->get('vendor-dir'),
+                    ],
                 ]
             );
         }

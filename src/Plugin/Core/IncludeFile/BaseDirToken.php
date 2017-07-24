@@ -50,7 +50,7 @@ class BaseDirToken implements TokenInterface
      * @param Typo3PluginConfig $typo3PluginConfig
      * @param Filesystem $filesystem
      */
-    public function __construct(IOInterface $io, Typo3PluginConfig $typo3PluginConfig,  Filesystem $filesystem = null)
+    public function __construct(IOInterface $io, Typo3PluginConfig $typo3PluginConfig, Filesystem $filesystem = null)
     {
         $this->io = $io;
         $this->typo3PluginConfig = $typo3PluginConfig;
@@ -66,8 +66,8 @@ class BaseDirToken implements TokenInterface
     }
 
     /**
-     * @return string
      * @throws \InvalidArgumentException
+     * @return string
      */
     public function getContent()
     {

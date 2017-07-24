@@ -45,7 +45,8 @@ class ScriptDispatcher
      * @param InstallerScript $script The callable that will be executed
      * @param int $priority Higher priority results in earlier execution
      */
-    public static function addInstallerScript(InstallerScript $script, $priority = 50) {
+    public static function addInstallerScript(InstallerScript $script, $priority = 50)
+    {
         self::$installerScripts[$priority][] = $script;
     }
 

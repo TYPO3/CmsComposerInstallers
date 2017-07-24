@@ -97,10 +97,8 @@ class WebDirectory implements InstallerScript
         $sourcesDir = $this->composer->getInstallationManager()->getInstallPath($package);
         $backendDir = $webDir . DIRECTORY_SEPARATOR . self::TYPO3_DIR;
         $this->symlinks = [
-            $sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP
-                => $webDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP,
-            $sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_DIR
-                => $backendDir,
+            $sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP => $webDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP,
+            $sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_DIR => $backendDir,
         ];
     }
 }

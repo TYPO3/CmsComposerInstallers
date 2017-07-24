@@ -81,9 +81,9 @@ class IncludeFile
     /**
      * Constructs the include file content
      *
-     * @return string
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
+     * @return string
      */
     protected function getIncludeFileContent()
     {

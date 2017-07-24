@@ -131,8 +131,8 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface
 
     /**
      * @param $stream
-     * @return array
      * @throws \RuntimeException
+     * @return array
      */
     public function decodeTerExchangeData($stream)
     {
@@ -202,8 +202,8 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface
     /**
      * Wrapper for utility method to create directory recusively
      *
-     * @throws \RuntimeException
      * @param string $directory Absolute path
+     * @throws \RuntimeException
      */
     protected function createNestedDirectory($directory)
     {

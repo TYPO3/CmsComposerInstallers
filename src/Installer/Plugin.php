@@ -52,7 +52,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     {
         return [
             ScriptEvents::PRE_AUTOLOAD_DUMP => ['listen'],
-            ScriptEvents::POST_AUTOLOAD_DUMP => ['listen']
+            ScriptEvents::POST_AUTOLOAD_DUMP => ['listen'],
         ];
     }
 

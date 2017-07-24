@@ -57,8 +57,8 @@ class ComposerModeToken implements TokenInterface
     }
 
     /**
-     * @return string
      * @throws \InvalidArgumentException
+     * @return string
      */
     public function getContent()
     {

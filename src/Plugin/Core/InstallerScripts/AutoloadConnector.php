@@ -81,7 +81,7 @@ class AutoloadConnector implements InstallerScript
             'return require ' . $this->filesystem->findShortestPathCode(
                 "$autoLoaderTargetDir/$autoLoaderFileName",
                 "$autoLoaderSourceDir/$autoLoaderFileName"
-            ) . ';'
+            ) . ';',
         ];
         file_put_contents("$autoLoaderTargetDir/$autoLoaderFileName", implode(chr(10), $code));
         return true;

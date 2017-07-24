@@ -59,9 +59,6 @@ class Filesystem extends \Composer\Util\Filesystem
         }
     }
 
-    /**
-     *
-     */
     public function removeSymlinks(array $links)
     {
         foreach ($links as $target) {
