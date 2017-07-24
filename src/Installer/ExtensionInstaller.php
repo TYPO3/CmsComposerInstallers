@@ -39,6 +39,11 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
     protected $extensionDir;
 
     /**
+     * @var string
+     */
+    protected $systemExtensionDir;
+
+    /**
      * @var Composer
      */
     protected $composer;
@@ -78,7 +83,9 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
         $this->filesystem = $filesystem;
         $this->binaryInstaller = $binaryInstaller;
         $this->pluginConfig = $pluginConfig;
-        $this->extensionDir = $this->filesystem->normalizePath($pluginConfig->get('web-dir')) . '/typo3conf/ext';
+        $webDirectory = $this->filesystem->normalizePath($pluginConfig->get('web-dir'));
+        $this->extensionDir = $webDirectory . '/typo3conf/ext';
+        $this->systemExtensionDir = $webDirectory . '/typo3/sysext';
     }
 
     /**
@@ -177,6 +184,9 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
     public function getInstallPath(PackageInterface $package)
     {
         $extensionInstallDir = $this->resolveExtensionKey($package);
+        if ($package->getType() === 'typo3-cms-framework') {
+            return $this->systemExtensionDir . DIRECTORY_SEPARATOR . $extensionInstallDir;
+        }
         return $this->extensionDir . DIRECTORY_SEPARATOR . $extensionInstallDir;
     }
 
