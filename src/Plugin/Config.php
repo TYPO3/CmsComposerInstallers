@@ -181,6 +181,11 @@ class Config
         static $config;
         if ($config === null) {
             $baseDir = static::extractBaseDir($composer->getConfig());
+            if ($composer->getPackage()->getName() === 'typo3/cms') {
+                // Configuration for the web dir is different, in case
+                // typo3/cms is the root package
+                self::$defaultConfig['web-dir'] = '.';
+            }
             $config = new static($baseDir);
             $rootPackageExtraConfig = $composer->getPackage()->getExtra();
             if (is_array($rootPackageExtraConfig)) {
