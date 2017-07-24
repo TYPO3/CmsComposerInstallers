@@ -25,7 +25,7 @@ use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\TokenInterface;
 class IncludeFile
 {
     const RESOURCES_PATH = '/res/php';
-    const INCLUDE_FILE = '/autoload-include.php';
+    const INCLUDE_FILE = '/typo3/autoload-include.php';
     const INCLUDE_FILE_TEMPLATE = '/autoload-include.tmpl.php';
 
     /**
@@ -65,7 +65,7 @@ class IncludeFile
         $this->io->writeError('<info>Register typo3/cms-composer-installer file in root package autoload definition</info>', true, IOInterface::VERBOSE);
 
         // Generate and write the file
-        $includeFile = $this->filesystem->normalizePath(dirname(dirname(dirname(__DIR__))) . self::RESOURCES_PATH . '/' . self::INCLUDE_FILE);
+        $includeFile = $this->composer->getConfig()->get('vendor-dir') . self::INCLUDE_FILE;
         file_put_contents($includeFile, $this->getIncludeFileContent());
 
         // Register the file in the root package
