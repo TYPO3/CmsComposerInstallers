@@ -82,10 +82,17 @@ class WebDirectory implements InstallerScript
             return;
         }
         if ($this->pluginConfig->get('prepare-web-dir') === false) {
+            $this->io->writeError('<warning>Config option prepare-web-dir has been deprecated.</warning>');
+            $this->io->writeError(' <warning>It will be removed with typo3/cms-composer-installers 2.0.</warning>');
             return;
         }
-        $this->io->writeError('<info>Establishing links to TYPO3 entry scripts in web directory</info>', true, IOInterface::VERBOSE);
+        $this->io->writeError('<info>Establishing links to TYPO3 entry scripts in web directory.</info>', true, IOInterface::VERBOSE);
 
+        $relativeWebDir = $this->pluginConfig->get('web-dir', $this->pluginConfig::RELATIVE_PATHS);
+        if (empty($relativeWebDir) || $relativeWebDir === '.') {
+            $this->io->writeError('<warning>Setting web-dir to the composer root directory is highly discouraged for security reasons.</warning>');
+            $this->io->writeError(' <warning>The default value for this option will change to "web" as of typo3/cms-composer-installers 2.0.</warning>');
+        }
         $webDir = $this->filesystem->normalizePath($this->pluginConfig->get('web-dir'));
         $this->filesystem->ensureDirectoryExists($webDir);
         $localRepository = $this->composer->getRepositoryManager()->getLocalRepository();

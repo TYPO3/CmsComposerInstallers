@@ -70,6 +70,11 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             ->addInstaller(
                 new ExtensionInstaller($io, $composer, $filesystem, $pluginConfig, $binaryInstaller)
             );
+        $composer
+            ->getInstallationManager()
+            ->addInstaller(
+                new CoreInstaller($io, $composer)
+            );
 
         $cache = null;
         if ($composer->getConfig()->get('cache-files-ttl') > 0) {

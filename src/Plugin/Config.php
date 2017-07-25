@@ -27,8 +27,11 @@ class Config
      * @var array
      */
     public static $defaultConfig = [
-        'web-dir' => 'web',
+        'web-dir' => '.',
+        // The following options are deprecated and will be removed with 2.0
         'prepare-web-dir' => true,
+        'cms-package-dir' => 'typo3_src',
+        'extensions-in-vendor-dir' => false,
         // The following values are for internal use only and does not represent public API
         // Names and behaviour of these values might change without notice
         'composer-mode' => true,
@@ -80,6 +83,7 @@ class Config
     {
         switch ($key) {
             case 'web-dir':
+            case 'cms-package-dir':
                 $val = rtrim($this->process($this->config[$key], $flags), '/\\');
                 return ($flags & self::RELATIVE_PATHS === 1) ? $val : $this->realpath($val);
             default:
@@ -157,7 +161,7 @@ class Config
      */
     protected function realpath($path)
     {
-        if (substr($path, 0, 1) === '/' || substr($path, 1, 1) === ':') {
+        if ($path[0] === '/' || (!empty($path[1]) && $path[1] === ':')) {
             return $path;
         }
 
@@ -191,6 +195,14 @@ class Config
             if (is_array($rootPackageExtraConfig)) {
                 $config->merge($rootPackageExtraConfig);
             }
+            // @deprecated Will be removed with 2.0
+            $config->merge(
+                array(
+                    'typo3/cms' => array(
+                        'vendor-dir' => $composer->getConfig()->get('vendor-dir')
+                    )
+                )
+            );
         }
         return $config;
     }

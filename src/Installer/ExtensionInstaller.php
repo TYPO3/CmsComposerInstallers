@@ -83,9 +83,15 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
         $this->filesystem = $filesystem;
         $this->binaryInstaller = $binaryInstaller;
         $this->pluginConfig = $pluginConfig;
-        $webDirectory = $this->filesystem->normalizePath($pluginConfig->get('web-dir'));
-        $this->extensionDir = $webDirectory . '/typo3conf/ext';
-        $this->systemExtensionDir = $webDirectory . '/typo3/sysext';
+        if ($pluginConfig->get('extensions-in-vendor-dir')) {
+            $this->systemExtensionDir = $this->extensionDir = $pluginConfig->get('vendor-dir');
+            $io->writeError('<warning>Configuration option extensions-in-vendor-dir has been deprecated.</warning>');
+            $io->writeError(' <warning>It will be removed with typo3/cms-composer-installers 2.0.</warning>');
+        } else {
+            $webDirectory = $this->filesystem->normalizePath($pluginConfig->get('web-dir'));
+            $this->extensionDir = $webDirectory . '/typo3conf/ext';
+            $this->systemExtensionDir = $webDirectory . '/typo3/sysext';
+        }
     }
 
     /**
@@ -183,7 +189,11 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
      */
     public function getInstallPath(PackageInterface $package)
     {
-        $extensionInstallDir = $this->resolveExtensionKey($package);
+        if ($this->pluginConfig->get('extensions-in-vendor-dir')) {
+            $extensionInstallDir = $package->getName();
+        } else {
+            $extensionInstallDir = $this->resolveExtensionKey($package);
+        }
         if ($package->getType() === 'typo3-cms-framework') {
             return $this->systemExtensionDir . DIRECTORY_SEPARATOR . $extensionInstallDir;
         }
