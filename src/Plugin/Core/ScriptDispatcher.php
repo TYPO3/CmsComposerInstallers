@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace TYPO3\CMS\Composer\Plugin\Core;
 
 /*
@@ -19,6 +20,7 @@ namespace TYPO3\CMS\Composer\Plugin\Core;
 
 use Composer\Autoload\ClassLoader;
 use Composer\Script\Event;
+use Composer\Semver\Constraint\EmptyConstraint;
 use TYPO3\CMS\Composer\Plugin\Core\InstallerScripts\AutoloadConnector;
 use TYPO3\CMS\Composer\Plugin\Core\InstallerScripts\WebDirectory;
 
@@ -37,18 +39,9 @@ class ScriptDispatcher
     /**
      * Array of callables that are executed after autoload dump
      *
-     * @var array
+     * @var InstallerScript[][]
      */
-    private static $installerScripts = [];
-
-    /**
-     * @param InstallerScript $script The callable that will be executed
-     * @param int $priority Higher priority results in earlier execution
-     */
-    public static function addInstallerScript(InstallerScript $script, $priority = 50)
-    {
-        self::$installerScripts[$priority][] = $script;
-    }
+    private $installerScripts = [];
 
     /**
      * ScriptDispatcher constructor.
@@ -61,31 +54,48 @@ class ScriptDispatcher
     }
 
     /**
-     * @return bool
+     * @param InstallerScript $script The callable that will be executed
+     * @param int $priority Higher priority results in earlier execution
      */
+    public function addInstallerScript(InstallerScript $script, $priority = 50)
+    {
+        $this->installerScripts[$priority][] = $script;
+    }
+
     public function executeScripts()
     {
         $io = $this->event->getIO();
         $this->registerLoader();
+        $composer = $this->event->getComposer();
 
-        if (empty(self::$installerScripts)) {
+        if (
             // Fallback to traditional handling for compatibility
-            self::addInstallerScript(new WebDirectory());
-            self::addInstallerScript(new AutoloadConnector());
+            empty($this->installerScripts)
+            // But not if typo3/cms is root package or typo3/cms is not found at all
+            && null !== $composer->getRepositoryManager()->getLocalRepository()->findPackage('typo3/cms', new EmptyConstraint())
+
+        ) {
+            $this->addInstallerScript(new WebDirectory());
+            $this->addInstallerScript(new AutoloadConnector());
         }
 
-        ksort(self::$installerScripts, SORT_NUMERIC);
+        ksort($this->installerScripts, SORT_NUMERIC);
         $io->writeError('<info>Executing TYPO3 installer scripts</info>', true, $io::VERBOSE);
-        foreach (array_reverse(self::$installerScripts) as $scripts) {
-            /** @var InstallerScript $script */
-            foreach ($scripts as $script) {
-                if (!$script->run($this->event)) {
-                    break 2;
+        try {
+            foreach (array_reverse($this->installerScripts) as $scripts) {
+                /** @var InstallerScript $script */
+                foreach ($scripts as $script) {
+                    $io->writeError(sprintf('<info>Executing "%s": </info>', get_class($script)), true, $io::DEBUG);
+                    if (!$script->run($this->event)) {
+                        $io->writeError(sprintf('<error>Executing "%s" failed.</error>', get_class($script)), true);
+                    }
                 }
             }
+        } catch (StopInstallerScriptExecution $e) {
+            // Just skip further script execution
+        } finally {
+            $this->unRegisterLoader();
         }
-        $this->unRegisterLoader();
-        return true;
     }
 
     private function registerLoader()
@@ -112,7 +122,7 @@ class ScriptDispatcher
                 class_exists($scriptsRegistrationCandidate)
                 && in_array(InstallerScriptsRegistration::class, class_implements($scriptsRegistrationCandidate), true)
             ) {
-                $scriptsRegistrationCandidate::register($this->event);
+                $scriptsRegistrationCandidate::register($this->event, $this);
             }
         }
     }

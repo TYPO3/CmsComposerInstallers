@@ -29,7 +29,8 @@ interface InstallerScriptsRegistration
      * This will be called in the Plugin right before the scripts are executed.
      *
      * @param Event $event
+     * @param ScriptDispatcher $scriptDispatcher
      * @return void
      */
-    public static function register(Event $event);
+    public static function register(Event $event, ScriptDispatcher $scriptDispatcher);
 }

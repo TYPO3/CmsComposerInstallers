@@ -15,16 +15,9 @@ namespace TYPO3\CMS\Composer\Plugin\Core;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Composer\Script\Event;
-
 /**
- * Contract for script that is run during composer build time
+ * Used to interrupt further installer scripts execution
  */
-interface InstallerScript
+class StopInstallerScriptExecution extends \Exception
 {
-    /**
-     * @param Event $event
-     * @return bool True on success, false on failure
-     */
-    public function run(Event $event): bool;
 }

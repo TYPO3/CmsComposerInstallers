@@ -48,20 +48,11 @@ class AutoloadConnector implements InstallerScript
         $composer = $event->getComposer();
         $io = $event->getIO();
 
-        if ($composer->getPackage()->getName() === 'typo3/cms') {
-            // Nothing to do typo3/cms is root package.
-            return true;
-        }
-
         $io->writeError('<info>Writing TYPO3 autoload proxy</info>', true, IOInterface::VERBOSE);
 
         $composerConfig = $composer->getConfig();
         $localRepository = $composer->getRepositoryManager()->getLocalRepository();
         $package = $localRepository->findPackage('typo3/cms', new EmptyConstraint());
-        if (!$package) {
-            // No typo3/cms package found, no need to do something here.
-            return true;
-        }
 
         $defaultVendorDir = \Composer\Config::$defaultConfig['vendor-dir'];
 
@@ -83,7 +74,6 @@ class AutoloadConnector implements InstallerScript
                 "$autoLoaderSourceDir/$autoLoaderFileName"
             ) . ';',
         ];
-        file_put_contents("$autoLoaderTargetDir/$autoLoaderFileName", implode(chr(10), $code));
-        return true;
+        return false !== file_put_contents("$autoLoaderTargetDir/$autoLoaderFileName", implode(chr(10), $code));
     }
 }

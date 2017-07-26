@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 namespace TYPO3\CMS\Composer\Plugin;
 
 /*
@@ -27,6 +28,9 @@ use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\WebDirToken;
 use TYPO3\CMS\Composer\Plugin\Core\ScriptDispatcher;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
+/**
+ * Implementation of the Plugin to make further changes more robust on Composer updates
+ */
 class PluginImplementation
 {
     /**
@@ -45,8 +49,6 @@ class PluginImplementation
     private $composer;
 
     /**
-     * PluginImplementation constructor.
-     *
      * @param Event $event
      * @param ScriptDispatcher $scriptDispatcher
      * @param IncludeFile $includeFile

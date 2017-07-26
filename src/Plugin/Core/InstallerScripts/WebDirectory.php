@@ -23,9 +23,7 @@ use TYPO3\CMS\Composer\Plugin\Core\InstallerScript;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
 /**
- * TYPO3 Core installer
- *
- * @author Helmut Hummel <info@helhum.io>
+ * Setting up TYPO3 web directory by creating symlinks
  */
 class WebDirectory implements InstallerScript
 {
@@ -60,15 +58,15 @@ class WebDirectory implements InstallerScript
     public function run(Event $event): bool
     {
         $this->io = $event->getIO();
-        $this->composer = $event->getComposer();
         $this->filesystem = new Filesystem();
+        $this->composer = $event->getComposer();
         $this->pluginConfig = Config::load($this->composer);
 
         $this->initializeSymlinks();
         if ($this->filesystem->someFilesExist($this->symlinks)) {
             $this->filesystem->removeSymlinks($this->symlinks);
         }
-        $this->filesystem->establishSymlinks($this->symlinks, false);
+        $this->filesystem->establishSymlinks($this->symlinks);
         return true;
     }
 
@@ -77,10 +75,6 @@ class WebDirectory implements InstallerScript
      */
     private function initializeSymlinks()
     {
-        if ($this->composer->getPackage()->getName() === 'typo3/cms') {
-            // Nothing to do typo3/cms is root package
-            return;
-        }
         if ($this->pluginConfig->get('prepare-web-dir') === false) {
             $this->io->writeError('<warning>Config option prepare-web-dir has been deprecated.</warning>');
             $this->io->writeError(' <warning>It will be removed with typo3/cms-composer-installers 2.0.</warning>');
@@ -97,10 +91,7 @@ class WebDirectory implements InstallerScript
         $this->filesystem->ensureDirectoryExists($webDir);
         $localRepository = $this->composer->getRepositoryManager()->getLocalRepository();
         $package = $localRepository->findPackage('typo3/cms', new EmptyConstraint());
-        if (!$package) {
-            // No typo3/cms package found, no need to do something here.
-            return;
-        }
+
         $sourcesDir = $this->composer->getInstallationManager()->getInstallPath($package);
         $backendDir = $webDir . DIRECTORY_SEPARATOR . self::TYPO3_DIR;
         $this->symlinks = [
