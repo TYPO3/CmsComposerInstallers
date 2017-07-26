@@ -66,7 +66,7 @@ class WebDirectory implements InstallerScript
         if ($this->filesystem->someFilesExist($this->symlinks)) {
             $this->filesystem->removeSymlinks($this->symlinks);
         }
-        $this->filesystem->establishSymlinks($this->symlinks);
+        $this->filesystem->establishSymlinks($this->symlinks, false);
         return true;
     }
 
