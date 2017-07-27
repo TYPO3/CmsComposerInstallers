@@ -15,14 +15,11 @@ namespace TYPO3\CMS\Composer\Installer;
  */
 
 use Composer\Composer;
-use Composer\Downloader\DownloadManager;
 use Composer\Installer\BinaryInstaller;
 use Composer\Installer\LibraryInstaller;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
-use Composer\Repository\InstalledRepositoryInterface;
 use TYPO3\CMS\Composer\Plugin\Config;
-use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
 /**
  * TYPO3 Core installer

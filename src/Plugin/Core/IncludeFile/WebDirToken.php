@@ -21,9 +21,6 @@ use Composer\IO\IOInterface;
 use Composer\Util\Filesystem;
 use TYPO3\CMS\Composer\Plugin\Config as Typo3PluginConfig;
 
-/**
- * Class WebDirToken
- */
 class WebDirToken implements TokenInterface
 {
     /**
@@ -73,7 +70,7 @@ class WebDirToken implements TokenInterface
      */
     public function getContent()
     {
-        $includeFileFolder = dirname(dirname(dirname(dirname(dirname(__DIR__)))));
+        $includeFileFolder = dirname(__DIR__, 5);
         return $this->filesystem->findShortestPathCode(
             $includeFileFolder,
             $this->typo3PluginConfig->get('web-dir'),

@@ -197,11 +197,11 @@ class Config
             }
             // @deprecated Will be removed with 2.0
             $config->merge(
-                array(
-                    'typo3/cms' => array(
-                        'vendor-dir' => $composer->getConfig()->get('vendor-dir')
-                    )
-                )
+                [
+                    'typo3/cms' => [
+                        'vendor-dir' => $composer->getConfig()->get('vendor-dir'),
+                    ],
+                ]
             );
         }
         return $config;

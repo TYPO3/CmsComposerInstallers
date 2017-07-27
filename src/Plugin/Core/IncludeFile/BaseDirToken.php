@@ -71,7 +71,7 @@ class BaseDirToken implements TokenInterface
      */
     public function getContent()
     {
-        $includeFileFolder = dirname(dirname(dirname(dirname(dirname(__DIR__)))));
+        $includeFileFolder = dirname(__DIR__, 5);
         return $this->filesystem->findShortestPathCode(
             $includeFileFolder,
             $this->typo3PluginConfig->getBaseDir(),

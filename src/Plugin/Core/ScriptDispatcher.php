@@ -73,7 +73,6 @@ class ScriptDispatcher
             empty($this->installerScripts)
             // But not if typo3/cms is root package or typo3/cms is not found at all
             && null !== $composer->getRepositoryManager()->getLocalRepository()->findPackage('typo3/cms', new EmptyConstraint())
-
         ) {
             $this->addInstallerScript(new WebDirectory());
             $this->addInstallerScript(new AutoloadConnector());
