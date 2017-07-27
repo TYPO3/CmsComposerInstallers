@@ -2,9 +2,6 @@
 namespace TYPO3\CMS\Composer\Plugin\Core\IncludeFile;
 
 /*
- * This file was taken from the typo3 console plugin package.
- * (c) Helmut Hummel <info@helhum.io>
- *
  * This file is part of the TYPO3 project.
  *
  * It is free software; you can redistribute it and/or modify it under
@@ -21,12 +18,12 @@ use Composer\IO\IOInterface;
 use Composer\Util\Filesystem;
 use TYPO3\CMS\Composer\Plugin\Config as Typo3PluginConfig;
 
-class WebDirToken implements TokenInterface
+class RootDirToken implements TokenInterface
 {
     /**
      * @var string
      */
-    private $name = 'web-dir';
+    private $name = 'root-dir';
 
     /**
      * @var Typo3PluginConfig
@@ -74,7 +71,7 @@ class WebDirToken implements TokenInterface
         $includeFileFolder = dirname(__DIR__, 5);
         return $this->filesystem->findShortestPathCode(
             $includeFileFolder,
-            $this->typo3PluginConfig->get('web-dir'),
+            $this->typo3PluginConfig->get('root-dir'),
             true
         );
     }

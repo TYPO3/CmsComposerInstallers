@@ -24,6 +24,7 @@ use TYPO3\CMS\Composer\Plugin\Config as PluginConfig;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\BaseDirToken;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\ComposerModeToken;
+use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\RootDirToken;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\WebDirToken;
 use TYPO3\CMS\Composer\Plugin\Core\ScriptDispatcher;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
@@ -71,6 +72,7 @@ class PluginImplementation
                 [
                     new BaseDirToken($io, $pluginConfig),
                     new WebDirToken($io, $pluginConfig),
+                    new RootDirToken($io, $pluginConfig),
                     new ComposerModeToken($io, $pluginConfig),
                 ],
                 $fileSystem

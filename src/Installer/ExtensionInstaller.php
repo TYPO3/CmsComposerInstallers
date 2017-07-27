@@ -89,7 +89,7 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
             $io->writeError('<warning>Configuration option extensions-in-vendor-dir has been deprecated.</warning>');
             $io->writeError(' <warning>It will be removed with typo3/cms-composer-installers 2.0.</warning>');
         } else {
-            $webDirectory = $this->filesystem->normalizePath($pluginConfig->get('web-dir'));
+            $webDirectory = $this->filesystem->normalizePath($pluginConfig->get('root-dir'));
             $this->extensionDir = $webDirectory . '/typo3conf/ext';
             $this->systemExtensionDir = $webDirectory . '/typo3/sysext';
         }

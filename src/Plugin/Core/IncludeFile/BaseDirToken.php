@@ -26,7 +26,7 @@ class BaseDirToken implements TokenInterface
     /**
      * @var string
      */
-    private $name = 'root-dir';
+    private $name = 'base-dir';
 
     /**
      * @var Typo3PluginConfig
