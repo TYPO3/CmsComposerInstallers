@@ -24,9 +24,8 @@ use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\TokenInterface;
 
 class IncludeFile
 {
-    const RESOURCES_PATH = '/res/php';
     const INCLUDE_FILE = '/typo3/autoload-include.php';
-    const INCLUDE_FILE_TEMPLATE = '/autoload-include.tmpl.php';
+    const INCLUDE_FILE_TEMPLATE = '/res/php/autoload-include.tmpl.php';
 
     /**
      * @var TokenInterface[]
@@ -87,7 +86,7 @@ class IncludeFile
      */
     protected function getIncludeFileContent()
     {
-        $includeFileTemplate = $this->filesystem->normalizePath(dirname(dirname(dirname(__DIR__))) . self::RESOURCES_PATH . '/' . self::INCLUDE_FILE_TEMPLATE);
+        $includeFileTemplate = $this->filesystem->normalizePath(dirname(dirname(dirname(__DIR__))) . self::INCLUDE_FILE_TEMPLATE);
         $includeFileContent = file_get_contents($includeFileTemplate);
         foreach ($this->tokens as $token) {
             $includeFileContent = self::replaceToken($token->getName(), $token->getContent(), $includeFileContent);

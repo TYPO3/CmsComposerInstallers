@@ -73,7 +73,7 @@ class WebDirToken implements TokenInterface
      */
     public function getContent()
     {
-        $includeFileFolder = dirname(dirname(dirname(dirname(__DIR__)))) . '/res/php';
+        $includeFileFolder = dirname(dirname(dirname(dirname(dirname(__DIR__)))));
         return $this->filesystem->findShortestPathCode(
             $includeFileFolder,
             $this->typo3PluginConfig->get('web-dir'),
