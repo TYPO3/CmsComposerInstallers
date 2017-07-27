@@ -240,12 +240,11 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
             $extensionKey = str_replace('-', '_', $extensionKey);
         }
         $extra = $package->getExtra();
-        if (!empty($extra)) {
-            if (!empty($extra['installer-name'])) {
-                $extensionKey = $extra['installer-name'];
-            } elseif (!empty($extra['typo3/cms']['extensionKey'])) {
-                $extensionKey = $extra['typo3/cms']['extensionKey'];
-            }
+        if (!empty($extra['installer-name'])) {
+            $extensionKey = $extra['installer-name'];
+        }
+        if (!empty($extra['typo3/cms']['extension-key'])) {
+            $extensionKey = $extra['typo3/cms']['extension-key'];
         }
         return $extensionKey;
     }
