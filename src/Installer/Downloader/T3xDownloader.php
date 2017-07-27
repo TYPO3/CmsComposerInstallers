@@ -17,6 +17,7 @@ namespace TYPO3\CMS\Composer\Installer\Downloader;
 use Composer\Downloader\ArchiveDownloader;
 use Composer\Downloader\ChangeReportInterface;
 use Composer\Package\PackageInterface;
+use TYPO3\CMS\Composer\Plugin\Util\ExtensionKeyResolver;
 
 /**
  * TYPO3 CMS Extension Downloader
@@ -34,9 +35,9 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface
     /**
      * {@inheritDoc}
      */
-    public function download(PackageInterface $package, $path)
+    public function download(PackageInterface $package, $path, $output = true)
     {
-        // set package so we can use it in the extract method
+        // set package so we can use it later
         $this->package = $package;
         parent::download($package, $path);
     }
@@ -67,13 +68,15 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface
      */
     public function getLocalChanges(PackageInterface $package, $path)
     {
+        // set package so we can use it later
+        $this->package = $package;
         $messages = [];
         $path = rtrim($path, '/') . '/';
 
         // check if there is a ext_emconf.php
         try {
             $emMetaData = $this->getEmConfMetaData($path);
-            $extensionFiles = unserialize($emMetaData['_md5_values_when_last_written']);
+            $extensionFiles = unserialize($emMetaData['_md5_values_when_last_written'], ['allowed_classes' => false]);
             foreach ($extensionFiles as $extensionFileName => $extensionFileHash) {
                 if (substr($extensionFileName, -1) === '/') {
                     continue;
@@ -108,20 +111,19 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface
     protected function getEmConfMetaData($path)
     {
         if (!is_file($path . 'ext_emconf.php')) {
-            throw new \RuntimeException('Package is unstable, "ext_emconf.php" is missing', 1439568877);
+            throw new \RuntimeException(sprintf('Package "%s" is unstable, "ext_emconf.php" is missing', $this->package->getName()), 1439568877);
         }
-        $_EXTKEY = basename($path);
+        $_EXTKEY = ExtensionKeyResolver::resolve($this->package);
+        $EM_CONF = [];
 
         include($path . 'ext_emconf.php');
 
         if (!isset($EM_CONF) || !is_array($EM_CONF)) {
             throw new \RuntimeException('Package is unstable, "ext_emconf.php" is invalid: missing $EM_CONF array', 1484578406);
         }
-
         if (!isset($EM_CONF[$_EXTKEY])) {
-            throw new \RuntimeException('Package is unstable, "ext_emconf.php" is invalid: missing $EM_CONF[$_EXTKEY], make sure to use $_EXTKEY instead of a fixed string', 1484578650);
+            throw new \RuntimeException('Package is unstable, "ext_emconf.php" is invalid: missing $EM_CONF[$_EXTKEY]', 1484578650);
         }
-
         if (!is_array($EM_CONF[$_EXTKEY])) {
             throw new \RuntimeException('Package is unstable, "ext_emconf.php" is invalid: expected array for $EM_CONF[$_EXTKEY], got ' . gettype($EM_CONF[$_EXTKEY]) . ' instead', 1439569163);
         }
@@ -145,7 +147,7 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface
             }
         }
         if (md5($parts[2]) === $parts[0]) {
-            $output = unserialize($parts[2]);
+            $output = unserialize($parts[2], ['allowed_classes' => false]);
             if (!is_array($output)) {
                 throw new \RuntimeException('Error: Content could not be unserialized to an array. Strange (since MD5 hashes match!)', 1359124554);
             }
@@ -425,7 +427,7 @@ $EM_CONF[$_EXTKEY] = ' . $emConf . ';
     protected function convertDependencies($dependencies)
     {
         $newDependencies = [];
-        $dependenciesArray = unserialize($dependencies);
+        $dependenciesArray = unserialize($dependencies, ['allowed_classes' => false]);
         if (is_array($dependenciesArray)) {
             foreach ($dependenciesArray as $version) {
                 if (!empty($version['extensionKey'])) {

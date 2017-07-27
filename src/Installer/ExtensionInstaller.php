@@ -23,6 +23,7 @@ use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use TYPO3\CMS\Composer\Plugin\Config;
+use TYPO3\CMS\Composer\Plugin\Util\ExtensionKeyResolver;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
 /**
@@ -192,7 +193,7 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
         if ($this->pluginConfig->get('extensions-in-vendor-dir')) {
             $extensionInstallDir = $package->getName();
         } else {
-            $extensionInstallDir = $this->resolveExtensionKey($package);
+            $extensionInstallDir = ExtensionKeyResolver::resolve($package);
         }
         if ($package->getType() === 'typo3-cms-framework') {
             return $this->systemExtensionDir . DIRECTORY_SEPARATOR . $extensionInstallDir;
@@ -219,34 +220,6 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
     {
         $this->binaryInstaller->removeBinaries($package);
         $this->binaryInstaller->installBinaries($package, $this->getInstallPath($package));
-    }
-
-    /**
-     * Resolves the extension key from replaces or package name
-     *
-     * @param PackageInterface $package
-     * @return string
-     */
-    protected function resolveExtensionKey(PackageInterface $package)
-    {
-        foreach ($package->getReplaces() as $packageName => $version) {
-            if (strpos($packageName, '/') === false) {
-                $extensionKey = trim($packageName);
-                break;
-            }
-        }
-        if (empty($extensionKey)) {
-            list(, $extensionKey) = explode('/', $package->getName(), 2);
-            $extensionKey = str_replace('-', '_', $extensionKey);
-        }
-        $extra = $package->getExtra();
-        if (!empty($extra['installer-name'])) {
-            $extensionKey = $extra['installer-name'];
-        }
-        if (!empty($extra['typo3/cms']['extension-key'])) {
-            $extensionKey = $extra['typo3/cms']['extension-key'];
-        }
-        return $extensionKey;
     }
 
     /**
