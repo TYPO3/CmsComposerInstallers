@@ -45,9 +45,11 @@ class CoreInstaller extends LibraryInstaller
             $composer->getPackage()->getName() !== 'typo3/cms'
             && $installPath !== $this->composer->getConfig()->get('vendor-dir') . '/typo3/cms'
         ) {
-            $this->io->writeError('<warning>Config option cms-package-dir has been deprecated.</warning>');
-            $this->io->writeError(' <warning>It will be removed with typo3/cms-composer-installers 2.0.</warning>');
-            $this->io->writeError(' <warning>Set it to "{$vendor-dir}/typo3/cms" to get rid of this warning.</warning>');
+            $this->io->writeError('<warning>Config option "cms-package-dir" has not been set or set to a value different from "{$vendor-dir}/typo3/cms".</warning>');
+            $this->io->writeError(' <warning>This option will be removed without substitution with typo3/cms-composer-installers 2.0.</warning>');
+            $this->io->writeError(' <warning>With 2.0 the typo3/cms package will always be installed in the vendor directory.</warning>');
+            $this->io->writeError('<warning>To get rid of this warning, use the following command to set the option to a not deprecated value:</warning>');
+            $this->io->writeError(' <info>composer config extra.typo3/cms.cms-package-dir \'{$vendor-dir}/typo3/cms\'</info>');
         }
     }
 
