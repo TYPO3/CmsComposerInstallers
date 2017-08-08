@@ -19,6 +19,7 @@ namespace TYPO3\CMS\Composer\Plugin;
  */
 
 use Composer\Composer;
+use Composer\Installer\PackageEvent;
 use Composer\Script\Event;
 use TYPO3\CMS\Composer\Plugin\Config as PluginConfig;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile;
@@ -27,7 +28,6 @@ use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\ComposerModeToken;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\RootDirToken;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\WebDirToken;
 use TYPO3\CMS\Composer\Plugin\Core\ScriptDispatcher;
-use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
 /**
  * Implementation of the Plugin to make further changes more robust on Composer updates
@@ -50,46 +50,48 @@ class PluginImplementation
     private $composer;
 
     /**
-     * @param Event $event
+     * @param Event|PackageEvent $event
      * @param ScriptDispatcher $scriptDispatcher
      * @param IncludeFile $includeFile
      */
     public function __construct(
-        Event $event,
+        $event,
         ScriptDispatcher $scriptDispatcher = null,
         IncludeFile $includeFile = null
     ) {
         $io = $event->getIO();
         $this->composer = $event->getComposer();
-        $fileSystem = new Filesystem();
         $pluginConfig = PluginConfig::load($this->composer);
 
-        $this->scriptDispatcher = $scriptDispatcher ?: new ScriptDispatcher($event);
+        $this->scriptDispatcher = $scriptDispatcher ?: new ScriptDispatcher();
         $this->includeFile = $includeFile
             ?: new IncludeFile(
-                $io,
-                $this->composer,
-                [
-                    new BaseDirToken($io, $pluginConfig),
-                    new WebDirToken($io, $pluginConfig),
-                    new RootDirToken($io, $pluginConfig),
-                    new ComposerModeToken($io, $pluginConfig),
-                ],
-                $fileSystem
+                new BaseDirToken($io, $pluginConfig),
+                new WebDirToken($io, $pluginConfig),
+                new RootDirToken($io, $pluginConfig),
+                new ComposerModeToken($io, $pluginConfig)
             );
     }
 
-    public function preAutoloadDump()
+    public function preAutoloadDump(Event $event)
     {
         if ($this->composer->getPackage()->getName() === 'typo3/cms') {
             // Nothing to do typo3/cms is root package
             return;
         }
-        $this->includeFile->register();
+        $this->includeFile->register($event);
     }
 
-    public function postAutoloadDump()
+    public function postAutoloadDump(Event $event)
     {
-        $this->scriptDispatcher->executeScripts();
+        $this->scriptDispatcher->executeScripts($event);
+    }
+
+    public function postPackageInstall(PackageEvent $event)
+    {
+    }
+
+    public function postPackageUnInstall(PackageEvent $event)
+    {
     }
 }
