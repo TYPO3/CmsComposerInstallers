@@ -163,6 +163,9 @@ class Config
      */
     protected function realpath($path)
     {
+        if ($path === '') {
+            return $this->baseDir;
+        }
         if ($path[0] === '/' || (!empty($path[1]) && $path[1] === ':')) {
             return $path;
         }
