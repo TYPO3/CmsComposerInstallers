@@ -1,5 +1,4 @@
 <?php
-declare(strict_types=1);
 namespace TYPO3\CMS\Composer\Plugin\Core;
 
 /*
@@ -18,8 +17,9 @@ namespace TYPO3\CMS\Composer\Plugin\Core;
  * The TYPO3 project - inspiring people to share!
  */
 
+use Composer\Composer;
 use Composer\IO\IOInterface;
-use Composer\Script\Event;
+use Composer\Util\Filesystem;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\TokenInterface;
 
 class IncludeFile
@@ -33,26 +33,42 @@ class IncludeFile
     private $tokens;
 
     /**
-     * @param TokenInterface[] $tokens
+     * @var Filesystem
      */
-    public function __construct(TokenInterface ...$tokens)
+    private $filesystem;
+    /**
+     * @var IOInterface
+     */
+    private $io;
+    /**
+     * @var Composer
+     */
+    private $composer;
+
+    /**
+     * IncludeFile constructor.
+     *
+     * @param TokenInterface[] $tokens
+     * @param Filesystem $filesystem
+     */
+    public function __construct(IOInterface $io, Composer $composer, array $tokens, Filesystem $filesystem = null)
     {
+        $this->io = $io;
+        $this->composer = $composer;
         $this->tokens = $tokens;
+        $this->filesystem = $this->filesystem ?: new Filesystem();
     }
 
-    public function register(Event $event)
+    public function register()
     {
-        $io = $event->getIO();
-        $composer = $event->getComposer();
-
-        $io->writeError('<info>Register typo3/cms-composer-installer file in root package autoload definition</info>', true, IOInterface::VERBOSE);
+        $this->io->writeError('<info>Register typo3/cms-composer-installer file in root package autoload definition</info>', true, IOInterface::VERBOSE);
 
         // Generate and write the file
-        $includeFile = $composer->getConfig()->get('vendor-dir') . self::INCLUDE_FILE;
+        $includeFile = $this->composer->getConfig()->get('vendor-dir') . self::INCLUDE_FILE;
         file_put_contents($includeFile, $this->getIncludeFileContent());
 
         // Register the file in the root package
-        $rootPackage = $composer->getPackage();
+        $rootPackage = $this->composer->getPackage();
         $autoloadDefinition = $rootPackage->getAutoload();
         $autoloadDefinition['files'][] = $includeFile;
         $rootPackage->setAutoload($autoloadDefinition);
@@ -68,9 +84,9 @@ class IncludeFile
      * @throws \InvalidArgumentException
      * @return string
      */
-    protected function getIncludeFileContent(): string
+    protected function getIncludeFileContent()
     {
-        $includeFileTemplate = dirname(__DIR__, 3) . self::INCLUDE_FILE_TEMPLATE;
+        $includeFileTemplate = $this->filesystem->normalizePath(dirname(dirname(dirname(__DIR__))) . self::INCLUDE_FILE_TEMPLATE);
         $includeFileContent = file_get_contents($includeFileTemplate);
         foreach ($this->tokens as $token) {
             $includeFileContent = self::replaceToken($token->getName(), $token->getContent(), $includeFileContent);
@@ -86,7 +102,7 @@ class IncludeFile
      * @param string $subject
      * @return string
      */
-    private static function replaceToken($name, $content, $subject): string
+    private static function replaceToken($name, $content, $subject)
     {
         return str_replace('\'{$' . $name . '}\'', $content, $subject);
     }

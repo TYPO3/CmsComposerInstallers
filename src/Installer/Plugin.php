@@ -18,8 +18,6 @@ use Composer\Cache;
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Installer\BinaryInstaller;
-use Composer\Installer\PackageEvent;
-use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
@@ -55,9 +53,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         return [
             ScriptEvents::PRE_AUTOLOAD_DUMP => ['listen'],
             ScriptEvents::POST_AUTOLOAD_DUMP => ['listen'],
-            PackageEvents::POST_PACKAGE_INSTALL => ['listenPackageEvent'],
-            PackageEvents::POST_PACKAGE_UPDATE => ['listenPackageEvent'],
-            PackageEvents::POST_PACKAGE_UNINSTALL => ['listenPackageEvent'],
         ];
     }
 
@@ -118,49 +113,18 @@ class Plugin implements PluginInterface, EventSubscriberInterface
 
         // Load the implementation only after updating Composer so that we get
         // the new version of the plugin when a new one was installed
-        if ($this->pluginImplementation === null) {
+        if (null === $this->pluginImplementation) {
             $this->pluginImplementation = new PluginImplementation($event);
         }
 
         switch ($event->getName()) {
             case ScriptEvents::PRE_AUTOLOAD_DUMP:
-                $this->pluginImplementation->preAutoloadDump($event);
+                $this->pluginImplementation->preAutoloadDump();
                 break;
             case ScriptEvents::POST_AUTOLOAD_DUMP:
-                $this->pluginImplementation->postAutoloadDump($event);
-                break;
-            case PackageEvents::POST_PACKAGE_INSTALL:
-            case PackageEvents::POST_PACKAGE_UPDATE:
-                $this->pluginImplementation->postPackageInstall($event);
-                break;
-            case PackageEvents::POST_PACKAGE_UNINSTALL:
-                $this->pluginImplementation->postPackageUnInstall($event);
+                $this->pluginImplementation->postAutoloadDump();
                 break;
         }
-    }
-
-    public function listenPackageEvent(PackageEvent $event)
-    {
-        // Plugin has been uninstalled
-        if (!file_exists(__FILE__) || !file_exists(dirname(__DIR__) . '/Plugin/PluginImplementation.php')) {
-            return;
-        }
-
-        // Load the implementation only after updating Composer so that we get
-        // the new version of the plugin when a new one was installed
-        if ($this->pluginImplementation === null) {
-            $this->pluginImplementation = new PluginImplementation($event);
-        }
-        switch ($event->getName()) {
-            case PackageEvents::POST_PACKAGE_INSTALL:
-            case PackageEvents::POST_PACKAGE_UPDATE:
-                $this->pluginImplementation->postPackageInstall($event);
-                break;
-            case PackageEvents::POST_PACKAGE_UNINSTALL:
-                $this->pluginImplementation->postPackageUnInstall($event);
-                break;
-        }
-
     }
 
     /**
