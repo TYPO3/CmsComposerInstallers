@@ -34,7 +34,7 @@ class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface
     /**
      * {@inheritDoc}
      */
-    public function download(PackageInterface $package, $path)
+    public function download(PackageInterface $package, $path, $output = true)
     {
         // set package so we can use it in the extract method
         $this->package = $package;
