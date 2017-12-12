@@ -22,52 +22,28 @@ use Composer\Package\PackageInterface;
 use TYPO3\CMS\Composer\Plugin\Config;
 
 /**
- * TYPO3 Core installer
+ * typo3/cms installer
+ *
+ * We deny installation of typo3/cms via composer
+ *
+ * Instead individual packages should be used and / or typo3/minimal
  */
 class CoreInstaller extends LibraryInstaller
 {
-    /**
-     * @var Config
-     */
-    private $pluginConfig;
-
-    /**
-     * @var bool
-     */
-    private static $deprecationShown = false;
-
-    public function __construct(
-        IOInterface $io,
-        Composer $composer,
-        $type = 'typo3-cms-core',
-        \Composer\Util\Filesystem $filesystem = null,
-        BinaryInstaller $binaryInstaller = null
-    ) {
-        parent::__construct($io, $composer, $type, $filesystem, $binaryInstaller);
-        $this->pluginConfig = Config::load($composer);
-    }
-
     /**
      * Returns the installation path of a package
      *
      * @param  PackageInterface $package
      * @return string
+     * @throws \RuntimeException
      */
     public function getInstallPath(PackageInterface $package)
     {
-        $installPath = $this->pluginConfig->get('cms-package-dir');
-        if (
-            !self::$deprecationShown
-            && $this->composer->getPackage()->getName() !== 'typo3/cms'
-            && $installPath !== $this->composer->getConfig()->get('vendor-dir') . '/typo3/cms'
-        ) {
-            self::$deprecationShown = true;
-            $this->io->writeError('<warning>Config option "cms-package-dir" has not been set or set to a value different from "{$vendor-dir}/typo3/cms".</warning>');
-            $this->io->writeError(' <warning>This option will be removed without substitution with typo3/cms-composer-installers 2.0.</warning>');
-            $this->io->writeError(' <warning>With 2.0 the typo3/cms package will always be installed in the vendor directory.</warning>');
-            $this->io->writeError(' <warning>To get rid of this warning, use the following command to set the option to a not deprecated value:</warning>');
-            $this->io->writeError(' <info>composer config extra.typo3/cms.cms-package-dir \'{$vendor-dir}/typo3/cms\'</info>');
-        }
-        return $this->pluginConfig->get('cms-package-dir');
+        $this->io->writeError('<warning>Installation of typo3/cms is not possible any more for TYPO3 versions 9.0.0 and higher.</warning>');
+        $this->io->writeError('<warning>Please require typo3/minimal instead for minimum required TYPO3 system extensions,</warning>');
+        $this->io->writeError('<warning>and/or require individual system extensions like typo3/cms-extension-name</warning>');
+        $this->io->writeError('<warning>E.g. composer require typo3/cms-tstemplate</warning>');
+
+        throw new \RuntimeException('Installation stopped.', 1513083851);
     }
 }

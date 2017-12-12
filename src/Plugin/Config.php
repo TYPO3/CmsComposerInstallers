@@ -27,14 +27,10 @@ class Config
      * @var array
      */
     public static $defaultConfig = [
-        'web-dir' => '.',
-        // The following options are deprecated and will be removed with 2.0
-        'prepare-web-dir' => true,
-        'cms-package-dir' => 'typo3_src',
-        'extensions-in-vendor-dir' => false,
-        // The following values are for internal use only and does not represent public API
-        // Names and behaviour of these values might change without notice
+        'web-dir' => 'public',
         'root-dir' => '{$web-dir}',
+        // The following values are for internal use only and do not represent public API
+        // Names and behaviour of these values might change without notice
         'composer-mode' => true,
     ];
 
@@ -85,7 +81,6 @@ class Config
         switch ($key) {
             case 'web-dir':
             case 'root-dir':
-            case 'cms-package-dir':
                 $val = rtrim($this->process($this->config[$key], $flags), '/\\');
                 return ($flags & self::RELATIVE_PATHS === 1) ? $val : $this->realpath($val);
             default:

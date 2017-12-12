@@ -62,18 +62,16 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function activate(Composer $composer, IOInterface $io)
     {
         $this->ensureComposerConstraints($io);
-        $filesystem = new Filesystem();
-        $binaryInstaller = new BinaryInstaller($io, rtrim($composer->getConfig()->get('bin-dir'), '/'), $composer->getConfig()->get('bin-compat'), $filesystem);
         $pluginConfig = Config::load($composer);
         $composer
             ->getInstallationManager()
             ->addInstaller(
-                new ExtensionInstaller($io, $composer, $filesystem, $pluginConfig, $binaryInstaller)
+                new ExtensionInstaller($io, $composer, $pluginConfig)
             );
         $composer
             ->getInstallationManager()
             ->addInstaller(
-                new CoreInstaller($io, $composer)
+                new CoreInstaller($io, $composer, 'typo3-cms-core')
             );
 
         $cache = null;

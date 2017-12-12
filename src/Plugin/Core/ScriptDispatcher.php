@@ -66,17 +66,6 @@ class ScriptDispatcher
     {
         $io = $this->event->getIO();
         $this->registerLoader();
-        $composer = $this->event->getComposer();
-
-        if (
-            // Fallback to traditional handling for compatibility
-            empty($this->installerScripts)
-            // But not if typo3/cms is root package or typo3/cms is not found at all
-            && null !== $composer->getRepositoryManager()->getLocalRepository()->findPackage('typo3/cms', new EmptyConstraint())
-        ) {
-            $this->addInstallerScript(new WebDirectory());
-            $this->addInstallerScript(new AutoloadConnector());
-        }
 
         ksort($this->installerScripts, SORT_NUMERIC);
         $io->writeError('<info>Executing TYPO3 installer scripts</info>', true, $io::VERBOSE);

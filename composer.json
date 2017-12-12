@@ -1,26 +1,30 @@
 {
     "name": "typo3/cms-composer-installers",
     "type": "composer-plugin",
-    "license": "GPL-2.0+",
     "description": "TYPO3 CMS Installers",
     "keywords": [
         "installer", "typo3", "cms", "core", "extension"
     ],
     "homepage": "https://github.com/TYPO3/CmsComposerInstallers",
+    "license": "GPL-2.0+",
     "authors": [
         {
-            "name": "Christian Opitz",
-            "email": "christian.opitz@netresearch.de"
+            "name": "TYPO3 CMS Core Team",
+            "role": "Developer",
+            "homepage": "https://forge.typo3.org/projects/typo3cms-core"
         },
         {
-            "name": "Helmut Hummel",
-            "email": "info@helhum.io"
-        },
-        {
-            "name": "Lars Peipmann",
-            "email": "lars@peipmann.de"
+            "name": "The TYPO3 Community",
+            "role": "Contributor",
+            "homepage": "https://typo3.org/community/"
         }
     ],
+    "support": {
+        "general": "https://typo3.org/support/",
+        "issues": "https://forge.typo3.org",
+        "irc": "irc://irc.freenode.net/#typo3-cms",
+        "news": "nntp://lists.typo3.org"
+    },
     "autoload": {
         "psr-4": {
             "TYPO3\\CMS\\Composer\\": "src/"
@@ -43,7 +47,7 @@
     "extra": {
         "class": "TYPO3\\CMS\\Composer\\Installer\\Plugin",
         "branch-alias": {
-            "dev-master": "1.4.x-dev"
+            "dev-master": "2.0.x-dev"
         }
     }
 }
