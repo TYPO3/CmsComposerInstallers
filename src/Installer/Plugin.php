@@ -17,14 +17,12 @@ namespace TYPO3\CMS\Composer\Installer;
 use Composer\Cache;
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
-use Composer\Installer\BinaryInstaller;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\PluginImplementation;
-use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
 /**
  * The plugin that registers the installers (registered by extra key in composer.json)
@@ -135,8 +133,10 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             || !interface_exists('Composer\\Installer\\BinaryPresenceInterface')
         ) {
             $io->writeError('');
-            $io->writeError(sprintf('<error>Composer version (%s) you are using is too low. Please upgrade Composer to 1.2.0 or higher!</error>',
-                Composer::VERSION));
+            $io->writeError(sprintf(
+                '<error>Composer version (%s) you are using is too low. Please upgrade Composer to 1.2.0 or higher!</error>',
+                Composer::VERSION
+            ));
             $io->writeError('<error>TYPO3 installers plugin will be disabled!</error>');
             throw new \RuntimeException('TYPO3 Installer disabled!', 1469105842);
         }

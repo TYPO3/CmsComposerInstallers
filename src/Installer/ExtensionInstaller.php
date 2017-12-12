@@ -15,17 +15,11 @@ namespace TYPO3\CMS\Composer\Installer;
  */
 
 use Composer\Composer;
-use Composer\Downloader\DownloadManager;
-use Composer\Installer\BinaryInstaller;
-use Composer\Installer\BinaryPresenceInterface;
-use Composer\Installer\InstallerInterface;
 use Composer\Installer\LibraryInstaller;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
-use Composer\Repository\InstalledRepositoryInterface;
 use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\Util\ExtensionKeyResolver;
-use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
 /**
  * @author Thomas Maroschik <tmaroschik@dfau.de>
@@ -47,8 +41,7 @@ class ExtensionInstaller extends LibraryInstaller
         IOInterface $io,
         Composer $composer,
         Config $pluginConfig = null
-    )
-    {
+    ) {
         parent::__construct($io, $composer);
 
         $pluginConfig = $pluginConfig ?: Config::load($composer);

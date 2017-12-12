@@ -15,11 +15,8 @@ namespace TYPO3\CMS\Composer\Installer;
  */
 
 use Composer\Composer;
-use Composer\Installer\BinaryInstaller;
 use Composer\Installer\LibraryInstaller;
-use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
-use TYPO3\CMS\Composer\Plugin\Config;
 
 /**
  * typo3/cms installer
@@ -34,8 +31,8 @@ class CoreInstaller extends LibraryInstaller
      * Returns the installation path of a package
      *
      * @param  PackageInterface $package
-     * @return string
      * @throws \RuntimeException
+     * @return string
      */
     public function getInstallPath(PackageInterface $package)
     {
