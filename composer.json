@@ -6,7 +6,7 @@
         "installer", "typo3", "cms", "core", "extension"
     ],
     "homepage": "https://github.com/TYPO3/CmsComposerInstallers",
-    "license": "GPL-2.0+",
+    "license": "GPL-2.0-or-later",
     "authors": [
         {
             "name": "TYPO3 CMS Core Team",
