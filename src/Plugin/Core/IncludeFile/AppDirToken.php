@@ -21,15 +21,12 @@ use Composer\IO\IOInterface;
 use Composer\Util\Filesystem;
 use TYPO3\CMS\Composer\Plugin\Config as Typo3PluginConfig;
 
-/**
- * @deprecated will be removed in 3.0
- */
-class BaseDirToken implements TokenInterface
+class AppDirToken implements TokenInterface
 {
     /**
      * @var string
      */
-    private $name = 'base-dir';
+    private $name = 'app-dir';
 
     /**
      * @var Typo3PluginConfig
