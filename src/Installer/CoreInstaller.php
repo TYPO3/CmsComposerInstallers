@@ -36,7 +36,7 @@ class CoreInstaller extends LibraryInstaller
      */
     public function getInstallPath(PackageInterface $package)
     {
-        $this->io->writeError('<warning>Installation of typo3/cms is not possible any more for TYPO3 versions 9.0.0 and higher.</warning>');
+        $this->io->writeError('<warning>Installation of typo3/cms and packages of type typo3-cms-core are not possible any more for TYPO3 versions 9.0.0 and higher.</warning>');
         $this->io->writeError('<warning>Please require typo3/minimal instead for minimum required TYPO3 system extensions,</warning>');
         $this->io->writeError('<warning>and/or require individual system extensions like typo3/cms-extension-name</warning>');
         $this->io->writeError('<warning>E.g. composer require typo3/cms-tstemplate</warning>');
