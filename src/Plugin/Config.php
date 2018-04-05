@@ -29,6 +29,7 @@ class Config
     public static $defaultConfig = [
         'web-dir' => 'public',
         'root-dir' => '{$web-dir}',
+        'app-dir' => '{$base-dir}',
         // The following values are for internal use only and do not represent public API
         // Names and behaviour of these values might change without notice
         'composer-mode' => true,
@@ -81,8 +82,11 @@ class Config
         switch ($key) {
             case 'web-dir':
             case 'root-dir':
+            case 'app-dir':
                 $val = rtrim($this->process($this->config[$key], $flags), '/\\');
                 return ($flags & self::RELATIVE_PATHS === 1) ? $val : $this->realpath($val);
+            case 'base-dir':
+                return ($flags & self::RELATIVE_PATHS === 1) ? '' : $this->realpath($this->baseDir);
             default:
                 if (!isset($this->config[$key])) {
                     return null;

@@ -10,17 +10,23 @@ The behavior of the installer can be influenced by configuration in the `extra` 
 ```
   "extra": {
       "typo3/cms": {
-          "web-dir": "web"
+          "web-dir": "public"
       }
     }
 ```
 
 #### `web-dir`
 You can specify a relative path from the base directory, where the public document root should be located.
-Links to the `typo3` folder and the `index.php` will be established in this folder by the installer.
 
 *The default value* is `"public"`, which means a `"public"` directory at the same level as your root `composer.json`.
 
-## Feedback/ Bugreports/ Contribution
+#### `app-dir`
+This configuration option only applies to TYPO3 9.2 and above.
+You can specify a relative path from the base directory, where the TYPO3 application directory should be located.
+This directory will contain the TYPO3 folders `var` and `config`.
+
+*The default value* is the base directory, which means at the same level as your root `composer.json`.
+
+## Feedback/ Bug reports/ Contribution
 
 Bug reports, feature requests and pull requests are welcome in the Github repository: https://github.com/TYPO3/CmsComposerInstallers/

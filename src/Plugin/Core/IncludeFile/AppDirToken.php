@@ -74,7 +74,7 @@ class AppDirToken implements TokenInterface
         $includeFileFolder = dirname(__DIR__, 5);
         return $this->filesystem->findShortestPathCode(
             $includeFileFolder,
-            $this->typo3PluginConfig->getBaseDir(),
+            $this->typo3PluginConfig->get('app-dir'),
             true
         );
     }
