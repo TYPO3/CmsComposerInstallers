@@ -34,6 +34,7 @@ class Config
         'extensions-in-vendor-dir' => false,
         // The following values are for internal use only and does not represent public API
         // Names and behaviour of these values might change without notice
+        'app-dir' => '{$base-dir}',
         'root-dir' => '{$web-dir}',
         'composer-mode' => true,
     ];
@@ -86,8 +87,11 @@ class Config
             case 'web-dir':
             case 'root-dir':
             case 'cms-package-dir':
+            case 'app-dir':
                 $val = rtrim($this->process($this->config[$key], $flags), '/\\');
                 return ($flags & self::RELATIVE_PATHS === 1) ? $val : $this->realpath($val);
+            case 'base-dir':
+                return ($flags & self::RELATIVE_PATHS === 1) ? '' : $this->realpath($this->baseDir);
             default:
                 if (!isset($this->config[$key])) {
                     return null;
