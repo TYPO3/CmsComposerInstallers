@@ -35,7 +35,7 @@
         "netresearch/composer-installers": "*"
     },
     "require": {
-        "php": ">=7.0.0 <7.3",
+        "php": ">=7.0.0 <7.4",
         "composer-plugin-api": "^1.0.0"
     },
     "conflict": {
