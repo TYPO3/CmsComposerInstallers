@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/maddy2101/CmsComposerInstallers.svg?branch=master)](https://travis-ci.org/maddy2101/CmsComposerInstallers)
+
 TYPO3 CMS Composer installers
 =============================
 

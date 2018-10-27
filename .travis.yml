@@ -1,0 +1,20 @@
+language: php
+
+php:
+  - 7.0
+  - 7.1
+  - 7.2
+  - 7.3
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
+install:
+  - composer install
+
+script:
+  - >
+    echo;
+    echo "Running PHP lint";
+    find . -name \*.php -exec php -l {} >/dev/null \;
