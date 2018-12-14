@@ -2,3 +2,4 @@
 /composer.lock
 /res/php/autoload-include.php
 /.php_cs.cache
+.idea/
