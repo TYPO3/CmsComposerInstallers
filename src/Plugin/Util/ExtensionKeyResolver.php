@@ -34,9 +34,9 @@ class ExtensionKeyResolver
         if (strpos($package->getType(), 'typo3-cms-') === false) {
             throw new \RuntimeException(sprintf('Tried to resolve an extension key from non extension package "%s"', $package->getName()), 1501195043);
         }
-        foreach ($package->getReplaces() as $packageName => $version) {
-            if (strpos($packageName, '/') === false) {
-                $extensionKey = trim($packageName);
+        foreach ($package->getReplaces() as $link) {
+            if (strpos($link->getTarget(), '/') === false) {
+                $extensionKey = trim($link->getTarget());
                 break;
             }
         }
