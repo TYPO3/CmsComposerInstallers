@@ -196,15 +196,25 @@ class ExtensionInstaller implements InstallerInterface
      */
     protected function resolveExtensionKey(PackageInterface $package)
     {
-        foreach ($package->getReplaces() as $packageName => $version) {
-            if (strpos($packageName, '/') === false) {
-                $extensionKey = trim($packageName);
+        if (strpos($package->getType(), 'typo3-cms-') === false) {
+            throw new \RuntimeException(sprintf('Tried to resolve an extension key from non extension package "%s"', $package->getName()), 1501195043);
+        }
+        foreach ($package->getReplaces() as $link) {
+            if (strpos($link->getTarget(), '/') === false) {
+                $extensionKey = trim($link->getTarget());
                 break;
             }
         }
         if (empty($extensionKey)) {
             list(, $extensionKey) = explode('/', $package->getName(), 2);
             $extensionKey = str_replace('-', '_', $extensionKey);
+        }
+        $extra = $package->getExtra();
+        if (!empty($extra['installer-name'])) {
+            $extensionKey = $extra['installer-name'];
+        }
+        if (!empty($extra['typo3/cms']['extension-key'])) {
+            $extensionKey = $extra['typo3/cms']['extension-key'];
         }
         return $extensionKey;
     }
