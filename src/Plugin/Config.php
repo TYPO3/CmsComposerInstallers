@@ -46,11 +46,18 @@ class Config
     protected $baseDir;
 
     /**
-     * @param string $baseDir
+     * @var string
      */
-    public function __construct($baseDir = null)
+    protected $vendorDir;
+
+    /**
+     * @param string $baseDir
+     * @param string $vendorDir
+     */
+    public function __construct(string $baseDir, string $vendorDir)
     {
         $this->baseDir = $baseDir;
+        $this->vendorDir = $vendorDir;
         // load defaults
         $this->config = static::$defaultConfig;
     }
@@ -85,6 +92,8 @@ class Config
             case 'app-dir':
                 $val = rtrim($this->process($this->config[$key], $flags), '/\\');
                 return ($flags & self::RELATIVE_PATHS === 1) ? $val : $this->realpath($val);
+            case 'vendor-dir':
+                return ($flags & self::RELATIVE_PATHS === 1) ? $this->vendorDir : $this->realpath($this->vendorDir);
             case 'base-dir':
                 return ($flags & self::RELATIVE_PATHS === 1) ? '' : $this->realpath($this->baseDir);
             default:
@@ -191,12 +200,13 @@ class Config
         static $config;
         if ($config === null) {
             $baseDir = static::extractBaseDir($composer->getConfig());
+            $vendorDir = $composer->getConfig()->get('vendor-dir');
             if ($composer->getPackage()->getName() === 'typo3/cms') {
                 // Configuration for the web dir is different, in case
                 // typo3/cms is the root package
                 self::$defaultConfig['web-dir'] = '.';
             }
-            $config = new static($baseDir);
+            $config = new static($baseDir, $vendorDir);
             $rootPackageExtraConfig = $composer->getPackage()->getExtra();
             if (is_array($rootPackageExtraConfig)) {
                 $config->merge($rootPackageExtraConfig);

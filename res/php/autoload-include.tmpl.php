@@ -3,6 +3,10 @@ if (!getenv('TYPO3_PATH_COMPOSER_ROOT')) {
     putenv('TYPO3_PATH_COMPOSER_ROOT=' . '{$base-dir}');
     $_ENV['TYPO3_PATH_COMPOSER_ROOT'] = '{$base-dir}';
 }
+if (!getenv('TYPO3_PATH_VENDOR')) {
+    putenv('TYPO3_PATH_VENDOR=' . '{$vendor-dir}');
+    $_ENV['TYPO3_PATH_VENDOR'] = '{$vendor-dir}';
+}
 if (!getenv('TYPO3_PATH_APP')) {
     putenv('TYPO3_PATH_APP=' . '{$app-dir}');
     $_ENV['TYPO3_PATH_APP'] = '{$app-dir}';
