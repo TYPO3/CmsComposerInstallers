@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/TYPO3/CmsComposerInstallers.svg?branch=master)](https://travis-ci.org/TYPO3/CmsComposerInstallers)
+[![CI Status](https://github.com/TYPO3/CmsComposerInstallers/workflows/CI/badge.svg?branch=master)](https://github.com/TYPO3/CmsComposerInstallers/actions?query=workflow%3ACI)
 
 TYPO3 CMS Composer installers
 =============================
