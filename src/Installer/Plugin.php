@@ -72,18 +72,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 new CoreInstaller($io, $composer, 'typo3-cms-core')
             );
 
-        $cache = null;
-        if ($composer->getConfig()->get('cache-files-ttl') > 0) {
-            $cache = new Cache($io, $composer->getConfig()->get('cache-files-dir'), 'a-z0-9_./');
-        }
-
-        $composer
-            ->getDownloadManager()
-            ->setDownloader(
-                't3x',
-                new Downloader\T3xDownloader($io, $composer->getConfig(), null, $cache)
-            );
-
         $composer->getEventDispatcher()->addSubscriber($this);
     }
 
