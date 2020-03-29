@@ -34,18 +34,18 @@
     },
     "require": {
         "php": ">=7.0.0 <7.5",
-        "composer-plugin-api": "^1.0.0"
+        "composer-plugin-api": "^1.0.0 || ^2.0.0"
     },
     "conflict": {
         "composer/installers": "<1.0.24 || >1.0.24"
     },
     "require-dev": {
-        "composer/composer": "^1.2"
+        "composer/composer": "1.2.*@dev || 2.0.*@dev"
     },
     "extra": {
         "class": "TYPO3\\CMS\\Composer\\Installer\\Plugin",
         "branch-alias": {
-            "dev-master": "2.1.x-dev"
+            "dev-master": "3.0.x-dev"
         }
     }
 }

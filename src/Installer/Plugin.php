@@ -14,7 +14,6 @@ namespace TYPO3\CMS\Composer\Installer;
  * The TYPO3 project - inspiring people to share!
  */
 
-use Composer\Cache;
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\IO\IOInterface;
@@ -75,6 +74,16 @@ class Plugin implements PluginInterface, EventSubscriberInterface
         $composer->getEventDispatcher()->addSubscriber($this);
     }
 
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+        // Nothing to do
+    }
+
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
+        // Nothing to do
+    }
+
     /**
      * Listens to Composer events.
      *
@@ -117,8 +126,8 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     private function ensureComposerConstraints(IOInterface $io)
     {
         if (
-            !class_exists('Composer\\Installer\\BinaryInstaller')
-            || !interface_exists('Composer\\Installer\\BinaryPresenceInterface')
+            !class_exists(\Composer\Installer\BinaryInstaller::class)
+            || !interface_exists(\Composer\Installer\BinaryPresenceInterface::class)
         ) {
             $io->writeError('');
             $io->writeError(sprintf(
