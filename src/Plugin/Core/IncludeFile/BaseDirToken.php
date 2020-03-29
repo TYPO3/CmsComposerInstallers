@@ -21,9 +21,6 @@ use Composer\IO\IOInterface;
 use Composer\Util\Filesystem;
 use TYPO3\CMS\Composer\Plugin\Config as Typo3PluginConfig;
 
-/**
- * @deprecated will be removed in 3.0
- */
 class BaseDirToken implements TokenInterface
 {
     /**
