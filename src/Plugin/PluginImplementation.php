@@ -20,7 +20,6 @@ namespace TYPO3\CMS\Composer\Plugin;
 
 use Composer\Composer;
 use Composer\Script\Event;
-use Composer\Semver\Constraint\EmptyConstraint;
 use TYPO3\CMS\Composer\Plugin\Config as PluginConfig;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\AppDirToken;
@@ -84,7 +83,6 @@ class PluginImplementation
 
     public function preAutoloadDump()
     {
-        $this->ensureDisabledComposerInstallers();
         if ($this->composer->getPackage()->getName() === 'typo3/cms') {
             // Nothing to do typo3/cms is root package
             return;
@@ -95,26 +93,5 @@ class PluginImplementation
     public function postAutoloadDump()
     {
         $this->scriptDispatcher->executeScripts();
-    }
-
-    private function ensureDisabledComposerInstallers()
-    {
-        $composerInstallersPackage = $this->composer->getRepositoryManager()->findPackage('composer/installers', new EmptyConstraint());
-        if ($composerInstallersPackage === null) {
-            return;
-        }
-        $rootPackage = $this->composer->getPackage();
-        $rootExtra = $rootPackage->getExtra();
-        $disabledInstallers = $rootExtra['installer-disable'] ?? [];
-        if ($disabledInstallers === false) {
-            $disabledInstallers = [];
-        }
-        if (!is_array($disabledInstallers)) {
-            $disabledInstallers = [$disabledInstallers];
-        }
-        if (!in_array('typo3-cms', $disabledInstallers, true)) {
-            $disabledInstallers[] = 'typo3-cms';
-        }
-        $rootPackage->setExtra($rootExtra);
     }
 }
