@@ -56,7 +56,7 @@ class IncludeFile
         $this->io = $io;
         $this->composer = $composer;
         $this->tokens = $tokens;
-        $this->filesystem = $this->filesystem ?: new Filesystem();
+        $this->filesystem = $filesystem ?: new Filesystem();
     }
 
     public function register()
@@ -65,7 +65,7 @@ class IncludeFile
 
         // Generate and write the file
         $includeFile = $this->composer->getConfig()->get('vendor-dir') . self::INCLUDE_FILE;
-        file_put_contents($includeFile, $this->getIncludeFileContent());
+        file_put_contents($includeFile, $this->getIncludeFileContent(dirname($includeFile)));
 
         // Register the file in the root package
         $rootPackage = $this->composer->getPackage();
@@ -80,16 +80,17 @@ class IncludeFile
     /**
      * Constructs the include file content
      *
+     * @param string $includeFilePath
      * @throws \RuntimeException
      * @throws \InvalidArgumentException
      * @return string
      */
-    protected function getIncludeFileContent()
+    protected function getIncludeFileContent(string $includeFilePath)
     {
         $includeFileTemplate = $this->filesystem->normalizePath(dirname(dirname(dirname(__DIR__))) . self::INCLUDE_FILE_TEMPLATE);
         $includeFileContent = file_get_contents($includeFileTemplate);
         foreach ($this->tokens as $token) {
-            $includeFileContent = self::replaceToken($token->getName(), $token->getContent(), $includeFileContent);
+            $includeFileContent = self::replaceToken($token->getName(), $token->getContent($includeFilePath), $includeFileContent);
         }
         return $includeFileContent;
     }

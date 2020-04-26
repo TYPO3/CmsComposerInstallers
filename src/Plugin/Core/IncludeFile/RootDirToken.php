@@ -63,14 +63,14 @@ class RootDirToken implements TokenInterface
     }
 
     /**
+     * @param string $includeFilePath
      * @throws \InvalidArgumentException
      * @return string
      */
-    public function getContent()
+    public function getContent(string $includeFilePath)
     {
-        $includeFileFolder = dirname(__DIR__, 5);
         return $this->filesystem->findShortestPathCode(
-            $includeFileFolder,
+            $includeFilePath,
             $this->typo3PluginConfig->get('root-dir'),
             true
         );
