@@ -63,7 +63,7 @@ class PluginImplementation
         $io = $event->getIO();
         $this->composer = $event->getComposer();
         $fileSystem = new Filesystem();
-        $pluginConfig = PluginConfig::load($this->composer);
+        $pluginConfig = PluginConfig::load($this->composer, $io);
 
         $this->scriptDispatcher = $scriptDispatcher ?: new ScriptDispatcher($event);
         $this->includeFile = $includeFile

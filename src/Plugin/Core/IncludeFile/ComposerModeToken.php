@@ -57,10 +57,11 @@ class ComposerModeToken implements TokenInterface
     }
 
     /**
+     * @param string $includeFilePath
      * @throws \InvalidArgumentException
      * @return string
      */
-    public function getContent()
+    public function getContent(string $includeFilePath)
     {
         if (!$this->pluginConfig->get('composer-mode')) {
             return 'TYPO3 is installed via composer, but for development reasons the additional class loader is activated. Handle with care!';

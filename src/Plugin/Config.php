@@ -15,6 +15,10 @@ namespace TYPO3\CMS\Composer\Plugin;
  */
 
 use Composer\Composer;
+use Composer\IO\IOInterface;
+use Composer\IO\NullIO;
+use Composer\Package\RootPackageInterface;
+use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
 /**
  * Configuration wrapper to easily access extra configuration for installer
@@ -184,25 +188,48 @@ class Config
 
     /**
      * @param Composer $composer
+     * @param IOInterface|null $io
      * @return Config
      */
-    public static function load(Composer $composer)
+    public static function load(Composer $composer, IOInterface $io = null)
     {
         static $config;
         if ($config === null) {
+            $io = $io ?? new NullIO();
             $baseDir = static::extractBaseDir($composer->getConfig());
-            if ($composer->getPackage()->getName() === 'typo3/cms') {
-                // Configuration for the web dir is different, in case
-                // typo3/cms is the root package
-                self::$defaultConfig['web-dir'] = '.';
-            }
+            $rootPackageExtraConfig = self::handleRootPackageExtraConfig($io, $composer->getPackage());
             $config = new static($baseDir);
-            $rootPackageExtraConfig = $composer->getPackage()->getExtra();
-            if (is_array($rootPackageExtraConfig)) {
-                $config->merge($rootPackageExtraConfig);
-            }
+            $config->merge($rootPackageExtraConfig);
         }
         return $config;
+    }
+
+    private static function handleRootPackageExtraConfig(IOInterface $io, RootPackageInterface $rootPackage): array
+    {
+        if ($rootPackage->getName() === 'typo3/cms') {
+            // Configuration for the web dir is different, in case
+            // typo3/cms is the root package
+            self::$defaultConfig['web-dir'] = '.';
+
+            return [];
+        }
+        $rootPackageExtraConfig = $rootPackage->getExtra() ?: [];
+        $typo3Config = $rootPackageExtraConfig['typo3/cms'] ?? [];
+        if (empty($typo3Config)) {
+            return $rootPackageExtraConfig;
+        }
+        $fileSystem = new Filesystem();
+        $config = new static('/fake/root');
+        $config->merge($rootPackageExtraConfig);
+        $rootDir = $config->get('root-dir');
+        $appDir = $config->get('app-dir');
+        $relativePath = $fileSystem->findShortestPath($appDir, $rootDir, true);
+        if ($relativePath === './' || strpos($relativePath, '..') === 0) {
+            unset($rootPackageExtraConfig['typo3/cms']['app-dir']);
+            $io->writeError('<warning>TYPO3 public path must be a sub directory of application path. Resetting app-dir config to default.</warning>');
+        }
+
+        return $rootPackageExtraConfig;
     }
 
     /**

@@ -29,7 +29,8 @@ interface TokenInterface
     /**
      * The content the token should be replaced with
      *
+     * @param string $includeFilePath
      * @return string
      */
-    public function getContent();
+    public function getContent(string $includeFilePath);
 }

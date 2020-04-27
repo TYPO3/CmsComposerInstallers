@@ -59,7 +59,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
     public function activate(Composer $composer, IOInterface $io)
     {
         $this->ensureComposerConstraints($io);
-        $pluginConfig = Config::load($composer);
+        $pluginConfig = Config::load($composer, $io);
         $composer
             ->getInstallationManager()
             ->addInstaller(
