@@ -76,4 +76,13 @@ class ExtensionInstaller extends LibraryInstaller
         }
         return $this->extensionDir . DIRECTORY_SEPARATOR . $extensionInstallDir;
     }
+
+    public function cleanup($type, PackageInterface $package, PackageInterface $prevPackage = null)
+    {
+        $originalInstallPath = parent::getInstallPath($package);
+        if (file_exists($originalInstallPath) && $this->filesystem->isDirEmpty($originalInstallPath)) {
+            $this->filesystem->removeDirectory($originalInstallPath);
+        }
+        return parent::cleanup($type, $package, $prevPackage);
+    }
 }
