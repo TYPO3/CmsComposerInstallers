@@ -70,7 +70,7 @@ class ExtensionInstaller extends LibraryInstaller
      */
     public function getInstallPath(PackageInterface $package)
     {
-        $extensionInstallDir = ExtensionKeyResolver::resolve($package);
+        $extensionInstallDir = ExtensionKeyResolver::resolve($package, $this->io);
         if ($package->getType() === 'typo3-cms-framework') {
             return $this->systemExtensionDir . DIRECTORY_SEPARATOR . $extensionInstallDir;
         }
