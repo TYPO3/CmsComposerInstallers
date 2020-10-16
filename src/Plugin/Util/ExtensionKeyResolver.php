@@ -15,6 +15,7 @@ namespace TYPO3\CMS\Composer\Plugin\Util;
  * The TYPO3 project - inspiring people to share!
  */
 
+use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 
 /**
@@ -26,13 +27,28 @@ class ExtensionKeyResolver
      * Resolves the extension key from replaces or package name
      *
      * @param PackageInterface $package
+     * @param IOInterface $io
      * @throws \RuntimeException
      * @return string
      */
-    public static function resolve(PackageInterface $package): string
+    public static function resolve(PackageInterface $package, IOInterface $io = null): string
     {
         if (strpos($package->getType(), 'typo3-cms-') === false) {
             throw new \RuntimeException(sprintf('Tried to resolve an extension key from non extension package "%s"', $package->getName()), 1501195043);
+        }
+        if (!empty($extra['typo3/cms']['extension-key'])) {
+            return $extra['typo3/cms']['extension-key'];
+        }
+        if ($io instanceof IOInterface) {
+            $io->writeError(
+                [
+                    sprintf(
+                        '<comment>TYPO3 Extension Package "%s", does not define extension key in composer.json.</comment>',
+                        $package->getName()
+                    ),
+                    '<comment>Specifying the extension key will be mandatory in future versions of TYPO3 (see: https://docs.typo3.org/m/typo3/reference-coreapi/master/en-us/ExtensionArchitecture/ComposerJson/Index.html#extra)</comment>'
+                ]
+            );
         }
         foreach ($package->getReplaces() as $link) {
             if (strpos($link->getTarget(), '/') === false) {
@@ -48,9 +64,7 @@ class ExtensionKeyResolver
         if (!empty($extra['installer-name'])) {
             $extensionKey = $extra['installer-name'];
         }
-        if (!empty($extra['typo3/cms']['extension-key'])) {
-            $extensionKey = $extra['typo3/cms']['extension-key'];
-        }
+
         return $extensionKey;
     }
 }
