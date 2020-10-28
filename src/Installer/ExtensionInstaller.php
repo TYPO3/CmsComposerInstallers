@@ -52,15 +52,13 @@ class ExtensionInstaller extends LibraryInstaller
     }
 
     /**
-     * Decides if the installer supports the given type
-     *
      * @param  string $packageType
      * @return bool
      */
     public function supports($packageType)
     {
-        return $packageType !== 'typo3-cms-core'
-            && strncmp('typo3-cms-', $packageType, 10) === 0;
+        return $packageType === 'typo3-cms-extension'
+            || $packageType === 'typo3-cms-framework';
     }
 
     /**

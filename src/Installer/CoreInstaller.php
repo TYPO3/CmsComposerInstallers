@@ -29,8 +29,15 @@ use Composer\Package\PackageInterface;
 class CoreInstaller extends LibraryInstaller
 {
     /**
-     * Returns the installation path of a package
-     *
+     * @param  string $packageType
+     * @return bool
+     */
+    public function supports($packageType)
+    {
+        return $packageType === 'typo3-cms-core';
+    }
+
+    /**
      * @param  PackageInterface $package
      * @throws \RuntimeException
      * @return string
