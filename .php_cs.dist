@@ -1,8 +1,32 @@
 <?php
+
+if (PHP_SAPI !== 'cli') {
+    die('This script supports command line usage only. Please check your command.');
+}
+if (function_exists('xdebug_disable')) {
+    xdebug_disable();
+}
+
+$header = <<<EOF
+This file is part of the TYPO3 project.
+
+It is free software; you can redistribute it and/or modify it under
+the terms of the GNU General Public License, either version 2
+of the License, or any later version.
+
+For the full copyright and license information, please read the
+LICENSE.txt file that was distributed with this source code.
+
+The TYPO3 project - inspiring people to share!
+EOF;
+
 return PhpCsFixer\Config::create()
     ->setRiskyAllowed(true)
     ->setRules([
         '@PSR2' => true,
+        'header_comment' => [
+            'header' => $header
+        ],
         'array_syntax' => [
             'syntax' => 'short',
         ],
@@ -72,6 +96,7 @@ return PhpCsFixer\Config::create()
     ->setFinder(
         PhpCsFixer\Finder::create()
             ->in(__DIR__)
+            ->exclude('res')
             ->exclude('vendor')
             ->notName('autoload-include.php')
     );

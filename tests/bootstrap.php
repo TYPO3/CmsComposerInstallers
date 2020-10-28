@@ -13,21 +13,14 @@
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace TYPO3\CMS\Composer\Plugin\Core\IncludeFile;
-
-interface TokenInterface
+function includeIfExists($file)
 {
-    /**
-     * The name of the token that shall be replaced
-     *
-     * @return string
-     */
-    public function getName();
-
-    /**
-     * The content the token should be replaced with
-     *
-     * @return string
-     */
-    public function getContent();
+    if (file_exists($file)) {
+        return include $file;
+    }
+}
+if (!$loader = includeIfExists(__DIR__ . '/../vendor/autoload.php')) {
+    die('You must set up the project dependencies, run the following commands:' . PHP_EOL .
+        'curl -s http://getcomposer.org/installer | php' . PHP_EOL .
+        'php composer.phar install' . PHP_EOL);
 }
