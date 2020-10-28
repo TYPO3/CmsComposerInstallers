@@ -14,18 +14,14 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace TYPO3\CMS\Composer\Plugin\Core;
-
-use Composer\Script\Event;
-
-/**
- * Contract for script that is run during composer build time
- */
-interface InstallerScript
+function includeIfExists($file)
 {
-    /**
-     * @param Event $event
-     * @return bool True on success, false on failure
-     */
-    public function run(Event $event): bool;
+    if (file_exists($file)) {
+        return include $file;
+    }
+}
+if ((!$loader = includeIfExists(__DIR__ . '/../vendor/autoload.php')) && (!$loader = includeIfExists(__DIR__ . '/../../../autoload.php'))) {
+    die('You must set up the project dependencies, run the following commands:' . PHP_EOL .
+        'curl -s http://getcomposer.org/installer | php' . PHP_EOL .
+        'php composer.phar install' . PHP_EOL);
 }
