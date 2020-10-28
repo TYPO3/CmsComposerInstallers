@@ -14,14 +14,16 @@ declare(strict_types=1);
  * The TYPO3 project - inspiring people to share!
  */
 
-function includeIfExists($file)
+namespace TYPO3\CMS\ComposerTest\Installer;
+
+use Composer\Plugin\PluginInterface;
+use TYPO3\CMS\Composer\Installer\Plugin;
+
+class PluginTest extends InstallerTestCase
 {
-    if (file_exists($file)) {
-        return include $file;
+    public function testPluginCompatibility()
+    {
+        $plugin = new Plugin();
+        $this->assertInstanceOf(PluginInterface::class, $plugin);
     }
-}
-if (!$loader = includeIfExists(__DIR__ . '/../vendor/autoload.php')) {
-    die('You must set up the project dependencies, run the following commands:' . PHP_EOL .
-        'curl -s http://getcomposer.org/installer | php' . PHP_EOL .
-        'php composer.phar install' . PHP_EOL);
 }
