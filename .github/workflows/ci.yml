@@ -1,0 +1,54 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+    build-php:
+        name: PHP ${{ matrix.php-versions }} with Composer ${{ matrix.composer-versions }}
+        runs-on: ubuntu-latest
+        strategy:
+            max-parallel: 6
+            fail-fast: false
+            matrix:
+                php-versions:
+                    - "7.0"
+                    - "7.1"
+                    - "7.2"
+                    - "7.3"
+                    - "7.4"
+                composer-versions:
+                    - "v1"
+        steps:
+            - name: Checkout Code
+              uses: actions/checkout@v2
+
+            - name: Setup PHP version and composer
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php-versions }}
+                  tools: composer:${{ matrix.composer-versions }}, php-cs-fixer
+
+            - name: Environment Check
+              run: |
+                  php --version
+                  composer --version
+
+            - name: Require Composer@v1
+              if: ${{ matrix.composer-versions == 'v1' }}
+              run: composer require "composer/composer:^1.10" --dev --no-update
+
+            - name: Install composer dependencies
+              run: composer install
+
+            - name: Info
+              run: composer info
+
+            - name: Lint
+              run: composer test:php:lint
+
+            - name: CGL
+              if: ${{ matrix.php-versions != '5.6' }}
+              run: php-cs-fixer fix --dry-run --verbose
+
+            - name: Unit Tests
+              run: composer test:php:unit
