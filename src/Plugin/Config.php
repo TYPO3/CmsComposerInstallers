@@ -1,5 +1,4 @@
 <?php
-namespace TYPO3\CMS\Composer\Plugin;
 
 /*
  * This file is part of the TYPO3 project.
@@ -13,6 +12,8 @@ namespace TYPO3\CMS\Composer\Plugin;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace TYPO3\CMS\Composer\Plugin;
 
 use Composer\Composer;
 use Composer\IO\IOInterface;
