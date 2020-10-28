@@ -1,5 +1,4 @@
 <?php
-namespace TYPO3\CMS\Composer\Installer;
 
 /*
  * This file is part of the TYPO3 project.
@@ -14,6 +13,8 @@ namespace TYPO3\CMS\Composer\Installer;
  * The TYPO3 project - inspiring people to share!
  */
 
+namespace TYPO3\CMS\Composer\Installer;
+
 use Composer\Composer;
 use Composer\Downloader\DownloadManager;
 use Composer\Installer\BinaryInstaller;
@@ -23,7 +24,6 @@ use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
 use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
-
 
 /**
  * Enter descriptions here

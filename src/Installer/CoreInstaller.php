@@ -1,5 +1,4 @@
 <?php
-namespace TYPO3\CMS\Composer\Installer;
 
 /*
  * This file is part of the TYPO3 project.
@@ -13,6 +12,8 @@ namespace TYPO3\CMS\Composer\Installer;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace TYPO3\CMS\Composer\Installer;
 
 use Composer\Composer;
 use Composer\Downloader\DownloadManager;
@@ -33,13 +34,13 @@ use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
  */
 class CoreInstaller implements InstallerInterface
 {
-    const TYPO3_DIR            = 'typo3';
-    const TYPO3_INDEX_PHP    = 'index.php';
+    const TYPO3_DIR = 'typo3';
+    const TYPO3_INDEX_PHP = 'index.php';
 
     /**
      * @var array
      */
-    protected $symlinks = array();
+    protected $symlinks = [];
 
     /**
      * @var Composer
@@ -95,12 +96,10 @@ class CoreInstaller implements InstallerInterface
         $this->filesystem->ensureDirectoryExists($webDir);
         $backendDir = $this->filesystem->normalizePath($this->pluginConfig->get('backend-dir'));
         $sourcesDir = $this->determineInstallPath();
-        $this->symlinks = array(
-            $sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP
-                => $webDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP,
-            $sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_DIR
-                => $backendDir
-        );
+        $this->symlinks = [
+            $sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP => $webDir . DIRECTORY_SEPARATOR . self::TYPO3_INDEX_PHP,
+            $sourcesDir . DIRECTORY_SEPARATOR . self::TYPO3_DIR => $backendDir,
+        ];
     }
 
     /**

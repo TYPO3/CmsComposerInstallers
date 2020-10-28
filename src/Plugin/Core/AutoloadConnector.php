@@ -1,5 +1,4 @@
 <?php
-namespace TYPO3\CMS\Composer\Plugin\Core;
 
 /*
  * This file is part of the TYPO3 project.
@@ -13,6 +12,8 @@ namespace TYPO3\CMS\Composer\Plugin\Core;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace TYPO3\CMS\Composer\Plugin\Core;
 
 use Composer\Script\Event;
 use TYPO3\CMS\Composer\Plugin\Config;
@@ -74,13 +75,13 @@ class AutoloadConnector
                     if ($e->getCode() !== 1430494084) {
                         throw $e;
                     }
-                    $code = array(
+                    $code = [
                         '<?php',
                         'return require ' . $this->filesystem->findShortestPathCode(
                             $autoloaderTargetDir . DIRECTORY_SEPARATOR . $autoloaderFileName,
                             $autoloaderSourceDir . DIRECTORY_SEPARATOR . $autoloaderFileName
-                        ) . ';'
-                    );
+                        ) . ';',
+                    ];
                     file_put_contents($autoloaderTargetDir . DIRECTORY_SEPARATOR . $autoloaderFileName, implode(chr(10), $code));
                 }
                 $this->insertComposerModeConstant($event);
