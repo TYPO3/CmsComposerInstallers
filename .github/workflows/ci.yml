@@ -19,6 +19,7 @@ jobs:
                     - "7.4"
                 composer-versions:
                     - "v1"
+                    - "v2"
         steps:
             - name: Checkout Code
               uses: actions/checkout@v2

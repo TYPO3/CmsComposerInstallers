@@ -15,6 +15,7 @@
 
 namespace TYPO3\CMS\Composer\Plugin\Core;
 
+use Composer\Composer;
 use Composer\Script\Event;
 use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
@@ -55,7 +56,8 @@ class AutoloadConnector
                 $defaultVendorDir = \Composer\Config::$defaultConfig['vendor-dir'];
 
                 $packagePath = $composer->getInstallationManager()->getInstallPath($package);
-                $jsonFile = new \Composer\Json\JsonFile($packagePath . DIRECTORY_SEPARATOR . 'composer.json', new \Composer\Util\RemoteFilesystem($event->getIO()));
+                $jsonFile = new \Composer\Json\JsonFile($packagePath . DIRECTORY_SEPARATOR . 'composer.json');
+
                 $packageJson = $jsonFile->read();
                 $packageVendorDir = !empty($packageJson['config']['vendor-dir']) ? $this->filesystem->normalizePath($packageJson['config']['vendor-dir']) : $defaultVendorDir;
 

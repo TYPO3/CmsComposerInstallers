@@ -22,6 +22,7 @@ use Composer\Installer\InstallerInterface;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
+use React\Promise\PromiseInterface;
 use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
@@ -128,6 +129,24 @@ class CoreInstaller implements InstallerInterface
             && $this->filesystem->allFilesExist($this->symlinks);
     }
 
+    public function download(PackageInterface $package, PackageInterface $prevPackage = null)
+    {
+        $downloadPath = $this->getInstallPath($package);
+        return $this->downloadManager->download($package, $downloadPath, $prevPackage);
+    }
+
+    public function prepare($type, PackageInterface $package, PackageInterface $prevPackage = null)
+    {
+        $downloadPath = $this->getInstallPath($package);
+        return $this->downloadManager->prepare($type, $package, $downloadPath, $prevPackage);
+    }
+
+    public function cleanup($type, PackageInterface $package, PackageInterface $prevPackage = null)
+    {
+        $downloadPath = $this->getInstallPath($package);
+        return $this->downloadManager->cleanup($type, $package, $downloadPath, $prevPackage);
+    }
+
     /**
      * Installs specific package.
      *
@@ -145,7 +164,22 @@ class CoreInstaller implements InstallerInterface
         if (!is_readable($downloadPath) && $repo->hasPackage($package)) {
             $this->binaryInstaller->removeBinaries($package);
         }
-        $this->installCode($package);
+
+        $promise = $this->installCode($package);
+
+        // Composer v2 might return a promise here
+        if ($promise instanceof PromiseInterface) {
+            $binaryInstaller = $this->binaryInstaller;
+            $installPath = $this->getInstallPath($package);
+            return $promise->then(function () use ($binaryInstaller, $installPath, $package, $repo) {
+                $binaryInstaller->installBinaries($package, $installPath);
+                $this->filesystem->establishSymlinks($this->symlinks, false);
+                if (!$repo->hasPackage($package)) {
+                    $repo->addPackage(clone $package);
+                }
+            });
+        }
+
         $this->binaryInstaller->installBinaries($package, $this->getInstallPath($package));
 
         $this->filesystem->establishSymlinks($this->symlinks, false);
@@ -167,9 +201,23 @@ class CoreInstaller implements InstallerInterface
         if ($this->filesystem->someFilesExist($this->symlinks)) {
             $this->filesystem->removeSymlinks($this->symlinks);
         }
-
         $this->binaryInstaller->removeBinaries($initial);
-        $this->updateCode($initial, $target);
+
+        $promise = $this->updateCode($initial, $target);
+
+        // Composer v2 might return a promise here
+        if ($promise instanceof PromiseInterface) {
+            $binaryInstaller = $this->binaryInstaller;
+            $installPath = $this->getInstallPath($target);
+            return $promise->then(function () use ($binaryInstaller, $installPath, $package, $repo) {
+                $binaryInstaller->installBinaries($package, $installPath);
+                $this->filesystem->establishSymlinks($this->symlinks, false);
+                if (!$repo->hasPackage($package)) {
+                    $repo->addPackage(clone $package);
+                }
+            });
+        }
+
         $this->binaryInstaller->installBinaries($target, $this->getInstallPath($target));
 
         $this->filesystem->establishSymlinks($this->symlinks, false);
@@ -226,7 +274,10 @@ class CoreInstaller implements InstallerInterface
     protected function installCode(PackageInterface $package)
     {
         $downloadPath = $this->getInstallPath($package);
-        $this->downloadManager->download($package, $downloadPath);
+        if (version_compare(Composer::RUNTIME_API_VERSION, '2.0.0') < 0) {
+            return $this->downloadManager->download($package, $downloadPath);
+        }
+        return $this->downloadManager->install($package, $downloadPath);
     }
 
     /**
@@ -246,14 +297,12 @@ class CoreInstaller implements InstallerInterface
                 || substr($targetDownloadPath, 0, strlen($initialDownloadPath)) === $initialDownloadPath
             ) {
                 $this->removeCode($initial);
-                $this->installCode($target);
-
-                return;
+                return $this->installCode($target);
             }
 
             $this->filesystem->rename($initialDownloadPath, $targetDownloadPath);
         }
-        $this->downloadManager->update($initial, $target, $targetDownloadPath);
+        return $this->downloadManager->update($initial, $target, $targetDownloadPath);
     }
 
     /**
@@ -262,6 +311,6 @@ class CoreInstaller implements InstallerInterface
     protected function removeCode(PackageInterface $package)
     {
         $downloadPath = $this->getInstallPath($package);
-        $this->downloadManager->remove($package, $downloadPath);
+        return $this->downloadManager->remove($package, $downloadPath);
     }
 }
