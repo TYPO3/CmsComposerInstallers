@@ -18,7 +18,6 @@ namespace TYPO3\CMS\Composer\Plugin\Core;
 
 use Composer\Autoload\ClassLoader;
 use Composer\Script\Event;
-use Composer\Semver\Constraint\EmptyConstraint;
 use TYPO3\CMS\Composer\Plugin\Core\InstallerScripts\AutoloadConnector;
 use TYPO3\CMS\Composer\Plugin\Core\InstallerScripts\WebDirectory;
 
@@ -70,7 +69,7 @@ class ScriptDispatcher
             // Fallback to traditional handling for compatibility
             empty($this->installerScripts)
             // But not if typo3/cms is root package or typo3/cms is not found at all
-            && null !== $composer->getRepositoryManager()->getLocalRepository()->findPackage('typo3/cms', new EmptyConstraint())
+            && null !== $composer->getRepositoryManager()->getLocalRepository()->findPackage('typo3/cms', '*')
         ) {
             $this->addInstallerScript(new WebDirectory());
             $this->addInstallerScript(new AutoloadConnector());

@@ -18,7 +18,6 @@ namespace TYPO3\CMS\Composer\Plugin\Core\InstallerScripts;
 use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\Script\Event;
-use Composer\Semver\Constraint\EmptyConstraint;
 use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\Core\InstallerScript;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
@@ -91,7 +90,7 @@ class WebDirectory implements InstallerScript
         $webDir = $this->filesystem->normalizePath($this->pluginConfig->get('web-dir'));
         $this->filesystem->ensureDirectoryExists($webDir);
         $localRepository = $this->composer->getRepositoryManager()->getLocalRepository();
-        $package = $localRepository->findPackage('typo3/cms', new EmptyConstraint());
+        $package = $localRepository->findPackage('typo3/cms', '*');
 
         $sourcesDir = $this->composer->getInstallationManager()->getInstallPath($package);
         $backendDir = $webDir . DIRECTORY_SEPARATOR . self::TYPO3_DIR;

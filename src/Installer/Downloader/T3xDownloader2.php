@@ -23,32 +23,15 @@ use TYPO3\CMS\Composer\Util\T3xDownloaderUtility;
 /**
  * TYPO3 CMS Extension Downloader
  * Extracts the TYPO3 CMS T3X Format
- *
- * @author Sascha Egerer <sascha.egerer@dkd.de>
  */
-class T3xDownloader extends ArchiveDownloader implements ChangeReportInterface
+class T3xDownloader2 extends ArchiveDownloader implements ChangeReportInterface
 {
     /**
-     * @var PackageInterface
-     */
-    protected $package;
-
-    /**
      * {@inheritDoc}
      */
-    public function download(PackageInterface $package, $path, $output = true)
+    protected function extract(PackageInterface $package, $file, $path)
     {
-        // set package so we can use it later
-        $this->package = $package;
-        parent::download($package, $path, $output);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    protected function extract($file, $path)
-    {
-        T3xDownloaderUtility::extract($this->package, $file, $path);
+        T3xDownloaderUtility::extract($package, $file, $path);
     }
 
     /**
