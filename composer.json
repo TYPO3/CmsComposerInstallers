@@ -26,6 +26,11 @@
             "TYPO3\\CMS\\Composer\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "TYPO3\\CMS\\ComposerTest\\": "tests/"
+        }
+    },
     "replace": {
         "lw/typo3cms-installers": "*",
         "netresearch/composer-installers": "*"
