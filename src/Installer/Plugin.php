@@ -83,7 +83,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $cache = new Cache($io, $composer->getConfig()->get('cache-files-dir'), 'a-z0-9_./');
         }
 
-        if (version_compare(Composer::RUNTIME_API_VERSION, '2.0.0') < 0) {
+        if (!defined('Composer\Composer::RUNTIME_API_VERSION') || version_compare(Composer::RUNTIME_API_VERSION, '2.0.0') < 0) {
             $t3xDownloader = new Downloader\T3xDownloader($io, $composer->getConfig(), null, $cache);
         } else {
             $httpDownloader = new HttpDownloader($io, $composer->getConfig());
