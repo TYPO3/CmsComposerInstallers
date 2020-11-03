@@ -1,5 +1,4 @@
 <?php
-namespace TYPO3\CMS\Composer\Plugin\Core\InstallerScripts;
 
 /*
  * This file is part of the TYPO3 project.
@@ -14,10 +13,12 @@ namespace TYPO3\CMS\Composer\Plugin\Core\InstallerScripts;
  * The TYPO3 project - inspiring people to share!
  */
 
+namespace TYPO3\CMS\Composer\Plugin\Core\InstallerScripts;
+
 use Composer\Composer;
 use Composer\IO\IOInterface;
+use Composer\Json\JsonFile;
 use Composer\Script\Event;
-use Composer\Semver\Constraint\EmptyConstraint;
 use TYPO3\CMS\Composer\Plugin\Core\InstallerScript;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
@@ -52,12 +53,13 @@ class AutoloadConnector implements InstallerScript
 
         $composerConfig = $composer->getConfig();
         $localRepository = $composer->getRepositoryManager()->getLocalRepository();
-        $package = $localRepository->findPackage('typo3/cms', new EmptyConstraint());
+        $package = $localRepository->findPackage('typo3/cms', '*');
 
         $defaultVendorDir = \Composer\Config::$defaultConfig['vendor-dir'];
 
         $packagePath = $composer->getInstallationManager()->getInstallPath($package);
-        $jsonFile = new \Composer\Json\JsonFile($packagePath . DIRECTORY_SEPARATOR . 'composer.json', new \Composer\Util\RemoteFilesystem($io));
+        $jsonFile = new JsonFile($packagePath . DIRECTORY_SEPARATOR . 'composer.json');
+
         $packageJson = $jsonFile->read();
         $packageVendorDir = !empty($packageJson['config']['vendor-dir']) ? $this->filesystem->normalizePath($packageJson['config']['vendor-dir']) : $defaultVendorDir;
 

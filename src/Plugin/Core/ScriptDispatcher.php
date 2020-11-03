@@ -1,11 +1,7 @@
 <?php
 declare(strict_types=1);
-namespace TYPO3\CMS\Composer\Plugin\Core;
 
 /*
- * This file was taken from the typo3 console plugin package.
- * (c) Helmut Hummel <info@helhum.io>
- *
  * This file is part of the TYPO3 project.
  *
  * It is free software; you can redistribute it and/or modify it under
@@ -18,9 +14,10 @@ namespace TYPO3\CMS\Composer\Plugin\Core;
  * The TYPO3 project - inspiring people to share!
  */
 
+namespace TYPO3\CMS\Composer\Plugin\Core;
+
 use Composer\Autoload\ClassLoader;
 use Composer\Script\Event;
-use Composer\Semver\Constraint\EmptyConstraint;
 use TYPO3\CMS\Composer\Plugin\Core\InstallerScripts\AutoloadConnector;
 use TYPO3\CMS\Composer\Plugin\Core\InstallerScripts\WebDirectory;
 
@@ -72,7 +69,7 @@ class ScriptDispatcher
             // Fallback to traditional handling for compatibility
             empty($this->installerScripts)
             // But not if typo3/cms is root package or typo3/cms is not found at all
-            && null !== $composer->getRepositoryManager()->getLocalRepository()->findPackage('typo3/cms', new EmptyConstraint())
+            && null !== $composer->getRepositoryManager()->getLocalRepository()->findPackage('typo3/cms', '*')
         ) {
             $this->addInstallerScript(new WebDirectory());
             $this->addInstallerScript(new AutoloadConnector());

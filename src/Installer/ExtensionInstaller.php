@@ -1,5 +1,4 @@
 <?php
-namespace TYPO3\CMS\Composer\Installer;
 
 /*
  * This file is part of the TYPO3 project.
@@ -14,6 +13,8 @@ namespace TYPO3\CMS\Composer\Installer;
  * The TYPO3 project - inspiring people to share!
  */
 
+namespace TYPO3\CMS\Composer\Installer;
+
 use Composer\Composer;
 use Composer\Downloader\DownloadManager;
 use Composer\Installer\BinaryInstaller;
@@ -22,6 +23,7 @@ use Composer\Installer\InstallerInterface;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 use Composer\Repository\InstalledRepositoryInterface;
+use React\Promise\PromiseInterface;
 use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\Util\ExtensionKeyResolver;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
@@ -120,6 +122,24 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
         return $repo->hasPackage($package) && is_readable($this->getInstallPath($package));
     }
 
+    public function download(PackageInterface $package, PackageInterface $prevPackage = null)
+    {
+        $downloadPath = $this->getInstallPath($package);
+        return $this->downloadManager->download($package, $downloadPath, $prevPackage);
+    }
+
+    public function prepare($type, PackageInterface $package, PackageInterface $prevPackage = null)
+    {
+        $downloadPath = $this->getInstallPath($package);
+        return $this->downloadManager->prepare($type, $package, $downloadPath, $prevPackage);
+    }
+
+    public function cleanup($type, PackageInterface $package, PackageInterface $prevPackage = null)
+    {
+        $downloadPath = $this->getInstallPath($package);
+        return $this->downloadManager->cleanup($type, $package, $downloadPath, $prevPackage);
+    }
+
     /**
      * Installs specific package.
      *
@@ -133,7 +153,21 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
         if (!is_readable($downloadPath) && $repo->hasPackage($package)) {
             $this->binaryInstaller->removeBinaries($package);
         }
-        $this->installCode($package);
+
+        $promise = $this->installCode($package);
+
+        // Composer v2 might return a promise here
+        if ($promise instanceof PromiseInterface) {
+            $binaryInstaller = $this->binaryInstaller;
+            $installPath = $this->getInstallPath($package);
+            return $promise->then(function () use ($binaryInstaller, $installPath, $package, $repo) {
+                $binaryInstaller->installBinaries($package, $installPath);
+                if (!$repo->hasPackage($package)) {
+                    $repo->addPackage(clone $package);
+                }
+            });
+        }
+
         $this->binaryInstaller->installBinaries($package, $downloadPath);
         if (!$repo->hasPackage($package)) {
             $repo->addPackage(clone $package);
@@ -155,7 +189,21 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
             throw new \InvalidArgumentException('Package is not installed: ' . $initial);
         }
         $this->binaryInstaller->removeBinaries($initial);
-        $this->updateCode($initial, $target);
+
+        $promise = $this->updateCode($initial, $target);
+
+        // Composer v2 might return a promise here
+        if ($promise instanceof PromiseInterface) {
+            $binaryInstaller = $this->binaryInstaller;
+            $installPath = $this->getInstallPath($target);
+            return $promise->then(function () use ($binaryInstaller, $installPath, $package, $repo) {
+                $binaryInstaller->installBinaries($package, $installPath);
+                if (!$repo->hasPackage($package)) {
+                    $repo->addPackage(clone $package);
+                }
+            });
+        }
+
         $this->binaryInstaller->installBinaries($target, $this->getInstallPath($target));
         $repo->removePackage($initial);
         if (!$repo->hasPackage($target)) {
@@ -227,7 +275,11 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
      */
     protected function installCode(PackageInterface $package)
     {
-        $this->downloadManager->download($package, $this->getInstallPath($package));
+        $downloadPath = $this->getInstallPath($package);
+        if (version_compare(Composer::RUNTIME_API_VERSION, '2.0.0') < 0) {
+            return $this->downloadManager->download($package, $downloadPath);
+        }
+        return $this->downloadManager->install($package, $downloadPath);
     }
 
     /**
@@ -245,14 +297,12 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
                 || substr($targetDownloadPath, 0, strlen($initialDownloadPath)) === $initialDownloadPath
             ) {
                 $this->removeCode($initial);
-                $this->installCode($target);
-
-                return;
+                return $this->installCode($target);
             }
 
             $this->filesystem->rename($initialDownloadPath, $targetDownloadPath);
         }
-        $this->downloadManager->update($initial, $target, $targetDownloadPath);
+        return $this->downloadManager->update($initial, $target, $targetDownloadPath);
     }
 
     /**

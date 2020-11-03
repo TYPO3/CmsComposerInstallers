@@ -1,5 +1,4 @@
 <?php
-namespace TYPO3\CMS\Composer\Plugin;
 
 /*
  * This file is part of the TYPO3 project.
@@ -13,6 +12,8 @@ namespace TYPO3\CMS\Composer\Plugin;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace TYPO3\CMS\Composer\Plugin;
 
 use Composer\Composer;
 
@@ -150,11 +151,13 @@ class Config
             return $value;
         }
 
-        return preg_replace_callback('#\{\$(.+)\}#',
+        return preg_replace_callback(
+            '#\{\$(.+)\}#',
             function ($match) use ($config, $flags) {
                 return $config->get($match[1], $flags);
             },
-            $value);
+            $value
+        );
     }
 
     /**

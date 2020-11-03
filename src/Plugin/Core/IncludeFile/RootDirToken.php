@@ -1,5 +1,4 @@
 <?php
-namespace TYPO3\CMS\Composer\Plugin\Core\IncludeFile;
 
 /*
  * This file is part of the TYPO3 project.
@@ -13,6 +12,8 @@ namespace TYPO3\CMS\Composer\Plugin\Core\IncludeFile;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace TYPO3\CMS\Composer\Plugin\Core\IncludeFile;
 
 use Composer\IO\IOInterface;
 use Composer\Util\Filesystem;

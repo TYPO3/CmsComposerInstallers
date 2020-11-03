@@ -1,5 +1,4 @@
 <?php
-namespace TYPO3\CMS\Composer\Installer;
 
 /*
  * This file is part of the TYPO3 project.
@@ -14,6 +13,8 @@ namespace TYPO3\CMS\Composer\Installer;
  * The TYPO3 project - inspiring people to share!
  */
 
+namespace TYPO3\CMS\Composer\Installer;
+
 use Composer\Cache;
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
@@ -22,6 +23,7 @@ use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
+use Composer\Util\HttpDownloader;
 use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\PluginImplementation;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
@@ -81,12 +83,13 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $cache = new Cache($io, $composer->getConfig()->get('cache-files-dir'), 'a-z0-9_./');
         }
 
-        $composer
-            ->getDownloadManager()
-            ->setDownloader(
-                't3x',
-                new Downloader\T3xDownloader($io, $composer->getConfig(), null, $cache)
-            );
+        if (version_compare(Composer::RUNTIME_API_VERSION, '2.0.0') < 0) {
+            $t3xDownloader = new Downloader\T3xDownloader($io, $composer->getConfig(), null, $cache);
+        } else {
+            $httpDownloader = new HttpDownloader($io, $composer->getConfig());
+            $t3xDownloader = new Downloader\T3xDownloader2($io, $composer->getConfig(), $httpDownloader, null, $cache);
+        }
+        $composer->getDownloadManager()->setDownloader('t3x', $t3xDownloader);
 
         $composer->getEventDispatcher()->addSubscriber($this);
     }
@@ -137,10 +140,20 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             || !interface_exists('Composer\\Installer\\BinaryPresenceInterface')
         ) {
             $io->writeError('');
-            $io->writeError(sprintf('<error>Composer version (%s) you are using is too low. Please upgrade Composer to 1.2.0 or higher!</error>',
-                Composer::VERSION));
+            $io->writeError(sprintf(
+                '<error>Composer version (%s) you are using is too low. Please upgrade Composer to 1.2.0 or higher!</error>',
+                Composer::VERSION
+            ));
             $io->writeError('<error>TYPO3 installers plugin will be disabled!</error>');
             throw new \RuntimeException('TYPO3 Installer disabled!', 1469105842);
         }
+    }
+
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+    }
+
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
     }
 }

@@ -26,19 +26,39 @@
             "TYPO3\\CMS\\Composer\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "TYPO3\\CMS\\ComposerTest\\": "tests/"
+        }
+    },
     "replace": {
         "lw/typo3cms-installers": "*",
         "netresearch/composer-installers": "*"
     },
     "require": {
         "php": ">=7.0.0 <7.5",
-        "composer-plugin-api": "^1.0.0"
+        "composer-plugin-api": "^1.0.0 || ^2.0.0"
     },
     "conflict": {
         "composer/installers": "<1.0.24 || >1.0.24"
     },
     "require-dev": {
-        "composer/composer": "^1.2"
+        "composer/composer": "1.2.*@dev || 2.0.*@dev",
+        "overtrue/phplint": "^2.0",
+        "phpunit/phpunit": "^5.7"
+    },
+    "scripts": {
+        "test:php:lint": [
+            "phplint"
+        ],
+        "test:php:unit": [
+            "Composer\\Config::disableProcessTimeout",
+            "phpunit"
+        ],
+        "test": [
+            "@test:php:lint",
+            "@test:php:unit"
+        ]
     },
     "extra": {
         "class": "TYPO3\\CMS\\Composer\\Installer\\Plugin",
