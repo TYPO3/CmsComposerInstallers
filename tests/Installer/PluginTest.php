@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 
 /*
  * This file is part of the TYPO3 project.
@@ -13,22 +14,16 @@
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace TYPO3\CMS\Composer\Plugin\Core\IncludeFile;
+namespace TYPO3\CMS\ComposerTest\Installer;
 
-interface TokenInterface
+use Composer\Plugin\PluginInterface;
+use TYPO3\CMS\Composer\Installer\Plugin;
+
+class PluginTest extends InstallerTestCase
 {
-    /**
-     * The name of the token that shall be replaced
-     *
-     * @return string
-     */
-    public function getName();
-
-    /**
-     * The content the token should be replaced with
-     *
-     * @param string $includeFilePath
-     * @return string
-     */
-    public function getContent(string $includeFilePath);
+    public function testPluginCompatibility()
+    {
+        $plugin = new Plugin();
+        $this->assertInstanceOf(PluginInterface::class, $plugin);
+    }
 }

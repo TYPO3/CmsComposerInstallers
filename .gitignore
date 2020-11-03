@@ -1,5 +1,8 @@
+/.ddev
 /vendor
 /composer.lock
 /res/php/autoload-include.php
 /.php_cs.cache
+/.phplint.cache
+/.phpunit.result.cache
 .idea/

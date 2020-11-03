@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-namespace TYPO3\CMS\Composer\Plugin\Core;
 
 /*
  * This file is part of the TYPO3 project.
@@ -14,6 +13,8 @@ namespace TYPO3\CMS\Composer\Plugin\Core;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace TYPO3\CMS\Composer\Plugin\Core;
 
 /**
  * Used to interrupt further installer scripts execution

@@ -1,6 +1,5 @@
 <?php
 declare(strict_types=1);
-namespace TYPO3\CMS\Composer\Plugin\Util;
 
 /*
  * This file is part of the TYPO3 project.
@@ -14,6 +13,8 @@ namespace TYPO3\CMS\Composer\Plugin\Util;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace TYPO3\CMS\Composer\Plugin\Util;
 
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
@@ -47,7 +48,7 @@ class ExtensionKeyResolver
                         '<comment>TYPO3 Extension Package "%s", does not define extension key in composer.json.</comment>',
                         $package->getName()
                     ),
-                    '<comment>Specifying the extension key will be mandatory in future versions of TYPO3 (see: https://docs.typo3.org/m/typo3/reference-coreapi/master/en-us/ExtensionArchitecture/ComposerJson/Index.html#extra)</comment>'
+                    '<comment>Specifying the extension key will be mandatory in future versions of TYPO3 (see: https://docs.typo3.org/m/typo3/reference-coreapi/master/en-us/ExtensionArchitecture/ComposerJson/Index.html#extra)</comment>',
                 ]
             );
         }

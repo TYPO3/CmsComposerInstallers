@@ -1,10 +1,7 @@
 <?php
-namespace TYPO3\CMS\Composer\Plugin\Core\IncludeFile;
 
 /*
  * This file is part of the TYPO3 project.
- *
- * (c) Helmut Hummel <info@helhum.io>
  *
  * It is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License, either version 2
@@ -15,6 +12,8 @@ namespace TYPO3\CMS\Composer\Plugin\Core\IncludeFile;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace TYPO3\CMS\Composer\Plugin\Core\IncludeFile;
 
 use Composer\IO\IOInterface;
 use TYPO3\CMS\Composer\Plugin\Config as PluginConfig;
