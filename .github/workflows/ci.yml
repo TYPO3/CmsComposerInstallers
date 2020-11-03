@@ -39,6 +39,10 @@ jobs:
               if: ${{ matrix.composer-versions == 'v1' }}
               run: composer require "composer/composer:^1.10" --dev --no-update
 
+            - name: Require Composer@v2
+              if: ${{ matrix.composer-versions == 'v2' }}
+              run: composer require "composer/composer:^2.0" --dev --no-update
+
             - name: Install composer dependencies
               run: composer install
 
