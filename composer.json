@@ -32,7 +32,22 @@
         "composer/installers": "<1.0.24 || >1.0.24"
     },
     "require-dev": {
-        "composer/composer": "1.*"
+        "composer/composer": "1.*",
+        "overtrue/phplint": "^2.0",
+        "phpunit/phpunit": "^5.7"
+    },
+    "scripts": {
+        "test:php:lint": [
+            "phplint"
+        ],
+        "test:php:unit": [
+            "Composer\\Config::disableProcessTimeout",
+            "phpunit"
+        ],
+        "test": [
+            "@test:php:lint",
+            "@test:php:unit"
+        ]
     },
     "extra": {
         "class": "TYPO3\\CMS\\Composer\\Installer\\Plugin",
