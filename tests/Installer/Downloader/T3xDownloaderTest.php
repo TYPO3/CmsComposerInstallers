@@ -29,7 +29,7 @@ class T3xDownloaderTest extends InstallerTestCase
     public function testDownloaderCompatibility()
     {
         $io = new BufferIO();
-        if (version_compare(Composer::RUNTIME_API_VERSION, '2.0.0') < 0) {
+        if (!defined('Composer\Composer::RUNTIME_API_VERSION') || version_compare(Composer::RUNTIME_API_VERSION, '2.0.0') < 0) {
             $t3xDownloader = new T3xDownloader($io, $this->composer->getConfig());
         } else {
             $httpDownloader = new HttpDownloader($io, $this->composer->getConfig());
