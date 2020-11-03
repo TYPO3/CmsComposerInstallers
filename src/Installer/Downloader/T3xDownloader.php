@@ -1,5 +1,4 @@
 <?php
-namespace TYPO3\CMS\Composer\Installer\Downloader;
 
 /*
  * This file is part of the TYPO3 project.
@@ -13,6 +12,8 @@ namespace TYPO3\CMS\Composer\Installer\Downloader;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace TYPO3\CMS\Composer\Installer\Downloader;
 
 use Composer\Downloader\ArchiveDownloader;
 use Composer\Downloader\ChangeReportInterface;
