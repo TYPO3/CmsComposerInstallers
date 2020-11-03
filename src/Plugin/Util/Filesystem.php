@@ -1,5 +1,4 @@
 <?php
-namespace TYPO3\CMS\Composer\Plugin\Util;
 
 /*
  * This file is part of the TYPO3 project.
@@ -13,6 +12,8 @@ namespace TYPO3\CMS\Composer\Plugin\Util;
  *
  * The TYPO3 project - inspiring people to share!
  */
+
+namespace TYPO3\CMS\Composer\Plugin\Util;
 
 /**
  * An additional wrapper around filesystem
@@ -59,9 +60,6 @@ class Filesystem extends \Composer\Util\Filesystem
         }
     }
 
-    /**
-     *
-     */
     public function removeSymlinks(array $links)
     {
         foreach ($links as $target) {

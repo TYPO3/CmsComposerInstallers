@@ -1,5 +1,4 @@
 <?php
-namespace TYPO3\CMS\Composer\Plugin\Core;
 
 /*
  * This file is part of the TYPO3 project.
@@ -14,6 +13,9 @@ namespace TYPO3\CMS\Composer\Plugin\Core;
  * The TYPO3 project - inspiring people to share!
  */
 
+namespace TYPO3\CMS\Composer\Plugin\Core;
+
+use Composer\Composer;
 use Composer\Script\Event;
 use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
@@ -54,7 +56,8 @@ class AutoloadConnector
                 $defaultVendorDir = \Composer\Config::$defaultConfig['vendor-dir'];
 
                 $packagePath = $composer->getInstallationManager()->getInstallPath($package);
-                $jsonFile = new \Composer\Json\JsonFile($packagePath . DIRECTORY_SEPARATOR . 'composer.json', new \Composer\Util\RemoteFilesystem($event->getIO()));
+                $jsonFile = new \Composer\Json\JsonFile($packagePath . DIRECTORY_SEPARATOR . 'composer.json');
+
                 $packageJson = $jsonFile->read();
                 $packageVendorDir = !empty($packageJson['config']['vendor-dir']) ? $this->filesystem->normalizePath($packageJson['config']['vendor-dir']) : $defaultVendorDir;
 
@@ -74,13 +77,13 @@ class AutoloadConnector
                     if ($e->getCode() !== 1430494084) {
                         throw $e;
                     }
-                    $code = array(
+                    $code = [
                         '<?php',
                         'return require ' . $this->filesystem->findShortestPathCode(
                             $autoloaderTargetDir . DIRECTORY_SEPARATOR . $autoloaderFileName,
                             $autoloaderSourceDir . DIRECTORY_SEPARATOR . $autoloaderFileName
-                        ) . ';'
-                    );
+                        ) . ';',
+                    ];
                     file_put_contents($autoloaderTargetDir . DIRECTORY_SEPARATOR . $autoloaderFileName, implode(chr(10), $code));
                 }
                 $this->insertComposerModeConstant($event);

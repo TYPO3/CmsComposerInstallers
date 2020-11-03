@@ -1,5 +1,4 @@
 <?php
-namespace TYPO3\CMS\Composer\Installer;
 
 /*
  * This file is part of the TYPO3 project.
@@ -14,6 +13,8 @@ namespace TYPO3\CMS\Composer\Installer;
  * The TYPO3 project - inspiring people to share!
  */
 
+namespace TYPO3\CMS\Composer\Installer;
+
 use Composer\Cache;
 use Composer\Composer;
 use Composer\EventDispatcher\EventSubscriberInterface;
@@ -22,6 +23,7 @@ use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
+use Composer\Util\HttpDownloader;
 use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\Core\AutoloadConnector;
 use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
@@ -40,9 +42,9 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public static function getSubscribedEvents()
     {
-        return array(
-            ScriptEvents::POST_AUTOLOAD_DUMP => 'postAutoload'
-        );
+        return [
+            ScriptEvents::POST_AUTOLOAD_DUMP => 'postAutoload',
+        ];
     }
 
     /**
@@ -69,12 +71,21 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $cache = new Cache($io, $composer->getConfig()->get('cache-files-dir'), 'a-z0-9_./');
         }
 
-        $composer
-            ->getDownloadManager()
-            ->setDownloader(
-                't3x',
-                new Downloader\T3xDownloader($io, $composer->getConfig(), null, $cache)
-            );
+        if (version_compare(Composer::RUNTIME_API_VERSION, '2.0.0') < 0) {
+            $t3xDownloader = new Downloader\T3xDownloader($io, $composer->getConfig(), null, $cache);
+        } else {
+            $httpDownloader = new HttpDownloader($io, $composer->getConfig());
+            $t3xDownloader = new Downloader\T3xDownloader2($io, $composer->getConfig(), $httpDownloader, null, $cache);
+        }
+        $composer->getDownloadManager()->setDownloader('t3x', $t3xDownloader);
+    }
+
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+    }
+
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
     }
 
     /**

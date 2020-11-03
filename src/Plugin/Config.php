@@ -1,5 +1,4 @@
 <?php
-namespace TYPO3\CMS\Composer\Plugin;
 
 /*
  * This file is part of the TYPO3 project.
@@ -14,6 +13,8 @@ namespace TYPO3\CMS\Composer\Plugin;
  * The TYPO3 project - inspiring people to share!
  */
 
+namespace TYPO3\CMS\Composer\Plugin;
+
 use Composer\Composer;
 
 /**
@@ -26,7 +27,7 @@ class Config
     /**
      * @var array
      */
-    public static $defaultConfig = array(
+    public static $defaultConfig = [
         'web-dir' => '.',
         'prepare-web-dir' => true,
         'cms-package-dir' => 'typo3_src',
@@ -38,7 +39,7 @@ class Config
         'config-dir' => '{$web-dir}/typo3conf',
         'temporary-dir' => '{$web-dir}/typo3temp',
         'cache-dir' => '{$temporary-dir}/Cache',
-    );
+    ];
 
     /**
      * @var array
@@ -107,7 +108,7 @@ class Config
      */
     public function all($flags = 0)
     {
-        $all = array();
+        $all = [];
         foreach (array_keys($this->config) as $key) {
             $all['config'][$key] = $this->get($key, $flags);
         }
@@ -120,9 +121,9 @@ class Config
      */
     public function raw()
     {
-        return array(
+        return [
             'config' => $this->config,
-        );
+        ];
     }
 
     /**
@@ -151,11 +152,13 @@ class Config
             return $value;
         }
 
-        return preg_replace_callback('#\{\$(.+)\}#',
+        return preg_replace_callback(
+            '#\{\$(.+)\}#',
             function ($match) use ($config, $flags) {
                 return $config->get($match[1], $flags);
             },
-            $value);
+            $value
+        );
     }
 
     /**
@@ -198,11 +201,11 @@ class Config
                 $config->merge($rootPackageExtraConfig);
             }
             $config->merge(
-                array(
-                    'typo3/cms' => array(
-                        'vendor-dir' => $composer->getConfig()->get('vendor-dir')
-                    )
-                )
+                [
+                    'typo3/cms' => [
+                        'vendor-dir' => $composer->getConfig()->get('vendor-dir'),
+                    ],
+                ]
             );
         }
         return $config;
