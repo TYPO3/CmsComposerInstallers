@@ -15,7 +15,9 @@
 
 namespace TYPO3\CMS\ComposerTest\Installer;
 
+use Composer\Composer;
 use Composer\Package\Package;
+use TYPO3\CMS\Composer\Plugin\Util\Filesystem as TYPO3Filesystem;
 
 class ExtensionInstallerTest extends InstallerTestCase
 {
@@ -95,5 +97,65 @@ class ExtensionInstallerTest extends InstallerTestCase
                 'expectedPath' => 'typo3conf/ext/somepackage_extension',
             ],
         ];
+    }
+
+    public function testUpdate()
+    {
+        $filesystem = $this->getMockBuilder(TYPO3Filesystem::class)
+            ->getMock();
+        $filesystem
+            ->expects($this->once())
+            ->method('rename')
+            ->with('/typo3conf/ext/old', '/typo3conf/ext/new');
+
+        /** @var Package $package */
+        $initial = $this->createPackage('somevendor/somepackage-extension', 'typo3-cms-extension');
+        $initial->setExtra([
+            'typo3/cms' => [
+                'extension-key' => 'old',
+            ],
+        ]);
+
+        /** @var Package $package */
+        $target = $this->createPackage('somevendor/somepackage-extension', 'typo3-cms-extension');
+        $target->setExtra([
+            'typo3/cms' => [
+                'extension-key' => 'new',
+            ],
+        ]);
+
+        $this->repository
+            ->expects($this->exactly(3))
+            ->method('hasPackage')
+            ->will($this->onConsecutiveCalls(true, false, false));
+
+        if (!defined('Composer\Composer::RUNTIME_API_VERSION') || version_compare(Composer::RUNTIME_API_VERSION, '2.0.0') < 0) {
+            $this->downloadManager
+                ->expects($this->once())
+                ->method('update')
+                ->with($initial, $target, '/typo3conf/ext/new');
+        } else {
+            $this->downloadManager
+                ->expects($this->once())
+                ->method('update')
+                ->with($initial, $target, '/typo3conf/ext/new')
+                ->will($this->returnValue(\React\Promise\resolve()));
+        }
+
+        $this->repository
+            ->expects($this->once())
+            ->method('removePackage')
+            ->with($initial);
+
+        $this->repository
+            ->expects($this->once())
+            ->method('addPackage')
+            ->with($target);
+
+        $installer = $this->createExtensionInstaller($filesystem);
+        $installer->update($this->repository, $initial, $target);
+
+        $this->setExpectedException('InvalidArgumentException');
+        $installer->update($this->repository, $initial, $target);
     }
 }
