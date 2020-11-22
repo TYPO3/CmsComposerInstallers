@@ -196,10 +196,11 @@ class ExtensionInstaller implements InstallerInterface, BinaryPresenceInterface
         if ($promise instanceof PromiseInterface) {
             $binaryInstaller = $this->binaryInstaller;
             $installPath = $this->getInstallPath($target);
-            return $promise->then(function () use ($binaryInstaller, $installPath, $package, $repo) {
-                $binaryInstaller->installBinaries($package, $installPath);
-                if (!$repo->hasPackage($package)) {
-                    $repo->addPackage(clone $package);
+            return $promise->then(function () use ($binaryInstaller, $installPath, $target, $initial, $repo) {
+                $binaryInstaller->installBinaries($target, $installPath);
+                $repo->removePackage($initial);
+                if (!$repo->hasPackage($target)) {
+                    $repo->addPackage(clone $target);
                 }
             });
         }
