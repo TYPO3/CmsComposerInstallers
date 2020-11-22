@@ -29,6 +29,7 @@ use Composer\Util\Filesystem;
 use TYPO3\CMS\Composer\Installer\CoreInstaller;
 use TYPO3\CMS\Composer\Installer\ExtensionInstaller;
 use TYPO3\CMS\Composer\Plugin\Config as TYPO3Config;
+use TYPO3\CMS\Composer\Plugin\Util\Filesystem as TYPO3Filesystem;
 use TYPO3\CMS\ComposerTest\TestCase;
 
 class InstallerTestCase extends TestCase
@@ -54,6 +55,11 @@ class InstallerTestCase extends TestCase
     protected $composer;
 
     /**
+     * DownloadManager|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected $downloadManager;
+
+    /**
      * @var InstalledRepositoryInterface|\PHPUnit_Framework_MockObject_MockObject
      */
     protected $repository;
@@ -77,8 +83,8 @@ class InstallerTestCase extends TestCase
         $this->composer->setInstallationManager($installationManager);
 
         /** @var DownloadManager */
-        $downloadManager = $this->getMockBuilder(DownloadManager::class)->disableOriginalConstructor()->getMock();
-        $this->composer->setDownloadManager($downloadManager);
+        $this->downloadManager = $this->getMockBuilder(DownloadManager::class)->disableOriginalConstructor()->getMock();
+        $this->composer->setDownloadManager($this->downloadManager);
 
         /** @var RootPackage|\PHPUnit_Framework_MockObject_MockObject $package */
         $package = $this->createMock(RootPackageInterface::class);
@@ -126,11 +132,12 @@ class InstallerTestCase extends TestCase
     }
 
     /**
+     * @param null|mixed $filesystem
      * @return InstallerInterface
      */
-    protected function createExtensionInstaller()
+    protected function createExtensionInstaller($filesystem = null)
     {
-        $filesystem = new \TYPO3\CMS\Composer\Plugin\Util\Filesystem();
+        $filesystem = $filesystem !== null ? $filesystem : new TYPO3Filesystem();
         $binaryInstaller = new BinaryInstaller($this->io, rtrim($this->composer->getConfig()->get('bin-dir'), '/'), $this->composer->getConfig()->get('bin-compat'), $filesystem);
         $config = TYPO3Config::load($this->composer);
         return new ExtensionInstaller($this->io, $this->composer, $filesystem, $config, $binaryInstaller);
