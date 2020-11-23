@@ -209,11 +209,12 @@ class CoreInstaller implements InstallerInterface
         if ($promise instanceof PromiseInterface) {
             $binaryInstaller = $this->binaryInstaller;
             $installPath = $this->getInstallPath($target);
-            return $promise->then(function () use ($binaryInstaller, $installPath, $package, $repo) {
-                $binaryInstaller->installBinaries($package, $installPath);
+            return $promise->then(function () use ($binaryInstaller, $installPath, $target, $initial, $repo) {
+                $binaryInstaller->installBinaries($target, $installPath);
                 $this->filesystem->establishSymlinks($this->symlinks, false);
-                if (!$repo->hasPackage($package)) {
-                    $repo->addPackage(clone $package);
+                $repo->removePackage($initial);
+                if (!$repo->hasPackage($target)) {
+                    $repo->addPackage(clone $target);
                 }
             });
         }

@@ -15,6 +15,8 @@
 
 namespace TYPO3\CMS\ComposerTest\Installer;
 
+use Composer\Composer;
+
 class CoreInstallerTest extends InstallerTestCase
 {
     /**
@@ -65,5 +67,47 @@ class CoreInstallerTest extends InstallerTestCase
         ];
         $package = $this->createPackageWithFiles($installer, 'typo3/cms', 'typo3-cms-core', 'dev-develop', $files);
         $installer->install($this->repository, $package);
+    }
+
+    public function testUpdate()
+    {
+        $installer = $this->createCoreInstaller();
+
+        /** @var Package $package */
+        $initial = $this->createPackageWithFiles(
+            $installer,
+            'typo3/cms',
+            'typo3-cms-core',
+            'dev-develop',
+            [
+                'index.php' => '<?php echo "typo3 frontend";',
+                'typo3/index.php' => '<?php echo "typo3 backend";',
+            ]
+        );
+
+        /** @var Package $package */
+        $target = $this->createPackage(
+            'typo3/cms',
+            'typo3-cms-core',
+            'dev-master'
+        );
+
+        $this->repository
+            ->expects($this->once())
+            ->method('hasPackage')
+            ->will($this->returnValue(true));
+
+        if (!defined('Composer\Composer::RUNTIME_API_VERSION') || version_compare(Composer::RUNTIME_API_VERSION, '2.0.0') < 0) {
+            $this->downloadManager
+                ->method('update')
+                ->with($initial, $target, '/tmp/cms-composer-installer-test/typo3_src');
+        } else {
+            $this->downloadManager
+                ->method('update')
+                ->with($initial, $target, '/tmp/cms-composer-installer-test/typo3_src')
+                ->will($this->returnValue(\React\Promise\resolve()));
+        }
+
+        $installer->update($this->repository, $initial, $target);
     }
 }
