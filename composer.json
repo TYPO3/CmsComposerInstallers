@@ -44,7 +44,7 @@
     "require-dev": {
         "composer/composer": "1.2.*@dev || 2.0.*@dev",
         "overtrue/phplint": "^2.0",
-        "phpunit/phpunit": "^6.5 || ^7.5 || ^8.5"
+        "phpunit/phpunit": "^8.5"
     },
     "conflict": {
         "composer/installers": "<1.0.24 || >1.0.24"
