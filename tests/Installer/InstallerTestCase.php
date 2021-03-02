@@ -62,7 +62,7 @@ class InstallerTestCase extends TestCase
      */
     protected $io;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->previousDirectory = getcwd();
         $this->rootDirectory = TestCase::getUniqueTmpDirectory();
@@ -87,7 +87,7 @@ class InstallerTestCase extends TestCase
         $this->io = $this->createMock(IOInterface::class);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         chdir($this->previousDirectory);
         if (is_dir($this->rootDirectory)) {
