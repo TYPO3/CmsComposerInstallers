@@ -44,7 +44,7 @@ class ExtensionKeyResolver
         if ($io instanceof IOInterface) {
             $packageName = $package->getName();
             $message = <<<MESSAGE
-The TYPO3 extension package "${packageName}", does not define an extension key in its composer.json. Specifying the extension key will be mandatory in future versions of TYPO3 (see: https://docs.typo3.org/m/typo3/reference-coreapi/master/en-us/ExtensionArchitecture/ComposerJson/Index.html#extra)
+The TYPO3 extension package "${packageName}", does not define an extension key in its composer.json. Please report this to the author of this package. Specifying the extension key will be mandatory in future versions of TYPO3 (see: https://docs.typo3.org/m/typo3/reference-coreapi/master/en-us/ExtensionArchitecture/ComposerJson/Index.html#extra)
 MESSAGE;
             $io->writeError(sprintf('<comment>%s</comment>', $message));
         }
