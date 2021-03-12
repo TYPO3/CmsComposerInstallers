@@ -79,7 +79,7 @@ class ExtensionKeyResolverTest extends TestCase
         $output = $io->getOutput();
 
         $this->assertSame('somepackage_extension', $extensionKey);
-        $this->assertTrue(false !== strpos($output, 'TYPO3 Extension Package "somevendor/somepackage-extension", does not define extension key in composer.json.'));
+        $this->assertTrue(false !== strpos($output, 'The TYPO3 extension package "somevendor/somepackage-extension", does not define an extension key in its composer.json.'));
         $this->assertTrue(false !== strpos($output, 'Specifying the extension key will be mandatory in future versions of TYPO3'));
     }
 }

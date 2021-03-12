@@ -42,15 +42,11 @@ class ExtensionKeyResolver
             return $extra['typo3/cms']['extension-key'];
         }
         if ($io instanceof IOInterface) {
-            $io->writeError(
-                [
-                    sprintf(
-                        '<comment>TYPO3 Extension Package "%s", does not define extension key in composer.json.</comment>',
-                        $package->getName()
-                    ),
-                    '<comment>Specifying the extension key will be mandatory in future versions of TYPO3 (see: https://docs.typo3.org/m/typo3/reference-coreapi/master/en-us/ExtensionArchitecture/ComposerJson/Index.html#extra)</comment>',
-                ]
-            );
+            $packageName = $package->getName();
+            $message = <<<MESSAGE
+The TYPO3 extension package "${packageName}", does not define an extension key in its composer.json. Specifying the extension key will be mandatory in future versions of TYPO3 (see: https://docs.typo3.org/m/typo3/reference-coreapi/master/en-us/ExtensionArchitecture/ComposerJson/Index.html#extra)
+MESSAGE;
+            $io->writeError(sprintf('<comment>%s</comment>', $message));
         }
         foreach ($package->getReplaces() as $link) {
             if (strpos($link->getTarget(), '/') === false) {
