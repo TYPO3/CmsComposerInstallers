@@ -13,10 +13,9 @@
  * The TYPO3 project - inspiring people to share!
  */
 
-namespace TYPO3\CMS\Composer\Util;
+namespace TYPO3\CMS\Composer\Plugin\Util;
 
 use Composer\Package\PackageInterface;
-use TYPO3\CMS\Composer\Plugin\Util\ExtensionKeyResolver;
 
 class T3xDownloaderUtility
 {
