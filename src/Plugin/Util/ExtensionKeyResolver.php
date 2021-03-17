@@ -54,7 +54,7 @@ The TYPO3 extension package "${packageName}", does not define an extension key i
 MESSAGE;
             $io->writeError(sprintf('<comment>%s</comment>', $message));
 
-            self::$packagesShownExtKeyWarning[]= $package->getName();
+            self::$packagesShownExtKeyWarning[] = $package->getName();
         }
         foreach ($package->getReplaces() as $link) {
             if (strpos($link->getTarget(), '/') === false) {
