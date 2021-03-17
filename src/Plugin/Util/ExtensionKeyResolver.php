@@ -24,6 +24,9 @@ use Composer\Package\PackageInterface;
  */
 class ExtensionKeyResolver
 {
+    /** @var string[] */
+    protected static $packagesShownExtKeyWarning = [];
+
     /**
      * Resolves the extension key from replaces or package name
      *
@@ -41,12 +44,17 @@ class ExtensionKeyResolver
         if (!empty($extra['typo3/cms']['extension-key'])) {
             return $extra['typo3/cms']['extension-key'];
         }
-        if ($io instanceof IOInterface) {
+        if (
+            $io instanceof IOInterface
+            && !in_array($package->getName(), self::$packagesShownExtKeyWarning, true)
+        ) {
             $packageName = $package->getName();
             $message = <<<MESSAGE
 The TYPO3 extension package "${packageName}", does not define an extension key in its composer.json. Please report this to the author of this package. Specifying the extension key will be mandatory in future versions of TYPO3 (see: https://docs.typo3.org/m/typo3/reference-coreapi/master/en-us/ExtensionArchitecture/ComposerJson/Index.html#extra)
 MESSAGE;
             $io->writeError(sprintf('<comment>%s</comment>', $message));
+
+            self::$packagesShownExtKeyWarning[]= $package->getName();
         }
         foreach ($package->getReplaces() as $link) {
             if (strpos($link->getTarget(), '/') === false) {
