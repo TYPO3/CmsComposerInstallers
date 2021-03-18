@@ -24,8 +24,8 @@ use Composer\Package\PackageInterface;
  */
 class ExtensionKeyResolver
 {
-    /** @var string[] */
-    protected static $packagesShownExtKeyWarning = [];
+    /** @var array<string, string> */
+    protected static $extensionKeyByPackageCache = [];
 
     /**
      * Resolves the extension key from replaces or package name
@@ -40,21 +40,21 @@ class ExtensionKeyResolver
         if (strpos($package->getType(), 'typo3-cms-') === false) {
             throw new \RuntimeException(sprintf('Tried to resolve an extension key from non extension package "%s"', $package->getName()), 1501195043);
         }
+        
+        $packageName = $package->getName();
+        if (self::$extensionKeyByPackage[$packageName] ?? false) {
+            return self::$extensionKeyByPackageCache[$packageName];
+        }
+        
         $extra = $package->getExtra();
         if (!empty($extra['typo3/cms']['extension-key'])) {
             return $extra['typo3/cms']['extension-key'];
         }
-        if (
-            $io instanceof IOInterface
-            && !in_array($package->getName(), self::$packagesShownExtKeyWarning, true)
-        ) {
-            $packageName = $package->getName();
+        if ($io instanceof IOInterface) {
             $message = <<<MESSAGE
 The TYPO3 extension package "${packageName}", does not define an extension key in its composer.json. Please report this to the author of this package. Specifying the extension key will be mandatory in future versions of TYPO3 (see: https://docs.typo3.org/m/typo3/reference-coreapi/master/en-us/ExtensionArchitecture/ComposerJson/Index.html#extra)
 MESSAGE;
             $io->writeError(sprintf('<comment>%s</comment>', $message));
-
-            self::$packagesShownExtKeyWarning[] = $package->getName();
         }
         foreach ($package->getReplaces() as $link) {
             if (strpos($link->getTarget(), '/') === false) {
@@ -63,12 +63,14 @@ MESSAGE;
             }
         }
         if (empty($extensionKey)) {
-            list(, $extensionKey) = explode('/', $package->getName(), 2);
+            list(, $extensionKey) = explode('/', $packageName, 2);
             $extensionKey = str_replace('-', '_', $extensionKey);
         }
         if (!empty($extra['installer-name'])) {
             $extensionKey = $extra['installer-name'];
         }
+        
+        self::$extensionKeyByPackageCache[$packageName] = $extensionKey;
 
         return $extensionKey;
     }
