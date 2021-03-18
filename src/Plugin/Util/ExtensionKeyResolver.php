@@ -40,12 +40,12 @@ class ExtensionKeyResolver
         if (strpos($package->getType(), 'typo3-cms-') === false) {
             throw new \RuntimeException(sprintf('Tried to resolve an extension key from non extension package "%s"', $package->getName()), 1501195043);
         }
-        
+
         $packageName = $package->getName();
         if (self::$extensionKeyByPackage[$packageName] ?? false) {
             return self::$extensionKeyByPackageCache[$packageName];
         }
-        
+
         $extra = $package->getExtra();
         if (!empty($extra['typo3/cms']['extension-key'])) {
             return $extra['typo3/cms']['extension-key'];
@@ -69,7 +69,7 @@ MESSAGE;
         if (!empty($extra['installer-name'])) {
             $extensionKey = $extra['installer-name'];
         }
-        
+
         self::$extensionKeyByPackageCache[$packageName] = $extensionKey;
 
         return $extensionKey;
