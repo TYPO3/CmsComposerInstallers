@@ -18,7 +18,7 @@ namespace TYPO3\CMS\Composer\Installer\Downloader;
 use Composer\Downloader\ArchiveDownloader;
 use Composer\Downloader\ChangeReportInterface;
 use Composer\Package\PackageInterface;
-use TYPO3\CMS\Composer\Util\T3xDownloaderUtility;
+use TYPO3\CMS\Composer\Plugin\Util\T3xDownloaderUtility;
 
 /**
  * TYPO3 CMS Extension Downloader
