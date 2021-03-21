@@ -42,7 +42,7 @@ class ExtensionKeyResolver
         }
 
         $packageName = $package->getName();
-        if (self::$extensionKeyByPackage[$packageName] ?? false) {
+        if (self::$extensionKeyByPackageCache[$packageName] ?? false) {
             return self::$extensionKeyByPackageCache[$packageName];
         }
 
