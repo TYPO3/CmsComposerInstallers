@@ -9,6 +9,26 @@ which is suitable for TYPO3 to work correctly.
 
 The behavior of the installer can be influenced by configuration in the `extra` section of the root `composer.json`
 
+## Options for extensions
+
+### `extension-key`
+
+**required**
+
+```
+  "extra": {
+      "typo3/cms": {
+          "extension-key": "bootstrap_package"
+      }
+    }
+```
+
+Specify the extension key.
+
+## Options for project composer.json
+
+#### `web-dir`
+
 ```
   "extra": {
       "typo3/cms": {
@@ -17,7 +37,6 @@ The behavior of the installer can be influenced by configuration in the `extra` 
     }
 ```
 
-#### `web-dir`
 You can specify a relative path from the base directory, where the public document root should be located.
 
 *The default value* is `"public"`, which means a `"public"` directory at the same level as your root `composer.json`.
