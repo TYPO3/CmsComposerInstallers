@@ -51,7 +51,7 @@ jobs:
               run: composer test:php:lint
 
             - name: CGL
-              run: php-cs-fixer fix --dry-run --verbose
+              run: vendor/bin/php-cs-fixer fix --dry-run --verbose
 
             - name: Unit Tests
               run: composer test:php:unit
