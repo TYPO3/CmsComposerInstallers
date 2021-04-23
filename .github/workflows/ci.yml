@@ -24,6 +24,8 @@ jobs:
 
             - name: Setup PHP version and composer
               uses: shivammathur/setup-php@v2
+              env:
+                  COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               with:
                   php-version: ${{ matrix.php-versions }}
                   tools: composer:${{ matrix.composer-versions }}, php-cs-fixer
@@ -41,6 +43,10 @@ jobs:
               if: ${{ matrix.composer-versions == 'v2' }}
               run: composer require "composer/composer:^2.0" --dev --no-update
 
+            - name: Setup TYPO3
+              if: ${{ matrix.composer-versions == 'v2' && matrix.php-versions == '7.4' || matrix.composer-versions == 'v2' && matrix.php-versions == '8.0' }}
+              run: ./tests/setup-testing.sh
+
             - name: Install composer dependencies
               run: composer install
 
@@ -55,3 +61,7 @@ jobs:
 
             - name: Unit Tests
               run: composer test:php:unit
+
+            - name: Unit Tests Packages Files
+              if: ${{ matrix.composer-versions == 'v2' && matrix.php-versions == '7.4' || matrix.composer-versions == 'v2' && matrix.php-versions == '8.0' }}
+              run: composer test:php:unit tests/Plugin/ActiveExtensionsTest.php tests/Plugin/PackageStatesTest.php

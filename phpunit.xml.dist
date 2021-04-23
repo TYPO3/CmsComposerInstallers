@@ -21,6 +21,8 @@
     <testsuites>
         <testsuite name="installer-unit-tests">
             <directory>tests</directory>
+            <exclude>./tests/Plugin/ActiveExtensionsTest.php</exclude>
+            <exclude>./tests/Plugin/PackageStatesTest.php</exclude>
         </testsuite>
     </testsuites>
 

@@ -23,6 +23,7 @@ use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
 use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\PluginImplementation;
+use TYPO3\CMS\Composer\Plugin\Util\ComposerPackageManager;
 
 /**
  * The plugin that registers the installers (registered by extra key in composer.json)
@@ -117,6 +118,7 @@ class Plugin implements PluginInterface, EventSubscriberInterface
                 break;
             case ScriptEvents::POST_AUTOLOAD_DUMP:
                 $this->pluginImplementation->postAutoloadDump();
+                $this->generatePackageFiles($event);
                 break;
         }
     }
@@ -138,5 +140,15 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             $io->writeError('<error>TYPO3 installers plugin will be disabled!</error>');
             throw new \RuntimeException('TYPO3 Installer disabled!', 1469105842);
         }
+    }
+
+    /**
+     *  @param Event $event The Composer event.
+     */
+    public function generatePackageFiles(Event $event)
+    {
+        $event->getIO()->write('Write PackageStates.php/ActiveExtensions.php ...');
+        $packageManager = new ComposerPackageManager($event);
+        $packageManager->initialize();
     }
 }
