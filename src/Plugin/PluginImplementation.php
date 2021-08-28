@@ -64,17 +64,21 @@ class PluginImplementation
         $pluginConfig = PluginConfig::load($this->composer, $io);
 
         $this->scriptDispatcher = $scriptDispatcher ?: new ScriptDispatcher($event);
+        $includeFileTokens = [
+            new BaseDirToken($io, $pluginConfig),
+            new AppDirToken($io, $pluginConfig),
+            new WebDirToken($io, $pluginConfig),
+            new RootDirToken($io, $pluginConfig),
+        ];
+        // Disable Composer package management when testing testing extensions as the testing framework operates in non Composer mode
+        if ($this->composer->getPackage()->getType() !== 'typo3-cms-extension' || strpos((getenv('TYPO3_CONTEXT') ?: 'Production'), 'ExtensionTesting') === false) {
+            $includeFileTokens[] = new ComposerModeToken($io, $pluginConfig);
+        }
         $this->includeFile = $includeFile
             ?: new IncludeFile(
                 $io,
                 $this->composer,
-                [
-                    new BaseDirToken($io, $pluginConfig),
-                    new AppDirToken($io, $pluginConfig),
-                    new WebDirToken($io, $pluginConfig),
-                    new RootDirToken($io, $pluginConfig),
-                    new ComposerModeToken($io, $pluginConfig),
-                ],
+                $includeFileTokens,
                 $fileSystem
             );
     }
