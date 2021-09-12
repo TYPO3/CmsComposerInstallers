@@ -85,7 +85,7 @@ class ExtensionInstallerTest extends InstallerTestCase
                         ],
                     ],
                 ],
-                'expectedPath' => '/public/typo3/sysext/core',
+                'expectedPath' => '/root/public/typo3/sysext/core',
             ],
             [
                 'packageData' => [
@@ -97,7 +97,7 @@ class ExtensionInstallerTest extends InstallerTestCase
                         ],
                     ],
                 ],
-                'expectedPath' => '/public/typo3conf/ext/extension',
+                'expectedPath' => '/root/public/typo3conf/ext/extension',
             ],
         ];
     }

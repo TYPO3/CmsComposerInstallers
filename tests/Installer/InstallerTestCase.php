@@ -98,11 +98,11 @@ class InstallerTestCase extends TestCase
 
     protected function createComposerConfig(): Config
     {
-        $config = new Config();
+        $config = new Config(true, '/root');
         $config->merge([
             'config' => [
-                'vendor-dir' => $this->rootDirectory . DIRECTORY_SEPARATOR . 'vendor',
-                'bin-dir' => $this->rootDirectory . DIRECTORY_SEPARATOR . 'bin',
+                'vendor-dir' => $this->rootDirectory . '/vendor',
+                'bin-dir' => $this->rootDirectory . '/bin',
             ],
             'repositories' => ['packagist' => false],
         ]);

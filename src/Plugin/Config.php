@@ -27,12 +27,13 @@ use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 class Config
 {
     const RELATIVE_PATHS = 1;
+    const NORMALIZE_PATHS = 2;
 
     /**
      * @var array
      */
     public static $defaultConfig = [
-        'web-dir' => 'public',
+        'web-dir' => '{$app-dir}/public',
         'root-dir' => '{$web-dir}',
         'app-dir' => '{$base-dir}',
         // The following values are for internal use only and do not represent public API
@@ -82,16 +83,17 @@ class Config
      * @param  int $flags Options (see class constants)
      * @return mixed
      */
-    public function get($key, $flags = 0)
+    public function get($key, $flags = null)
     {
+        $flags = $flags ?? self::NORMALIZE_PATHS;
         switch ($key) {
             case 'web-dir':
             case 'root-dir':
             case 'app-dir':
                 $val = rtrim($this->process($this->config[$key], $flags), '/\\');
-                return ($flags & self::RELATIVE_PATHS === 1) ? $val : $this->realpath($val);
+                return (($flags & self::RELATIVE_PATHS) === self::RELATIVE_PATHS) ? $val : $this->realpath($val, $flags);
             case 'base-dir':
-                return ($flags & self::RELATIVE_PATHS === 1) ? '' : $this->realpath($this->baseDir);
+                return (($flags & self::RELATIVE_PATHS) === self::RELATIVE_PATHS) ? '' : $this->realpath($this->baseDir, $flags);
             default:
                 if (!isset($this->config[$key])) {
                     return null;
@@ -152,7 +154,7 @@ class Config
 
         return preg_replace_callback(
             '#\{\$(.+)\}#',
-            function ($match) use ($config, $flags) {
+            static function ($match) use ($config, $flags) {
                 return $config->get($match[1], $flags);
             },
             $value
@@ -165,9 +167,10 @@ class Config
      * Since the dirs might not exist yet we can not call realpath or it will fail.
      *
      * @param  string $path
+     * @param  int $flags Options (see class constants)
      * @return string
      */
-    protected function realpath($path)
+    protected function realpath($path, int $flags = 0)
     {
         if ($path === '') {
             return $this->baseDir;
@@ -176,7 +179,7 @@ class Config
             return $path;
         }
 
-        return $this->baseDir . '/' . $path;
+        return (($flags & self::NORMALIZE_PATHS) === self::NORMALIZE_PATHS) ? (new Filesystem())->normalizePath($this->baseDir . '/' . $path) : $this->baseDir . '/' . $path;
     }
 
     /**
@@ -205,7 +208,13 @@ class Config
         return $config;
     }
 
-    private static function handleRootPackageExtraConfig(IOInterface $io, RootPackageInterface $rootPackage): array
+    /**
+     * @internal This method isn't of much use, so just don't
+     * @param IOInterface $io
+     * @param RootPackageInterface $rootPackage
+     * @return array
+     */
+    public static function handleRootPackageExtraConfig(IOInterface $io, RootPackageInterface $rootPackage): array
     {
         if ($rootPackage->getName() === 'typo3/cms') {
             // Configuration for the web dir is different, in case
@@ -219,18 +228,63 @@ class Config
         if (empty($typo3Config)) {
             return $rootPackageExtraConfig;
         }
-        $fileSystem = new Filesystem();
-        $config = new static('/fake/root');
+        $config = new static('/composer/root');
         $config->merge($rootPackageExtraConfig);
         $rootDir = $config->get('root-dir');
+        $webDir = $config->get('web-dir');
         $appDir = $config->get('app-dir');
-        $relativePath = $fileSystem->findShortestPath($appDir, $rootDir, true);
-        if ($relativePath === './' || strpos($relativePath, '..') === 0) {
-            unset($rootPackageExtraConfig['typo3/cms']['app-dir']);
-            $io->writeError('<warning>TYPO3 public path must be a sub directory of application path. Resetting app-dir config to default.</warning>');
+        $baseDir = $config->get('base-dir');
+        $defaults = false;
+        if ($baseDir !== $appDir && !self::isSubdirectoryOf($baseDir, $appDir)) {
+            $defaults = true;
+            $io->warning('TYPO3 "app-dir" must be a sub directory or same as Composer root directory (base-dir).');
+        }
+        if (!self::isSubdirectoryOf($appDir, $webDir)) {
+            $defaults = true;
+            $io->warning(sprintf('TYPO3 "web-dir" must be a sub directory of %s.', empty($typo3Config['app-dir']) ? 'Composer root directory (base-dir)' : '"app-dir"'));
+        }
+        if (self::isSubdirectoryOf($webDir, $rootDir)) {
+            $defaults = true;
+            $io->warning('TYPO3 "root-dir" must not be a sub directory of "web-dir".');
+        }
+        if (!self::isSubdirectoryOf($appDir, $rootDir)) {
+            $defaults = true;
+            if (!empty($typo3Config['root-dir'])) {
+                // Only show this warning of root-dir was explicitly set and not implicitly derived from web-dir
+                $io->warning(sprintf('TYPO3 "root-dir" must be a sub directory of %s.', empty($typo3Config['app-dir']) ? 'Composer root directory (base-dir)' : '"app-dir"'));
+            }
+        }
+        if ($baseDir !== $appDir && $rootPackage->getType() !== 'typo3-cms-extension') {
+            $io->warning('Changing TYPO3 "app-dir" is deprecated and will not work any more in future TYPO3 versions.');
         }
 
+        if ($defaults) {
+            $io->writeError(sprintf('> typo3/cms-composer-installers: configured base-dir: %s', $baseDir), true, $io::VERY_VERBOSE);
+            $io->writeError(sprintf('> typo3/cms-composer-installers: configured app-dir: %s', $appDir), true, $io::VERY_VERBOSE);
+            $io->writeError(sprintf('> typo3/cms-composer-installers: configured root-dir: %s', $rootDir), true, $io::VERY_VERBOSE);
+            $io->writeError(sprintf('> typo3/cms-composer-installers: configured web-dir: %s', $webDir), true, $io::VERY_VERBOSE);
+            $io->warning('Due to errors in TYPO3 path configuration, default configuration is used');
+        }
+        $rootPackageExtraConfig = $defaults ? [] : $rootPackageExtraConfig;
+
+        $config = new static('/composer/root');
+        $config->merge($rootPackageExtraConfig);
+        $rootDir = $config->get('root-dir');
+        $webDir = $config->get('web-dir');
+        $appDir = $config->get('app-dir');
+        $baseDir = $config->get('base-dir');
+
+        $io->writeError(sprintf('> typo3/cms-composer-installers: using base-dir: %s', $baseDir), true, $io::VERY_VERBOSE);
+        $io->writeError(sprintf('> typo3/cms-composer-installers: using app-dir: %s', $appDir), true, $io::VERY_VERBOSE);
+        $io->writeError(sprintf('> typo3/cms-composer-installers: using root-dir: %s', $rootDir), true, $io::VERY_VERBOSE);
+        $io->writeError(sprintf('> typo3/cms-composer-installers: using web-dir: %s', $webDir), true, $io::VERY_VERBOSE);
+
         return $rootPackageExtraConfig;
+    }
+
+    private static function isSubdirectoryOf(string $path, string $directoryToTest): bool
+    {
+        return $path !== $directoryToTest && strpos($directoryToTest, $path) === 0;
     }
 
     /**

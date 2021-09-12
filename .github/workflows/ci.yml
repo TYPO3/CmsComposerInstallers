@@ -11,12 +11,9 @@ jobs:
             fail-fast: false
             matrix:
                 php-versions:
-                    - "7.2"
-                    - "7.3"
                     - "7.4"
                     - "8.0"
                 composer-versions:
-                    - "v1"
                     - "v2"
         steps:
             - name: Checkout Code
