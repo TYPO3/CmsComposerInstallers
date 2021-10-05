@@ -16,70 +16,52 @@ declare(strict_types=1);
 
 namespace TYPO3\CMS\ComposerTest\Installer;
 
-use Composer\IO\BufferIO;
+use Composer\Package\Package;
+use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Composer\Plugin\Util\ExtensionKeyResolver;
-use TYPO3\CMS\ComposerTest\TestCase;
 
 class ExtensionKeyResolverTest extends TestCase
 {
     /**
      * @dataProvider resolveDataProvider
+     * @test
      */
-    public function testResolve(array $packageData, string $expectedExtensionKey)
+    public function extensionKeyIsResolvedCorrectly(array $packageData, string $expectedExtensionKey)
     {
-        /** @var Package $package */
-        $package = $this->createPackage($packageData['name'], $packageData['type']);
+        $package = new Package($packageData['name'], 'dev-develop', 'dev-develop');
+        $package->setType($packageData['type']);
         $package->setExtra($packageData['extra'] ?? []);
         $extensionKey = ExtensionKeyResolver::resolve($package);
-        $this->assertSame($expectedExtensionKey, $extensionKey);
+        self::assertSame($expectedExtensionKey, $extensionKey);
     }
 
-    public function resolveDataProvider()
+    public function resolveDataProvider(): array
     {
         return [
-            'extensionkey' => [
+            'extension' => [
                 'packageData' => [
                     'name' => 'somevendor/somepackage-extension',
                     'type' => 'typo3-cms-extension',
                     'extra' => [
                         'typo3/cms' => [
-                            'extension-key' => 'extension',
+                            'extension-key' => 'extension_with_key',
                         ],
                     ],
                 ],
-                'expectedExtensionKey' => 'extension',
+                'expectedExtensionKey' => 'extension_with_key',
             ],
-            'no-extensionkey' => [
+            'composer package' => [
                 'packageData' => [
-                    'name' => 'somevendor/somepackage-extra',
-                    'type' => 'typo3-cms-extension',
-                ],
-                'expectedExtensionKey' => 'somepackage_extra',
-            ],
-            'installername' => [
-                'packageData' => [
-                    'name' => 'somevendor/somepackage-installername',
-                    'type' => 'typo3-cms-extension',
+                    'name' => 'somevendor/somepackage-extension',
+                    'type' => 'library',
                     'extra' => [
-                        'installer-name' => 'installername',
+                        'typo3/cms' => [
+                            'extension-key' => 'extension_with_key',
+                        ],
                     ],
                 ],
-                'expectedExtensionKey' => 'installername',
+                'expectedExtensionKey' => 'extension_with_key',
             ],
         ];
-    }
-
-    public function testDeprecationMessage()
-    {
-        /** @var Package $package */
-        $package = $this->createPackage('somevendor/somepackage-extension', 'typo3-cms-extension');
-
-        $io = new BufferIO();
-        $extensionKey = ExtensionKeyResolver::resolve($package, $io);
-        $output = $io->getOutput();
-
-        $this->assertSame('somepackage_extension', $extensionKey);
-        $this->assertTrue(false !== strpos($output, 'The TYPO3 extension package "somevendor/somepackage-extension", does not define an extension key in its composer.json.'));
-        $this->assertTrue(false !== strpos($output, 'Specifying the extension key will be mandatory in future versions of TYPO3'));
     }
 }
