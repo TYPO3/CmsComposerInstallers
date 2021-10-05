@@ -38,11 +38,11 @@
         "netresearch/composer-installers": "*"
     },
     "require": {
-        "php": "^7.2 || ^8.0",
-        "composer-plugin-api": "^1.0.0 || ^2.0.0"
+        "php": "^7.4 || ^8.0",
+        "composer-plugin-api": "^2.1.0"
     },
     "require-dev": {
-        "composer/composer": "1.2.*@dev || 2.0.*@dev",
+        "composer/composer": "^2.1",
         "overtrue/phplint": "^2.0",
         "phpunit/phpunit": "^8.5",
         "friendsofphp/php-cs-fixer": "^2.18"
