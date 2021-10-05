@@ -10,7 +10,6 @@
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false"
-         bootstrap="tests/bootstrap.php"
          beStrictAboutTestsThatDoNotTestAnything="true"
          failOnWarning="true"
          failOnRisky="true"
