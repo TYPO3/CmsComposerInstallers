@@ -19,7 +19,7 @@ use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\IO\NullIO;
 use Composer\Package\RootPackageInterface;
-use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
+use Composer\Util\Filesystem;
 
 /**
  * Configuration wrapper to easily access extra configuration for installer
