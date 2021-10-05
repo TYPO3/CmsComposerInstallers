@@ -21,15 +21,10 @@ use Composer\IO\IOInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
-use TYPO3\CMS\Composer\Plugin\Config;
 use TYPO3\CMS\Composer\Plugin\PluginImplementation;
 
 /**
- * The plugin that registers the installers (registered by extra key in composer.json)
- *
- * @author Christian Opitz <christian.opitz at netresearch.de>
- * @author Thomas Maroschik <tmaroschik@dfau.de>
- * @author Helmut Hummel <info@helhum.io>
+ * The plugin that registers some event handlers
  */
 class Plugin implements PluginInterface, EventSubscriberInterface
 {
@@ -59,19 +54,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
      */
     public function activate(Composer $composer, IOInterface $io)
     {
-        $this->ensureComposerConstraints($io);
-        $pluginConfig = Config::load($composer, $io);
-        $composer
-            ->getInstallationManager()
-            ->addInstaller(
-                new ExtensionInstaller($io, $composer, $pluginConfig)
-            );
-        $composer
-            ->getInstallationManager()
-            ->addInstaller(
-                new CoreInstaller($io, $composer, 'typo3-cms-core')
-            );
-
         $composer->getEventDispatcher()->addSubscriber($this);
     }
 
@@ -118,25 +100,6 @@ class Plugin implements PluginInterface, EventSubscriberInterface
             case ScriptEvents::POST_AUTOLOAD_DUMP:
                 $this->pluginImplementation->postAutoloadDump();
                 break;
-        }
-    }
-
-    /**
-     * @param IOInterface $io
-     */
-    private function ensureComposerConstraints(IOInterface $io)
-    {
-        if (
-            !class_exists(\Composer\Installer\BinaryInstaller::class)
-            || !interface_exists(\Composer\Installer\BinaryPresenceInterface::class)
-        ) {
-            $io->writeError('');
-            $io->writeError(sprintf(
-                '<error>Composer version (%s) you are using is too low. Please upgrade Composer to 1.2.0 or higher!</error>',
-                Composer::VERSION
-            ));
-            $io->writeError('<error>TYPO3 installers plugin will be disabled!</error>');
-            throw new \RuntimeException('TYPO3 Installer disabled!', 1469105842);
         }
     }
 }
