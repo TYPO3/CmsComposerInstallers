@@ -38,6 +38,11 @@ class ExtensionInstaller extends LibraryInstaller
      */
     private $systemExtensionDir;
 
+    /**
+     * @var bool
+     */
+    private $legacyMode;
+
     public function __construct(
         IOInterface $io,
         Composer $composer,
@@ -49,6 +54,7 @@ class ExtensionInstaller extends LibraryInstaller
         $rootDirectory = $this->filesystem->normalizePath($pluginConfig->get('root-dir'));
         $this->extensionDir = $rootDirectory . '/typo3conf/ext';
         $this->systemExtensionDir = $rootDirectory . '/typo3/sysext';
+        $this->legacyMode = ($pluginConfig->get('legacy-mode') !== false);
     }
 
     /**
@@ -71,11 +77,15 @@ class ExtensionInstaller extends LibraryInstaller
      */
     public function getInstallPath(PackageInterface $package)
     {
-        $extensionInstallDir = ExtensionKeyResolver::resolve($package, $this->io);
-        if ($package->getType() === 'typo3-cms-framework') {
-            return $this->systemExtensionDir . DIRECTORY_SEPARATOR . $extensionInstallDir;
+        if ($this->legacyMode) {
+            $extensionInstallDir = ExtensionKeyResolver::resolve($package, $this->io);
+            if ($package->getType() === 'typo3-cms-framework') {
+                return $this->systemExtensionDir . DIRECTORY_SEPARATOR . $extensionInstallDir;
+            }
+            return $this->extensionDir . DIRECTORY_SEPARATOR . $extensionInstallDir;
         }
-        return $this->extensionDir . DIRECTORY_SEPARATOR . $extensionInstallDir;
+
+        return parent::getInstallPath($package);
     }
 
     public function cleanup($type, PackageInterface $package, PackageInterface $prevPackage = null)

@@ -35,6 +35,7 @@ class Config
         'web-dir' => 'public',
         'root-dir' => '{$web-dir}',
         'app-dir' => '{$base-dir}',
+        'legacy-mode' => true,
         // The following values are for internal use only and do not represent public API
         // Names and behaviour of these values might change without notice
         'composer-mode' => true,

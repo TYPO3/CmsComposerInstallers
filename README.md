@@ -57,6 +57,26 @@ subdirectory of `app-dir`. Otherwise the `app-dir` directive will be ignored.
 *The default value* is the base directory, which means at the same level as
 your root `composer.json`.
 
+### `legacy-mode`
+
+By default all TYPO3 Extensions are installed to `typo3/sysext` or
+`typo3conf/ext`. Since TYPO3 11.5.0 there is the experimental feature of
+installing all extensions to the vendor folder.
+
+You can change the default behavior by adding this setting to your project's
+`composer.json`:
+
+```json
+    "extra": {
+        "typo3/cms": {
+            "legacy-mode": false
+        }
+    }
+```
+
+*The default value* is `true`, which means extensions are installed to
+`typo3/sysext` or `typo3conf/ext`.
+
 ## Feedback / Bug reports / Contribution
 
 Bug reports, feature requests and pull requests are welcome in the GitHub
