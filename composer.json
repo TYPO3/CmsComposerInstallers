@@ -1,5 +1,5 @@
 {
-    "name": "typo3/cms-composer-installers",
+    "name": "gstypo3/cms-composer-installers",
     "type": "composer-plugin",
     "description": "TYPO3 CMS Installers",
     "keywords": [
@@ -35,7 +35,8 @@
     },
     "replace": {
         "lw/typo3cms-installers": "*",
-        "netresearch/composer-installers": "*"
+        "netresearch/composer-installers": "*",
+        "typo3/cms-composer-installers": "3.1.1"
     },
     "require": {
         "php": "^7.2 || ^8.0",
@@ -66,7 +67,7 @@
     "extra": {
         "class": "TYPO3\\CMS\\Composer\\Installer\\Plugin",
         "branch-alias": {
-            "dev-master": "3.1.x-dev"
+            "dev-master": "4.0.x-dev"
         }
     }
 }
