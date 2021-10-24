@@ -4,24 +4,26 @@
          backupGlobals="false"
          backupStaticAttributes="false"
          colors="true"
+         convertDeprecationsToExceptions="true"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
          processIsolation="false"
          stopOnFailure="false"
          bootstrap="tests/bootstrap.php"
+         beStrictAboutTestsThatDoNotTestAnything="true"
+         failOnWarning="true"
+         failOnRisky="true"
 >
-
-    <coverage processUncoveredFiles="true">
-        <include>
-            <directory suffix=".php">src</directory>
-        </include>
-    </coverage>
 
     <testsuites>
         <testsuite name="installer-unit-tests">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
+
+    <php>
+        <ini name="error_reporting" value="E_ALL" />
+    </php>
 
 </phpunit>
