@@ -26,7 +26,7 @@ class ExtensionKeyResolverTest extends TestCase
      * @dataProvider resolveDataProvider
      * @test
      */
-    public function extensionKeyIsResolvedCorrectly(array $packageData, string $expectedExtensionKey)
+    public function extensionKeyIsResolvedCorrectly(array $packageData, string $expectedExtensionKey): void
     {
         $package = new Package($packageData['name'], 'dev-develop', 'dev-develop');
         $package->setType($packageData['type']);
@@ -35,33 +35,51 @@ class ExtensionKeyResolverTest extends TestCase
         self::assertSame($expectedExtensionKey, $extensionKey);
     }
 
-    public function resolveDataProvider(): array
+    public function resolveDataProvider(): \Generator
     {
-        return [
-            'extension' => [
-                'packageData' => [
-                    'name' => 'somevendor/somepackage-extension',
-                    'type' => 'typo3-cms-extension',
-                    'extra' => [
-                        'typo3/cms' => [
-                            'extension-key' => 'extension_with_key',
-                        ],
+        yield 'extension' => [
+            'packageData' => [
+                'name' => 'somevendor/somepackage-extension',
+                'type' => 'typo3-cms-extension',
+                'extra' => [
+                    'typo3/cms' => [
+                        'extension-key' => 'extension_with_key',
                     ],
                 ],
-                'expectedExtensionKey' => 'extension_with_key',
             ],
-            'composer package' => [
-                'packageData' => [
-                    'name' => 'somevendor/somepackage-extension',
-                    'type' => 'library',
-                    'extra' => [
-                        'typo3/cms' => [
-                            'extension-key' => 'extension_with_key',
-                        ],
-                    ],
-                ],
-                'expectedExtensionKey' => 'extension_with_key',
-            ],
+            'expectedExtensionKey' => 'extension_with_key',
         ];
+
+        yield 'composer package' => [
+            'packageData' => [
+                'name' => 'somevendor/somepackage-extension',
+                'type' => 'library',
+                'extra' => [
+                    'typo3/cms' => [
+                        'extension-key' => 'extension_with_key',
+                    ],
+                ],
+            ],
+            'expectedExtensionKey' => 'extension_with_key',
+        ];
+
+        yield 'composer package without extra' => [
+            'packageData' => [
+                'name' => 'somevendor/somepackage-extension',
+                'type' => 'library',
+            ],
+            'expectedExtensionKey' => 'somevendor/somepackage-extension',
+        ];
+    }
+
+    /**
+     * @test
+     */
+    public function extensionKeyResolvingThrowsExceptionIfKeyNotSetInExtra(): void
+    {
+        $this->expectException(\RuntimeException::class);
+        $package = new Package('foo/bar', 'dev-develop', 'dev-develop');
+        $package->setType('typo3-cms-extension');
+        ExtensionKeyResolver::resolve($package);
     }
 }
