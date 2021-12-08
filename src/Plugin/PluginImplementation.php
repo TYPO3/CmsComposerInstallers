@@ -18,6 +18,7 @@ namespace TYPO3\CMS\Composer\Plugin;
 
 use Composer\Composer;
 use Composer\Script\Event;
+use Composer\Util\Filesystem;
 use TYPO3\CMS\Composer\Plugin\Config as PluginConfig;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\AppDirToken;
@@ -26,7 +27,6 @@ use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\ComposerModeToken;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\RootDirToken;
 use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\WebDirToken;
 use TYPO3\CMS\Composer\Plugin\Core\ScriptDispatcher;
-use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
 
 /**
  * Implementation of the Plugin to make further changes more robust on Composer updates

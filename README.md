@@ -44,19 +44,6 @@ document root should be located.
 *The default value* is `"public"`, which means a `"public"` directory at the
 same level as your root `composer.json`.
 
-### `app-dir`
-
-You can specify a relative path from the base directory, where the TYPO3
-application directory should be located. This directory will contain the TYPO3
-folders `var` and `config`.
-
-It is **not** recommended to change this directory. If you have to, e.g. to
-simplify a CI setup for TYPO3 extensions, the `web-dir` path **must** be a
-subdirectory of `app-dir`. Otherwise the `app-dir` directive will be ignored.
-
-*The default value* is the base directory, which means at the same level as
-your root `composer.json`.
-
 ## Feedback / Bug reports / Contribution
 
 Bug reports, feature requests and pull requests are welcome in the GitHub

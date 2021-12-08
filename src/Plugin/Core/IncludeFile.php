@@ -34,10 +34,12 @@ class IncludeFile
      * @var Filesystem
      */
     private $filesystem;
+
     /**
      * @var IOInterface
      */
     private $io;
+
     /**
      * @var Composer
      */

@@ -19,7 +19,7 @@ use Composer\Composer;
 use Composer\IO\IOInterface;
 use Composer\IO\NullIO;
 use Composer\Package\RootPackageInterface;
-use TYPO3\CMS\Composer\Plugin\Util\Filesystem;
+use Composer\Util\Filesystem;
 
 /**
  * Configuration wrapper to easily access extra configuration for installer
@@ -219,15 +219,21 @@ class Config
         if (empty($typo3Config)) {
             return $rootPackageExtraConfig;
         }
+        if (isset($rootPackageExtraConfig['typo3/cms']['app-dir'])) {
+            $io->warning('Changing app-dir is not supported any more. TYPO3 application dir will always be set to Composer root directory');
+        }
+        if (isset($rootPackageExtraConfig['typo3/cms']['root-dir'])) {
+            $io->warning('Changing root-dir is not supported any more. TYPO3 root-dir will always be the same as web-dir');
+        }
+        unset($rootPackageExtraConfig['typo3/cms']['root-dir'], $rootPackageExtraConfig['typo3/cms']['app-dir']);
         $fileSystem = new Filesystem();
         $config = new static('/fake/root');
         $config->merge($rootPackageExtraConfig);
-        $rootDir = $config->get('root-dir');
-        $appDir = $config->get('app-dir');
-        $relativePath = $fileSystem->findShortestPath($appDir, $rootDir, true);
-        if ($relativePath === './' || strpos($relativePath, '..') === 0) {
-            unset($rootPackageExtraConfig['typo3/cms']['app-dir']);
-            $io->writeError('<warning>TYPO3 public path must be a sub directory of application path. Resetting app-dir config to default.</warning>');
+        $baseDir = $fileSystem->normalizePath($config->get('base-dir'));
+        $webDir = $fileSystem->normalizePath($config->get('web-dir'));
+        if (strpos($webDir, $baseDir) !== 0) {
+            unset($rootPackageExtraConfig['typo3/cms']['web-dir']);
+            $io->writeError('<warning>TYPO3 public path must be a subdirectory of Composer root directory. Resetting web-dir config to default.</warning>');
         }
 
         return $rootPackageExtraConfig;
