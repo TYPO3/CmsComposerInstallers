@@ -16,9 +16,14 @@ jobs:
                     - "7.4"
                     - "8.0"
                     - "8.1"
+                    - "8.2"
                 composer-versions:
                     - "v1"
                     - "v2"
+                exclude:
+                    - php-versions: "8.2"
+                      composer-versions: "v1"
+
         steps:
             - name: Checkout Code
               uses: actions/checkout@v2
@@ -43,7 +48,12 @@ jobs:
               run: composer require "composer/composer:^2.0" --dev --no-update
 
             - name: Install composer dependencies
-              run: composer install
+              if: ${{ matrix.php-versions <= '8.1' }}
+              run: composer update
+
+            - name: Install composer dependencies PHP 8.2
+              if: ${{ matrix.php-versions > '8.1' }}
+              run: composer update --ignore-platform-req=php+
 
             - name: Info
               run: composer info
@@ -52,7 +62,7 @@ jobs:
               run: composer test:php:lint
 
             - name: CGL
-              if: ${{ matrix.php-versions != '8.1' }}
+              if: ${{ matrix.php-versions < '8.1' }}
               run: vendor/bin/php-cs-fixer fix --dry-run --verbose
 
             - name: Unit Tests
