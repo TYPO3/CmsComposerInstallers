@@ -231,7 +231,7 @@ class Config
         $config->merge($rootPackageExtraConfig);
         $baseDir = $fileSystem->normalizePath($config->get('base-dir'));
         $webDir = $fileSystem->normalizePath($config->get('web-dir'));
-        if (strpos($webDir, $baseDir) !== 0) {
+        if (!str_starts_with($webDir, $baseDir)) {
             unset($rootPackageExtraConfig['typo3/cms']['web-dir']);
             $io->writeError('<warning>TYPO3 public path must be a subdirectory of Composer root directory. Resetting web-dir config to default.</warning>');
         }

@@ -33,7 +33,7 @@ class ExtensionKeyResolver
     public static function resolve(PackageInterface $package): string
     {
         $extra = $package->getExtra();
-        if (empty($extra['typo3/cms']['extension-key']) && strpos($package->getType(), 'typo3-cms-') === 0) {
+        if (empty($extra['typo3/cms']['extension-key']) && str_starts_with($package->getType(), 'typo3-cms-')) {
             // The only reason this is enforced, is to ease the transition of extensions of type "typo3-cms-*"
             // Since the logic is removed how to derive the extension key from package name, we must enforce
             // the extension key to be set to avoid ambiguity of the extension key between previous installers versions and this one
