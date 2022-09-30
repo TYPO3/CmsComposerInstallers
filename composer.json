@@ -47,9 +47,6 @@
         "phpunit/phpunit": "^8.5",
         "friendsofphp/php-cs-fixer": "^2.18"
     },
-    "conflict": {
-        "composer/installers": "<2.0.0"
-    },
     "scripts": {
         "test:php:lint": [
             "phplint"
