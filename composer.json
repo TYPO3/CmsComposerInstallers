@@ -38,7 +38,7 @@
         "netresearch/composer-installers": "*"
     },
     "require": {
-        "php": "^7.4 || ^8.0",
+        "php": "^8.1",
         "composer-plugin-api": "^2.1.0"
     },
     "require-dev": {
@@ -46,9 +46,6 @@
         "overtrue/phplint": "^2.0",
         "phpunit/phpunit": "^8.5",
         "friendsofphp/php-cs-fixer": "^2.18"
-    },
-    "conflict": {
-        "composer/installers": "<2.0.0"
     },
     "scripts": {
         "test:php:lint": [
@@ -66,7 +63,7 @@
     "extra": {
         "class": "TYPO3\\CMS\\Composer\\Installer\\Plugin",
         "branch-alias": {
-            "dev-main": "4.0.x-dev"
+            "dev-main": "5.0.x-dev"
         }
     }
 }
