@@ -27,13 +27,17 @@ class ExtensionKeyResolver
      * Resolves the extension key from extra section
      *
      * @param PackageInterface $package
-     * @throws \RuntimeException
      * @return string
+     * @throws \RuntimeException
      */
     public static function resolve(PackageInterface $package): string
     {
         $extra = $package->getExtra();
-        if (empty($extra['typo3/cms']['extension-key']) && str_starts_with($package->getType(), 'typo3-cms-')) {
+        if (
+            empty($extra['typo3/cms']['extension-key'])
+            && str_starts_with($package->getType(), 'typo3-cms-')
+            && $package->getType() !== 'typo3-cms-documentation'
+        ) {
             // The only reason this is enforced, is to ease the transition of extensions of type "typo3-cms-*"
             // Since the logic is removed how to derive the extension key from package name, we must enforce
             // the extension key to be set to avoid ambiguity of the extension key between previous installers versions and this one
@@ -41,7 +45,11 @@ class ExtensionKeyResolver
             // The only way to avoid this, is to enforce the deprecation and require an extension key to be set.
             // This is important, as dependents of such extensions can reference paths using the key and this key must not
             // differ from different versions of the composer installers package.
-            throw new \RuntimeException(sprintf('Extension with package name "%s" does not define an extension key.', $package->getName()), 1501195043);
+            throw new \RuntimeException(sprintf(
+                'Extension with package name "%s" does not define an extension key.',
+                $package->getName()),
+                1501195043
+            );
         }
 
         return $extra['typo3/cms']['extension-key'] ?? $package->getName();
