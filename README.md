@@ -44,6 +44,8 @@ document root should be located.
 *The default value* is `"public"`, which means a `"public"` directory at the
 same level as your root `composer.json`.
 
+You may define the `web-dir` also via the environment variable `TYPO3_PATH_ROOT`, which takes precedence over the `composer.json` option._
+
 ## Feedback / Bug reports / Contribution
 
 Bug reports, feature requests and pull requests are welcome in the GitHub
