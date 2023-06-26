@@ -73,10 +73,6 @@ class Config
                 $this->config[$key] = $val;
             }
         }
-        // if web-dir is defined via TYPO3_PATH_ROOT already, stick to it
-        if (getenv('TYPO3_PATH_ROOT')) {
-            $this->config['web-dir'] = getenv('TYPO3_PATH_ROOT');
-        }
     }
 
     /**
