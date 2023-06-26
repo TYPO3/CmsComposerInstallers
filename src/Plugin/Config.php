@@ -226,6 +226,9 @@ class Config
             $io->warning('Changing root-dir is not supported any more. TYPO3 root-dir will always be the same as web-dir');
         }
         unset($rootPackageExtraConfig['typo3/cms']['root-dir'], $rootPackageExtraConfig['typo3/cms']['app-dir']);
+        if (getenv('TYPO3_COMPOSER_WEB_DIR') !== false) {
+            $rootPackageExtraConfig['typo3/cms']['web-dir'] = getenv('TYPO3_COMPOSER_WEB_DIR');
+        }
         $fileSystem = new Filesystem();
         $config = new static('/fake/root');
         $config->merge($rootPackageExtraConfig);
