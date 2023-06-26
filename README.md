@@ -44,6 +44,9 @@ document root should be located.
 *The default value* is `"public"`, which means a `"public"` directory at the
 same level as your root `composer.json`.
 
+If the environment variable `TYPO3_COMPOSER_WEB_DIR` is set when running `composer install/update/dumpautoload`,
+it takes precedence over the `web-dir` option defined in the `composer.json` file.
+
 ## Feedback / Bug reports / Contribution
 
 Bug reports, feature requests and pull requests are welcome in the GitHub
