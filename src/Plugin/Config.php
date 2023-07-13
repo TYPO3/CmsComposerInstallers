@@ -207,13 +207,6 @@ class Config
 
     private static function handleRootPackageExtraConfig(IOInterface $io, RootPackageInterface $rootPackage): array
     {
-        if ($rootPackage->getName() === 'typo3/cms') {
-            // Configuration for the web dir is different, in case
-            // typo3/cms is the root package
-            self::$defaultConfig['web-dir'] = '.';
-
-            return [];
-        }
         $rootPackageExtraConfig = $rootPackage->getExtra() ?: [];
         $typo3Config = $rootPackageExtraConfig['typo3/cms'] ?? [];
         if (empty($typo3Config)) {
