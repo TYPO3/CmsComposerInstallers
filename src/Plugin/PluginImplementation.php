@@ -81,10 +81,6 @@ class PluginImplementation
 
     public function preAutoloadDump()
     {
-        if ($this->composer->getPackage()->getName() === 'typo3/cms') {
-            // Nothing to do typo3/cms is root package
-            return;
-        }
         $this->includeFile->register();
     }
 
