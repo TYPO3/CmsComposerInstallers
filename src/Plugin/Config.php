@@ -192,7 +192,7 @@ class Config
      * @param IOInterface|null $io
      * @return Config
      */
-    public static function load(Composer $composer, IOInterface $io = null)
+    public static function load(Composer $composer, ?IOInterface $io = null)
     {
         static $config;
         if ($config === null) {

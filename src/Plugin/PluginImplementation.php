@@ -55,8 +55,8 @@ class PluginImplementation
      */
     public function __construct(
         Event $event,
-        ScriptDispatcher $scriptDispatcher = null,
-        IncludeFile $includeFile = null
+        ?ScriptDispatcher $scriptDispatcher = null,
+        ?IncludeFile $includeFile = null
     ) {
         $io = $event->getIO();
         $this->composer = $event->getComposer();
