@@ -41,7 +41,7 @@ class ExtensionInstaller extends LibraryInstaller
     public function __construct(
         IOInterface $io,
         Composer $composer,
-        Config $pluginConfig = null
+        ?Config $pluginConfig = null
     ) {
         parent::__construct($io, $composer);
 
@@ -78,7 +78,7 @@ class ExtensionInstaller extends LibraryInstaller
         return $this->extensionDir . DIRECTORY_SEPARATOR . $extensionInstallDir;
     }
 
-    public function cleanup($type, PackageInterface $package, PackageInterface $prevPackage = null)
+    public function cleanup($type, PackageInterface $package, ?PackageInterface $prevPackage = null)
     {
         $originalInstallPath = parent::getInstallPath($package);
         if (file_exists($originalInstallPath) && $this->filesystem->isDirEmpty($originalInstallPath)) {

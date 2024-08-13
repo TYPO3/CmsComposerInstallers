@@ -49,7 +49,7 @@ class IncludeFile
      * @param TokenInterface[] $tokens
      * @param Filesystem $filesystem
      */
-    public function __construct(IOInterface $io, Composer $composer, array $tokens, Filesystem $filesystem = null)
+    public function __construct(IOInterface $io, Composer $composer, array $tokens, ?Filesystem $filesystem = null)
     {
         $this->io = $io;
         $this->composer = $composer;

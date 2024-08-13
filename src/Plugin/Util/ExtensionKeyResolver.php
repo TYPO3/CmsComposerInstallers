@@ -35,7 +35,7 @@ class ExtensionKeyResolver
      * @throws \RuntimeException
      * @return string
      */
-    public static function resolve(PackageInterface $package, IOInterface $io = null): string
+    public static function resolve(PackageInterface $package, ?IOInterface $io = null): string
     {
         if (strpos($package->getType(), 'typo3-cms-') === false) {
             throw new \RuntimeException(sprintf('Tried to resolve an extension key from non extension package "%s"', $package->getName()), 1501195043);
