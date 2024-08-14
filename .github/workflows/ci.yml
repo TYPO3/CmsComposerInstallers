@@ -4,7 +4,7 @@ on: [push, pull_request]
 
 jobs:
     build-php:
-        name: PHP ${{ matrix.php-versions }} with Composer ${{ matrix.composer-versions }}
+        name: PHP ${{ matrix.php-versions }}
         runs-on: ubuntu-latest
         strategy:
             max-parallel: 6
@@ -13,8 +13,6 @@ jobs:
                 php-versions:
                     - "8.1"
                     - "8.2"
-                composer-versions:
-                    - "v2"
         steps:
             - name: Checkout Code
               uses: actions/checkout@v4
@@ -23,20 +21,12 @@ jobs:
               uses: shivammathur/setup-php@v2
               with:
                   php-version: ${{ matrix.php-versions }}
-                  tools: composer:${{ matrix.composer-versions }}, php-cs-fixer
+                  tools: composer:v2
 
             - name: Environment Check
               run: |
                   php --version
                   composer --version
-
-            - name: Require Composer@v1
-              if: ${{ matrix.composer-versions == 'v1' }}
-              run: composer require "composer/composer:^1.10" --dev --no-update
-
-            - name: Require Composer@v2
-              if: ${{ matrix.composer-versions == 'v2' }}
-              run: composer require "composer/composer:^2.0" --dev --no-update
 
             - name: Install composer dependencies
               if: ${{ matrix.php-versions <= '8.1' }}
