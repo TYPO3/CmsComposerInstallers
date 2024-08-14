@@ -17,15 +17,15 @@ declare(strict_types=1);
 namespace TYPO3\CMS\ComposerTest\Installer;
 
 use Composer\Package\Package;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 use TYPO3\CMS\Composer\Plugin\Util\ExtensionKeyResolver;
 
 class ExtensionKeyResolverTest extends TestCase
 {
-    /**
-     * @dataProvider resolveDataProvider
-     * @test
-     */
+    #[Test]
+    #[DataProvider('resolveDataProvider')]
     public function extensionKeyIsResolvedCorrectly(array $packageData, string $expectedExtensionKey): void
     {
         $package = new Package($packageData['name'], 'dev-develop', 'dev-develop');
@@ -35,7 +35,7 @@ class ExtensionKeyResolverTest extends TestCase
         self::assertSame($expectedExtensionKey, $extensionKey);
     }
 
-    public function resolveDataProvider(): \Generator
+    public static function resolveDataProvider(): \Generator
     {
         yield 'extension' => [
             'packageData' => [
@@ -72,9 +72,7 @@ class ExtensionKeyResolverTest extends TestCase
         ];
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function extensionKeyResolvingThrowsExceptionIfKeyNotSetInExtra(): void
     {
         $this->expectException(\RuntimeException::class);
