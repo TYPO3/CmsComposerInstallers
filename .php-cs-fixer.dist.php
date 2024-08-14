@@ -1,5 +1,7 @@
 <?php
 
+use PhpCsFixer\Runner\Parallel\ParallelConfigFactory;
+
 if (PHP_SAPI !== 'cli') {
     die('This script supports command line usage only. Please check your command.');
 }
@@ -23,6 +25,7 @@ EOF;
 return (new PhpCsFixer\Config())
     ->setRiskyAllowed(true)
     ->setUsingCache(false)
+    ->setParallelConfig(ParallelConfigFactory::detect())
     ->setFinder(
         PhpCsFixer\Finder::create()
             ->in(__DIR__)
