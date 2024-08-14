@@ -17,7 +17,7 @@ jobs:
                     - "v2"
         steps:
             - name: Checkout Code
-              uses: actions/checkout@v2
+              uses: actions/checkout@v4
 
             - name: Setup PHP version and composer
               uses: shivammathur/setup-php@v2
