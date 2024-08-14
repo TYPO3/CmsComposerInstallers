@@ -23,6 +23,7 @@ use TYPO3\CMS\Composer\Plugin\Core\IncludeFile\TokenInterface;
 class IncludeFile
 {
     const INCLUDE_FILE = '/typo3/autoload-include.php';
+
     const INCLUDE_FILE_TEMPLATE = '/res/php/autoload-include.tmpl.php';
 
     /**
