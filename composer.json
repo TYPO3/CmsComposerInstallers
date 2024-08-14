@@ -43,7 +43,7 @@
     },
     "require-dev": {
         "composer/composer": "^2.1",
-        "overtrue/phplint": "^5.5.0",
+        "overtrue/phplint": "^9.4.1",
         "phpunit/phpunit": "^10.5.30",
         "friendsofphp/php-cs-fixer": "^3.9.5"
     },
