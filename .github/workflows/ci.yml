@@ -38,7 +38,6 @@ jobs:
               run: composer test:php:lint
 
             - name: CGL
-              if: ${{ matrix.php-versions <= '8.1' }}
               run: vendor/bin/php-cs-fixer fix --dry-run --verbose
 
             - name: Unit Tests
