@@ -1,28 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
-         backupGlobals="false"
-         backupStaticAttributes="false"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+         cacheResult="false"
          colors="true"
-         convertDeprecationsToExceptions="true"
-         convertErrorsToExceptions="true"
-         convertNoticesToExceptions="true"
-         convertWarningsToExceptions="true"
-         processIsolation="false"
-         stopOnFailure="false"
-         beStrictAboutTestsThatDoNotTestAnything="true"
          failOnWarning="true"
          failOnRisky="true"
+         cacheDirectory=".phpunit.cache"
 >
-
-    <testsuites>
-        <testsuite name="installer-unit-tests">
-            <directory>tests</directory>
-        </testsuite>
-    </testsuites>
-
-    <php>
-        <ini name="error_reporting" value="E_ALL" />
-    </php>
-
+  <testsuites>
+    <testsuite name="installer-unit-tests">
+      <directory>tests</directory>
+    </testsuite>
+  </testsuites>
+  <php>
+    <ini name="error_reporting" value="E_ALL"/>
+  </php>
 </phpunit>
