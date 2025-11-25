@@ -247,7 +247,6 @@ class Config
     {
         $reflectionClass = new \ReflectionClass($config);
         $reflectionProperty = $reflectionClass->getProperty('baseDir');
-        $reflectionProperty->setAccessible(true);
         return $reflectionProperty->getValue($config);
     }
 }
